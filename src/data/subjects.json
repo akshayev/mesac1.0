@@ -1,0 +1,49 @@
+[
+  { "semester": 1, "name": "Environmental Science", "aliases": [], "code": "" },
+  { "semester": 1, "name": "Engineering Graphics", "aliases": ["Engg Graphics"], "code": "" },
+  { "semester": 1, "name": "Calculus", "aliases": [], "code": "" },
+  { "semester": 1, "name": "Chemistry", "aliases": [], "code": "" },
+  { "semester": 1, "name": "Basic Civil Engineering", "aliases": ["Basic Civil Engg"], "code": "" },
+  { "semester": 1, "name": "Basic Mechanical Engineering", "aliases": ["Basic Mechanical Engg"], "code": "" },
+
+  { "semester": 2, "name": "Computer Programming", "aliases": [], "code": "" },
+  { "semester": 2, "name": "Basic Electronics Engineering", "aliases": ["Basic Electronics Engg"], "code": "" },
+  { "semester": 2, "name": "Basic Electrical Engineering", "aliases": ["Basic Electrical Engg"], "code": "" },
+  { "semester": 2, "name": "Physics", "aliases": [], "code": "" },
+  { "semester": 2, "name": "Engineering Mechanics", "aliases": ["Engg Mechanics"], "code": "" },
+
+  { "semester": 3, "name": "Machine Drawing", "aliases": [], "code": "" },
+  { "semester": 3, "name": "Metallurgy and Materials Science", "aliases": ["Metallurgy and Material Science"], "code": "" },
+  { "semester": 3, "name": "Linear Algebra Technics", "aliases": ["Linear Algebra & Technology"], "code": "", "confirm": true },
+  { "semester": 3, "name": "Fluid Mechanics", "aliases": ["Fluid Dynamics"], "code": "" },
+  { "semester": 3, "name": "Mechanics of Solids", "aliases": [], "code": "" },
+  { "semester": 3, "name": "Electrical Technology", "aliases": [], "code": "" },
+
+  { "semester": 4, "name": "Manufacturing Processes", "aliases": [], "code": "" },
+  { "semester": 4, "name": "Principles of Management and Industrial Engineering", "aliases": [], "code": "" },
+  { "semester": 4, "name": "Applied Thermodynamics", "aliases": [], "code": "" },
+  { "semester": 4, "name": "Mechatronics", "aliases": [], "code": "" },
+  { "semester": 4, "name": "Metrology and Instrumentation", "aliases": [], "code": "" },
+  { "semester": 4, "name": "Complex Variables and Partial Differential Equations", "aliases": [], "code": "" },
+
+  { "semester": 5, "name": "Additive Manufacturing", "aliases": [], "code": "" },
+  { "semester": 5, "name": "Operation Management", "aliases": [], "code": "" },
+  { "semester": 5, "name": "NSM", "aliases": [], "code": "", "confirm": true },
+  { "semester": 5, "name": "Thermal Engineering", "aliases": ["Thermal Engg"], "code": "" },
+  { "semester": 5, "name": "Mechanics of Machinery", "aliases": [], "code": "" },
+  { "semester": 5, "name": "Machine Science and Machine Tools", "aliases": ["Machine Tools"], "code": "" },
+  { "semester": 5, "name": "Advanced Manufacturing Technology", "aliases": [], "code": "" },
+
+  { "semester": 6, "name": "Dynamics of Machinery", "aliases": [], "code": "" },
+  { "semester": 6, "name": "Heat and Mass Transfer", "aliases": ["Heat Mass Transfer"], "code": "" },
+  { "semester": 6, "name": "CADA", "aliases": [], "code": "", "confirm": true },
+  { "semester": 6, "name": "Quality Engineering", "aliases": ["Quality Engg"], "code": "" },
+  { "semester": 6, "name": "Machine Design I", "aliases": ["Machine Design 1"], "code": "" },
+  { "semester": 6, "name": "Compressible Fluid Flow", "aliases": [], "code": "" },
+
+  { "semester": 7, "name": "Entrepreneurship Development", "aliases": [], "code": "" },
+  { "semester": 7, "name": "Refrigeration and Air Conditioning", "aliases": ["RAC"], "code": "" },
+  { "semester": 7, "name": "Automobile Engineering", "aliases": [], "code": "" },
+  { "semester": 7, "name": "Machine Design II", "aliases": [], "code": "" },
+  { "semester": 7, "name": "Vibration and Noise Control", "aliases": ["Vibration&Noise Control"], "code": "" }
+]
