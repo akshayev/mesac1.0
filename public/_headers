@@ -1,0 +1,14 @@
+# Security headers on every response
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# /assets/* (hashed JS/CSS, cached for a year as immutable) is added automatically by the build.
+
+# Photos and mirrored PDFs keep the same file name when replaced, so cache for a week
+# (not a year) to keep updates visible.
+/people/*
+  Cache-Control: public, max-age=604800
+/files/*
+  Cache-Control: public, max-age=604800

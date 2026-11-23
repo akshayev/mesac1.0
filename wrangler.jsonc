@@ -1,0 +1,11 @@
+// Cloudflare Workers config. `npm run build` (nitro, preset cloudflare-module) merges this file into
+// .output/server/wrangler.json and adds `main` and the static-assets binding itself.
+// Deploy with `npx wrangler deploy`; it finds the generated config through .wrangler/deploy/config.json.
+{
+  // The Worker name decides the default URL: https://<name>.<your-subdomain>.workers.dev
+  "name": "mesac-cusat",
+  // Pinned on purpose: Workers behave according to this date, so a deploy next year behaves like today's.
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true }
+}
