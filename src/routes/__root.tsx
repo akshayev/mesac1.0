@@ -16,6 +16,8 @@ import { AppLoaderProvider } from "../context/AppLoaderContext";
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <title>Page not found — MESAC CUSAT</title>
+      <meta name="robots" content="noindex" />
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
@@ -75,22 +77,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MESAC 2026 — Mechanical Engineering Students' Association" },
-      {
-        name: "description",
-        content: "Mechanical Engineering Students' Association - MESAC Official Portal",
-      },
       { name: "author", content: "MESAC CUSAT" },
-      {
-        property: "og:title",
-        content: "MESAC 2026 — Mechanical Engineering Students' Association",
-      },
-      {
-        property: "og:description",
-        content: "Mechanical Engineering Students' Association - MESAC Official Portal",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#000000" },
     ],
     links: [
       {

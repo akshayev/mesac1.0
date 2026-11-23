@@ -18,24 +18,16 @@ import {
   GraduationCap,
   FolderOpen,
 } from "lucide-react";
+import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/archive")({
-  head: () => ({
-    meta: [
-      { title: "Question Paper Archive — CUSAT Mechanical Engineering | MESAC" },
-      {
-        name: "description",
-        content:
-          "Previous year question papers and internal exam papers for CUSAT B.Tech Mechanical Engineering, organised by semester, subject, scheme and year. Free preview and download.",
-      },
-      { property: "og:title", content: "Question Paper Archive — MESAC CUSAT" },
-      {
-        property: "og:description",
-        content:
-          "CUSAT B.Tech Mechanical previous year question papers by semester and subject, from the MESAC academic Drive.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Question Paper Archive — CUSAT Mechanical Engineering | MESAC",
+      description:
+        "Previous year question papers and internal exams for CUSAT B.Tech Mechanical Engineering by semester, subject, scheme and year. Free preview and download.",
+      path: "/archive",
+    }),
   component: ArchivePage,
 });
 

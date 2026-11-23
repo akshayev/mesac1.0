@@ -17,26 +17,18 @@ import {
   Building2,
 } from "lucide-react";
 import { departmentOverview } from "@/data/department";
+import { pageHead } from "@/lib/seo";
 
 const ABOUT_HERO_BG = "/images/home/hero.jpg";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
-      { title: "About MESAC — CUSAT Mechanical Association" },
-      {
-        name: "description",
-        content:
-          "The Mechanical Engineering Students Association of CUSAT (MESAC) is a registered student society established in July 2005 at the School of Engineering, CUSAT.",
-      },
-      { property: "og:title", content: "About MESAC — CUSAT" },
-      {
-        property: "og:description",
-        content:
-          "History, objectives, faculty patron, activities, and connection with the Division of Mechanical Engineering, CUSAT.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "About MESAC — CUSAT Mechanical Association",
+      description:
+        "The Mechanical Engineering Students Association of CUSAT (MESAC) is a registered student society established in July 2005 at the School of Engineering, CUSAT.",
+      path: "/about",
+    }),
   component: AboutPage,
 });
 

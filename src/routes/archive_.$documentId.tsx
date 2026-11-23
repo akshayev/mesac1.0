@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { EmptyState } from "@/components/EmptyState";
 import { DocumentPreviewViewer } from "@/components/archive/DocumentPreviewViewer";
@@ -27,6 +27,7 @@ import {
   Info,
 } from "lucide-react";
 import { toast } from "sonner";
+import { pageHead } from "@/lib/seo";
 
 /** e.g. "Thermal Engineering, Nov 2021, 2019 scheme | CUSAT ME S5 question paper | MESAC" */
 function pageTitle(doc: ArchiveDocument): string {
@@ -42,27 +43,24 @@ function pageDescription(doc: ArchiveDocument): string {
   const session = formatExamSession(doc);
   const kind = DOCUMENT_TYPE_LABELS[doc.type]?.toLowerCase() ?? "document";
   return (
-    `${doc.subject} ${kind}${session ? ` (${session})` : ""} for CUSAT B.Tech Mechanical ` +
-    `Engineering ${formatSemester(doc.semester)}${doc.scheme ? `, ${doc.scheme}` : ""}. ` +
-    "Preview or download the PDF free from the MESAC academic archive."
+    `${doc.subject} ${kind}${session ? ` (${session})` : ""}, CUSAT B.Tech Mechanical, ` +
+    `${formatSemester(doc.semester)}${doc.scheme ? `, ${doc.scheme}` : ""}. Preview or download the PDF free.`
   );
 }
 
 export const Route = createFileRoute("/archive_/$documentId")({
+  // Unknown ids return a real 404 (not a 200 page saying "not found"), so search engines drop them.
+  loader: ({ params }) => {
+    if (!getDocumentById(params.documentId)) throw notFound();
+  },
   head: ({ params }) => {
     const doc = getDocumentById(params.documentId);
-    const title = doc ? pageTitle(doc) : "Document not found | MESAC Academic Archive";
-    const description = doc
-      ? pageDescription(doc)
-      : "CUSAT Mechanical Engineering question papers and academic documents from MESAC.";
-    return {
-      meta: [
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-      ],
-    };
+    if (!doc) return {};
+    return pageHead({
+      title: pageTitle(doc),
+      description: pageDescription(doc),
+      path: `/archive/${params.documentId}`,
+    });
   },
   component: DocumentDetailPage,
 });

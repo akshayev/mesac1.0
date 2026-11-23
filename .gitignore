@@ -39,3 +39,7 @@ dist-ssr
 # Drive archive mirror (generated at build time, never committed)
 public/files/
 .cache/
+
+# Generated at build time from SITE_URL (npm run seo)
+public/sitemap.xml
+public/robots.txt

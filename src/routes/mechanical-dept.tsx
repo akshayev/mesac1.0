@@ -17,23 +17,16 @@ import {
   Sparkles,
   BookOpen,
 } from "lucide-react";
+import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/mechanical-dept")({
-  head: () => ({
-    meta: [
-      { title: "Division of Mechanical Engineering — School of Engineering, CUSAT" },
-      {
-        name: "description",
-        content:
-          "The Division of Mechanical Engineering, School of Engineering, CUSAT: academic programs and research laboratories.",
-      },
-      { property: "og:title", content: "Mechanical Engineering Division — CUSAT" },
-      {
-        property: "og:description",
-        content: "Programs and laboratories of CUSAT Mechanical Engineering.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Division of Mechanical Engineering — School of Engineering, CUSAT",
+      description:
+        "The Division of Mechanical Engineering, School of Engineering, CUSAT: academic programs and research laboratories.",
+      path: "/mechanical-dept",
+    }),
   component: DeptPage,
 });
 

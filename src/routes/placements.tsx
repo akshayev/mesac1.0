@@ -21,23 +21,16 @@ import {
   X,
   Grid3X3,
 } from "lucide-react";
+import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/placements")({
-  head: () => ({
-    meta: [
-      { title: "Placements & Recruitment Records — MESAC CUSAT" },
-      {
-        name: "description",
-        content:
-          "Campus placements of CUSAT Mechanical Engineering students: recruiting companies and batchwise hires, collected by MESAC.",
-      },
-      { property: "og:title", content: "Placements — MESAC CUSAT" },
-      {
-        property: "og:description",
-        content: "Companies that recruited CUSAT Mechanical Engineering students.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Placements & Recruitment Records — MESAC CUSAT",
+      description:
+        "Campus placements of CUSAT Mechanical Engineering students: recruiting companies and batchwise hires, collected by MESAC.",
+      path: "/placements",
+    }),
   component: PlacementsPage,
 });
 

@@ -8,20 +8,16 @@ import { PersonAvatar } from "@/components/PersonAvatar";
 import { getTeamGroups } from "@/data/site";
 import type { TeamPerson } from "@/types";
 import { Users, Info, Mail, ExternalLink } from "lucide-react";
+import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/team")({
-  head: () => ({
-    meta: [
-      { title: "Executive Committee & Team — MESAC CUSAT" },
-      {
-        name: "description",
-        content:
-          "Meet the MESAC committee — the student leaders and faculty advisors running the Mechanical Engineering Students Association at CUSAT.",
-      },
-      { property: "og:title", content: "Team — MESAC CUSAT" },
-      { property: "og:description", content: "The MESAC committee at CUSAT." },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Executive Committee & Team — MESAC CUSAT",
+      description:
+        "Meet the MESAC committee — the student leaders and faculty advisors running the Mechanical Engineering Students Association at CUSAT.",
+      path: "/team",
+    }),
   component: TeamPage,
 });
 

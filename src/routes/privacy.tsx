@@ -3,23 +3,16 @@ import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 import { getSettings } from "@/data/site";
+import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy — MESAC CUSAT" },
-      {
-        name: "description",
-        content:
-          "What the MESAC website does and does not collect: no accounts, no forms, no stored personal data.",
-      },
-      { property: "og:title", content: "Privacy — MESAC CUSAT" },
-      {
-        property: "og:description",
-        content: "No accounts, no forms and no stored personal data on the MESAC website.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Privacy — MESAC CUSAT",
+      description:
+        "What the MESAC website does and does not collect: no accounts, no forms, no stored personal data.",
+      path: "/privacy",
+    }),
   component: PrivacyPage,
 });
 

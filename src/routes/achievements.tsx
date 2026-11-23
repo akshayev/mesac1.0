@@ -8,23 +8,16 @@ import { AchievementCard } from "@/components/AchievementCard";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import { Trophy, Sparkles, ChevronRight, Search, X, Filter, Calendar, Layers } from "lucide-react";
 import { getAchievements } from "@/data/site";
+import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/achievements")({
-  head: () => ({
-    meta: [
-      { title: "Achievements — MESAC CUSAT" },
-      {
-        name: "description",
-        content:
-          "Competition results, awards and projects by CUSAT Mechanical Engineering students, collected by MESAC.",
-      },
-      { property: "og:title", content: "Achievements — MESAC CUSAT" },
-      {
-        property: "og:description",
-        content: "Awards and projects by mechanical engineering students at SOE CUSAT.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Achievements — MESAC CUSAT",
+      description:
+        "Competition results, awards and projects by CUSAT Mechanical Engineering students, collected by MESAC.",
+      path: "/achievements",
+    }),
   component: AchievementsPage,
 });
 

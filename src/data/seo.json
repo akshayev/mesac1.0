@@ -1,0 +1,8 @@
+{
+  "_comment": "Pages that render the same content under two URLs. `aliases` maps the duplicate to the page the nav links to (used for canonical URLs); duplicates and `exclude` are left out of sitemap.xml.",
+  "aliases": {
+    "/about": "/about-mesac",
+    "/team": "/about-mesac/team"
+  },
+  "exclude": ["/downloads"]
+}

@@ -2,10 +2,12 @@
 // Pre-deploy guard: refuse to ship sample data.
 //   DEPLOY=1 npm run check:deploy   -> exit 1 if data/drive-report.md or data/sheet-report.md says "source": "fixture"
 //   npm run check:deploy            -> always exit 0 (just prints a note)
+// It also fails if SITE_URL is empty or the placeholder (canonical links and the sitemap would be wrong).
 // CHECK_DEPLOY_DATA_DIR overrides the data folder (used by the tests).
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { isPlaceholderSiteUrl } from "./lib/seo.mjs";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,6 +31,12 @@ for (const [rel, fix] of REPORTS) {
       `${rel} says "source": "fixture" (sample data). Run ${fix}, then commit the result.`,
     );
   }
+}
+
+if (isPlaceholderSiteUrl(process.env.SITE_URL)) {
+  problems.push(
+    "SITE_URL is not set (or is the placeholder). Set it to the site's public address.",
+  );
 }
 
 if (problems.length === 0) {

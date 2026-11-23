@@ -18,23 +18,16 @@ import {
   Linkedin,
   MessageSquare,
 } from "lucide-react";
+import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact Us & Location — MESAC CUSAT" },
-      {
-        name: "description",
-        content:
-          "Contact MESAC — Division of Mechanical Engineering, School of Engineering, Cochin University of Science and Technology (CUSAT), Kochi, Kerala.",
-      },
-      { property: "og:title", content: "Contact MESAC CUSAT" },
-      {
-        property: "og:description",
-        content: "Email the MESAC team and find the Division of Mechanical Engineering at CUSAT.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Contact Us & Location — MESAC CUSAT",
+      description:
+        "Contact MESAC — Division of Mechanical Engineering, School of Engineering, Cochin University of Science and Technology (CUSAT), Kochi, Kerala.",
+      path: "/contact",
+    }),
   component: ContactPage,
 });
 

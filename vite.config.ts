@@ -62,6 +62,8 @@ export default defineConfig(({ command }) => ({
       : null,
     viteReact(),
   ].filter(Boolean) as Plugin[],
+  // Expose SITE_URL (public address, used for canonical links) to the app next to the default VITE_* variables.
+  envPrefix: ["VITE_", "SITE_URL"],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

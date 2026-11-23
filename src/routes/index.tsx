@@ -8,25 +8,18 @@ import { PageGearBackground } from "@/components/PageGearBackground";
 import { PersonAvatar } from "@/components/PersonAvatar";
 import { getSettings, getTeam } from "@/data/site";
 import { FileText, Download, ArrowRight, Sparkles, BookOpen, Layers } from "lucide-react";
+import { pageHead } from "@/lib/seo";
 
 const hero = "/images/home/hero.jpg";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "MESAC CUSAT — Mechanical Engineering Students Association" },
-      {
-        name: "description",
-        content:
-          "Previous year question papers, the student committee and placements for CUSAT Mechanical Engineering, from the Mechanical Engineering Students Association (MESAC).",
-      },
-      { property: "og:title", content: "MESAC CUSAT — Engineering Reimagined" },
-      {
-        property: "og:description",
-        content: "Question papers, team and placements for CUSAT Mechanical Engineering students.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "MESAC CUSAT — Mechanical Engineering Students Association",
+      description:
+        "Previous year question papers, the student committee and placements for CUSAT Mechanical Engineering, from the Mechanical Engineering Students Association (MESAC).",
+      path: "/",
+    }),
   component: Index,
 });
 
