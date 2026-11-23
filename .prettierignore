@@ -12,3 +12,4 @@ src/data/generated
 src/data/subjects.json
 data
 .output
+scripts/fixtures
