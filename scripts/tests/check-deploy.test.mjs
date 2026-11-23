@@ -38,8 +38,15 @@ test("without DEPLOY it always exits 0", () => {
 });
 
 test("the committed drive report is marked as fixture or drive", () => {
-  const out = spawnSync(process.execPath, ["-e", `
+  const out = spawnSync(
+    process.execPath,
+    [
+      "-e",
+      `
     const t=require("fs").readFileSync("data/drive-report.md","utf8");
-    process.exit(/"source":\\s*"(fixture|drive)"/.test(t)?0:1)`], { cwd: new URL("../..", import.meta.url).pathname });
+    process.exit(/"source":\\s*"(fixture|drive)"/.test(t)?0:1)`,
+    ],
+    { cwd: new URL("../..", import.meta.url).pathname },
+  );
   assert.equal(out.status, 0);
 });

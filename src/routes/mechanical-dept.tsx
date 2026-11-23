@@ -6,13 +6,14 @@ import { Reveal } from "@/components/Reveal";
 import { EmptyState } from "@/components/EmptyState";
 import { FacultyCard } from "@/components/department/FacultyCard";
 import {
-  mockDepartmentOverview,
-  mockDepartmentHOD,
-  mockDepartmentFaculty,
-  mockDepartmentPrograms,
-  mockDepartmentLabs,
+  departmentOverview,
+  departmentHOD,
+  departmentFaculty,
+  departmentPrograms,
+  departmentLabs,
   facultyDriveUrl,
-} from "@/data/mock";
+  SHOW_FACULTY_ROSTER,
+} from "@/data/department";
 import {
   Building2,
   GraduationCap,
@@ -42,13 +43,12 @@ export const Route = createFileRoute("/mechanical-dept")({
       {
         name: "description",
         content:
-          "Official portal of the Division of Mechanical Engineering, School of Engineering, CUSAT — Head of Division, academic programs, research laboratories, and faculty directory.",
+          "The Division of Mechanical Engineering, School of Engineering, CUSAT: academic programs and research laboratories.",
       },
       { property: "og:title", content: "Mechanical Engineering Division — CUSAT" },
       {
         property: "og:description",
-        content:
-          "Programs, laboratories, faculty roster, and academic information for CUSAT Mechanical Engineering.",
+        content: "Programs and laboratories of CUSAT Mechanical Engineering.",
       },
     ],
   }),
@@ -64,7 +64,7 @@ function DeptPage() {
 
   // Filter faculty by search query (name, role, specialization) and role filter
   const filteredFaculty = useMemo(() => {
-    return mockDepartmentFaculty.filter((f) => {
+    return departmentFaculty.filter((f) => {
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
         !q ||
@@ -116,17 +116,17 @@ function DeptPage() {
                   About the Division
                 </h2>
                 <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
-                  {mockDepartmentOverview.summary}
+                  {departmentOverview.summary}
                 </p>
 
                 <div className="pt-2 flex flex-wrap items-center gap-3">
                   <div className="rounded-xl border border-border/80 bg-card px-4 py-2.5 text-xs text-muted-foreground">
                     <span className="font-bold text-foreground">Established:</span>{" "}
-                    {mockDepartmentOverview.establishedYear}
+                    {departmentOverview.establishedYear}
                   </div>
                   <div className="rounded-xl border border-border/80 bg-card px-4 py-2.5 text-xs text-muted-foreground">
                     <span className="font-bold text-foreground">Institution:</span>{" "}
-                    {mockDepartmentOverview.school}, CUSAT
+                    {departmentOverview.school}, CUSAT
                   </div>
                 </div>
               </Reveal>
@@ -143,7 +143,7 @@ function DeptPage() {
                     </h3>
                   </div>
                   <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    {mockDepartmentOverview.vision}
+                    {departmentOverview.vision}
                   </p>
                 </div>
               </Reveal>
@@ -157,7 +157,7 @@ function DeptPage() {
                     </h3>
                   </div>
                   <ul className="space-y-2.5 text-xs text-muted-foreground leading-relaxed">
-                    {mockDepartmentOverview.mission.map((item, idx) => (
+                    {departmentOverview.mission.map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="h-1.5 w-1.5 rounded-full bg-gold shrink-0 mt-1.5" />
                         <span>{item}</span>
@@ -171,57 +171,63 @@ function DeptPage() {
         </div>
       </section>
 
-      {/* 3. HEAD OF DIVISION (HOD SPOTLIGHT) */}
-      <section className="py-12 sm:py-16 bg-card/60 border-b border-border/80">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <Reveal>
-            <div className="mb-6 text-center">
-              <span className="inline-block rounded-full bg-secondary/80 border border-border/80 px-4 py-1 text-xs font-extrabold uppercase tracking-widest text-gold mb-2">
-                Division Leadership
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                Head of Division
-              </h2>
-            </div>
-
-            <div className="rounded-3xl border border-gold/30 bg-card p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row items-center gap-6 sm:gap-8 max-w-2xl mx-auto">
-              {mockDepartmentHOD.img && (
-                <div className="w-36 h-44 sm:w-40 sm:h-48 rounded-2xl overflow-hidden border border-border/80 bg-secondary shadow-lg shrink-0">
-                  <img
-                    src={mockDepartmentHOD.img}
-                    alt={`${mockDepartmentHOD.name} - Head of Division`}
-                    className="w-full h-full object-cover object-top"
-                    loading="lazy"
-                  />
+      {SHOW_FACULTY_ROSTER && (
+        <>
+          {/* 3. HEAD OF DIVISION (HOD SPOTLIGHT) */}
+          <section className="py-12 sm:py-16 bg-card/60 border-b border-border/80">
+            <div className="mx-auto max-w-5xl px-4 sm:px-6">
+              <Reveal>
+                <div className="mb-6 text-center">
+                  <span className="inline-block rounded-full bg-secondary/80 border border-border/80 px-4 py-1 text-xs font-extrabold uppercase tracking-widest text-gold mb-2">
+                    Division Leadership
+                  </span>
+                  <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+                    Head of Division
+                  </h2>
                 </div>
-              )}
 
-              <div className="space-y-3 text-center sm:text-left flex-1">
-                <div>
-                  <h3 className="font-display text-xl sm:text-2xl font-black text-foreground">
-                    {mockDepartmentHOD.name}
-                  </h3>
-                  <div className="inline-block rounded-md bg-secondary text-gold font-bold text-xs uppercase tracking-wider px-2.5 py-0.5 mt-1">
-                    {mockDepartmentHOD.designation}
+                <div className="rounded-3xl border border-gold/30 bg-card p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row items-center gap-6 sm:gap-8 max-w-2xl mx-auto">
+                  {departmentHOD.img && (
+                    <div className="w-36 h-44 sm:w-40 sm:h-48 rounded-2xl overflow-hidden border border-border/80 bg-secondary shadow-lg shrink-0">
+                      <img
+                        src={departmentHOD.img}
+                        alt={`${departmentHOD.name} - Head of Division`}
+                        className="w-full h-full object-cover object-top"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-3 text-center sm:text-left flex-1">
+                    <div>
+                      <h3 className="font-display text-xl sm:text-2xl font-black text-foreground">
+                        {departmentHOD.name}
+                      </h3>
+                      <div className="inline-block rounded-md bg-secondary text-gold font-bold text-xs uppercase tracking-wider px-2.5 py-0.5 mt-1">
+                        {departmentHOD.designation}
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground/80 block">Department:</span>
+                      <span>{departmentHOD.department}</span>
+                    </div>
+
+                    {departmentHOD.specialization && (
+                      <div className="text-xs text-muted-foreground leading-relaxed">
+                        <span className="font-semibold text-foreground/80 block">
+                          Specialization:
+                        </span>
+                        <span>{departmentHOD.specialization}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <div className="text-xs text-muted-foreground leading-relaxed">
-                  <span className="font-semibold text-foreground/80 block">Department:</span>
-                  <span>{mockDepartmentHOD.department}</span>
-                </div>
-
-                {mockDepartmentHOD.specialization && (
-                  <div className="text-xs text-muted-foreground leading-relaxed">
-                    <span className="font-semibold text-foreground/80 block">Specialization:</span>
-                    <span>{mockDepartmentHOD.specialization}</span>
-                  </div>
-                )}
-              </div>
+              </Reveal>
             </div>
-          </Reveal>
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
       {/* 4. ACADEMIC PROGRAMS */}
       <section className="py-14 sm:py-20 bg-background border-b border-border/80">
@@ -248,7 +254,7 @@ function DeptPage() {
           </Reveal>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {mockDepartmentPrograms.map((p, i) => (
+            {departmentPrograms.map((p, i) => (
               <Reveal key={p.id} delay={i * 50}>
                 <div className="rounded-2xl border border-border/80 bg-card p-6 sm:p-8 card-lift h-full flex flex-col justify-between shadow-sm">
                   <div>
@@ -305,7 +311,7 @@ function DeptPage() {
           </Reveal>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {mockDepartmentLabs.map((lab, idx) => {
+            {departmentLabs.map((lab, idx) => {
               const IconComp = labIcons[idx % labIcons.length] || Wrench;
               return (
                 <Reveal key={lab.id} delay={(idx % 6) * 40}>
@@ -338,183 +344,187 @@ function DeptPage() {
         </div>
       </section>
 
-      {/* 6. FACULTY DIRECTORY */}
-      <section className="py-14 sm:py-20 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <Reveal>
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-secondary/60 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                  <Users className="h-3.5 w-3.5 text-gold" />
-                  <span>Academic Roster ({mockDepartmentFaculty.length} Members)</span>
-                </div>
-                <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-                  Faculty Directory
-                </h2>
-                <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-                  Professors, associate professors, and assistant professors in the Division of
-                  Mechanical Engineering.
-                </p>
-              </div>
+      {SHOW_FACULTY_ROSTER && (
+        <>
+          {/* 6. FACULTY DIRECTORY */}
+          <section className="py-14 sm:py-20 bg-background">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6">
+              <Reveal>
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+                  <div>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-secondary/60 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                      <Users className="h-3.5 w-3.5 text-gold" />
+                      <span>Academic Roster ({departmentFaculty.length} Members)</span>
+                    </div>
+                    <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
+                      Faculty Directory
+                    </h2>
+                    <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+                      Professors, associate professors, and assistant professors in the Division of
+                      Mechanical Engineering.
+                    </p>
+                  </div>
 
-              <a
-                href={facultyDriveUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl gradient-gold text-primary font-bold px-5 py-3 text-xs sm:text-sm shadow-md hover:brightness-105 active:scale-95 transition-all cursor-pointer min-h-[44px]"
-              >
-                <FileText className="h-4 w-4" />
-                <span>View Official Faculty Sheet</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            </div>
-
-            {/* SEARCH AND FILTER BAR */}
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-8 bg-card border border-border/80 p-4 rounded-2xl shadow-sm">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
-                {/* Search input */}
-                <div className="relative flex-1 max-w-md">
-                  <Search
-                    aria-hidden="true"
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"
-                  />
-                  <input
-                    type="text"
-                    aria-label="Search faculty directory by name, designation, or specialization"
-                    placeholder="Search faculty name, role, specialization..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background pl-9 pr-8 py-2 text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-gold focus:outline-none min-h-[40px] shadow-sm"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 cursor-pointer"
-                      aria-label="Clear search"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
+                  <a
+                    href={facultyDriveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl gradient-gold text-primary font-bold px-5 py-3 text-xs sm:text-sm shadow-md hover:brightness-105 active:scale-95 transition-all cursor-pointer min-h-[44px]"
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span>View Faculty Sheet</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
                 </div>
 
-                {/* Role / Designation Filter Tabs */}
-                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 sm:pb-0">
-                  {roleFilterOptions.map((role) => (
-                    <button
-                      key={role}
-                      type="button"
-                      onClick={() => setSelectedRoleFilter(role)}
-                      className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all duration-150 cursor-pointer min-h-[36px] whitespace-nowrap ${
-                        selectedRoleFilter === role
-                          ? "bg-secondary text-foreground font-bold border border-border"
-                          : "border border-border/60 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-                      }`}
-                    >
-                      {role}
-                    </button>
+                {/* SEARCH AND FILTER BAR */}
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-8 bg-card border border-border/80 p-4 rounded-2xl shadow-sm">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+                    {/* Search input */}
+                    <div className="relative flex-1 max-w-md">
+                      <Search
+                        aria-hidden="true"
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"
+                      />
+                      <input
+                        type="text"
+                        aria-label="Search faculty directory by name, designation, or specialization"
+                        placeholder="Search faculty name, role, specialization..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full rounded-xl border border-border bg-background pl-9 pr-8 py-2 text-xs text-foreground placeholder:text-muted-foreground/70 focus:border-gold focus:outline-none min-h-[40px] shadow-sm"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 cursor-pointer"
+                          aria-label="Clear search"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Role / Designation Filter Tabs */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 sm:pb-0">
+                      {roleFilterOptions.map((role) => (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => setSelectedRoleFilter(role)}
+                          className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition-all duration-150 cursor-pointer min-h-[36px] whitespace-nowrap ${
+                            selectedRoleFilter === role
+                              ? "bg-secondary text-foreground font-bold border border-border"
+                              : "border border-border/60 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* View mode toggle (Grid vs Table) */}
+                  <div className="flex items-center justify-between lg:justify-end gap-2 shrink-0">
+                    <span className="text-xs font-semibold text-muted-foreground hidden sm:inline mr-2">
+                      {filteredFaculty.length}{" "}
+                      {filteredFaculty.length === 1 ? "Faculty" : "Faculty Members"}
+                    </span>
+
+                    <div className="inline-flex rounded-xl border border-border/80 bg-background p-1 shadow-sm">
+                      <button
+                        type="button"
+                        onClick={() => setViewMode("grid")}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer min-h-[34px] ${
+                          viewMode === "grid"
+                            ? "bg-secondary text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        title="Grid Card View"
+                      >
+                        <LayoutGrid className="h-3.5 w-3.5" />
+                        <span>Grid</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setViewMode("table")}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer min-h-[34px] ${
+                          viewMode === "table"
+                            ? "bg-secondary text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        title="Table Directory View"
+                      >
+                        <TableIcon className="h-3.5 w-3.5" />
+                        <span>Table</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* FACULTY RENDERING */}
+              {filteredFaculty.length === 0 ? (
+                <EmptyState
+                  title={
+                    searchQuery
+                      ? `No faculty matching "${searchQuery}"`
+                      : `No faculty matching the selected role`
+                  }
+                  description="Try adjusting your search query or selecting 'All' roles from the filter."
+                  actionText="Reset All Filters"
+                  onAction={() => {
+                    setSearchQuery("");
+                    setSelectedRoleFilter("All");
+                  }}
+                />
+              ) : viewMode === "grid" ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  {filteredFaculty.map((f, i) => (
+                    <Reveal key={f.id} delay={(i % 8) * 30}>
+                      <FacultyCard faculty={f} />
+                    </Reveal>
                   ))}
                 </div>
-              </div>
-
-              {/* View mode toggle (Grid vs Table) */}
-              <div className="flex items-center justify-between lg:justify-end gap-2 shrink-0">
-                <span className="text-xs font-semibold text-muted-foreground hidden sm:inline mr-2">
-                  {filteredFaculty.length}{" "}
-                  {filteredFaculty.length === 1 ? "Faculty" : "Faculty Members"}
-                </span>
-
-                <div className="inline-flex rounded-xl border border-border/80 bg-background p-1 shadow-sm">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("grid")}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer min-h-[34px] ${
-                      viewMode === "grid"
-                        ? "bg-secondary text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                    title="Grid Card View"
-                  >
-                    <LayoutGrid className="h-3.5 w-3.5" />
-                    <span>Grid</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("table")}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer min-h-[34px] ${
-                      viewMode === "table"
-                        ? "bg-secondary text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                    title="Table Directory View"
-                  >
-                    <TableIcon className="h-3.5 w-3.5" />
-                    <span>Table</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* FACULTY RENDERING */}
-          {filteredFaculty.length === 0 ? (
-            <EmptyState
-              title={
-                searchQuery
-                  ? `No faculty matching "${searchQuery}"`
-                  : `No faculty matching the selected role`
-              }
-              description="Try adjusting your search query or selecting 'All' roles from the filter."
-              actionText="Reset All Filters"
-              onAction={() => {
-                setSearchQuery("");
-                setSelectedRoleFilter("All");
-              }}
-            />
-          ) : viewMode === "grid" ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {filteredFaculty.map((f, i) => (
-                <Reveal key={f.id} delay={(i % 8) * 30}>
-                  <FacultyCard faculty={f} />
+              ) : (
+                <Reveal>
+                  <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-sm">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-secondary/60 text-foreground font-extrabold uppercase tracking-wider border-b border-border/80">
+                        <tr>
+                          <th className="py-3.5 px-4">Ref</th>
+                          <th className="py-3.5 px-4">Faculty Member</th>
+                          <th className="py-3.5 px-4">Designation</th>
+                          <th className="py-3.5 px-4">Specialization</th>
+                          <th className="py-3.5 px-4">Affiliation</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/60">
+                        {filteredFaculty.map((f) => (
+                          <tr key={f.id} className="hover:bg-secondary/30 transition">
+                            <td className="py-3 px-4 font-mono font-bold text-muted-foreground">
+                              ME-{f.slNo ? (f.slNo < 10 ? `0${f.slNo}` : f.slNo) : "--"}
+                            </td>
+                            <td className="py-3 px-4 font-bold text-foreground">{f.name}</td>
+                            <td className="py-3 px-4 text-gold font-semibold">{f.role}</td>
+                            <td className="py-3 px-4 text-muted-foreground max-w-xs truncate">
+                              {f.specialization || "Mechanical Engineering"}
+                            </td>
+                            <td className="py-3 px-4 text-muted-foreground">
+                              {f.department || "SOE CUSAT"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </Reveal>
-              ))}
+              )}
             </div>
-          ) : (
-            <Reveal>
-              <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-sm">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-secondary/60 text-foreground font-extrabold uppercase tracking-wider border-b border-border/80">
-                    <tr>
-                      <th className="py-3.5 px-4">Ref</th>
-                      <th className="py-3.5 px-4">Faculty Member</th>
-                      <th className="py-3.5 px-4">Designation</th>
-                      <th className="py-3.5 px-4">Specialization</th>
-                      <th className="py-3.5 px-4">Affiliation</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/60">
-                    {filteredFaculty.map((f) => (
-                      <tr key={f.id} className="hover:bg-secondary/30 transition">
-                        <td className="py-3 px-4 font-mono font-bold text-muted-foreground">
-                          ME-{f.slNo ? (f.slNo < 10 ? `0${f.slNo}` : f.slNo) : "--"}
-                        </td>
-                        <td className="py-3 px-4 font-bold text-foreground">{f.name}</td>
-                        <td className="py-3 px-4 text-gold font-semibold">{f.role}</td>
-                        <td className="py-3 px-4 text-muted-foreground max-w-xs truncate">
-                          {f.specialization || "Mechanical Engineering"}
-                        </td>
-                        <td className="py-3 px-4 text-muted-foreground">
-                          {f.department || "SOE CUSAT"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Reveal>
-          )}
-        </div>
-      </section>
+          </section>
+        </>
+      )}
     </Layout>
   );
 }

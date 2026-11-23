@@ -9,7 +9,17 @@
 // The file list is saved to data/drive-files.json so builds without a key produce the same output.
 // Never logs API keys or resource keys.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, statSync, readdirSync, rmSync, renameSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  copyFileSync,
+  statSync,
+  readdirSync,
+  rmSync,
+  renameSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDocument, clean, isMesacOwner, maskEmail } from "./lib/parse.mjs";
@@ -167,7 +177,10 @@ async function crawl() {
         const path = [...folder.path, f.name];
         if (f.mimeType === FOLDER_MIME) {
           nextLevel.push({ id: f.id, path, resourceKey: f.resourceKey ?? "" });
-        } else if (f.mimeType === SHORTCUT_MIME || f.mimeType.startsWith("application/vnd.google-apps.")) {
+        } else if (
+          f.mimeType === SHORTCUT_MIME ||
+          f.mimeType.startsWith("application/vnd.google-apps.")
+        ) {
           skipped.push({ path: path.map(clean).join("/"), mimeType: f.mimeType });
         } else {
           const owner = f.owners?.[0]?.emailAddress ?? "";
@@ -223,7 +236,8 @@ async function mirror(docs, filesById) {
         renameSync(tmp, cached);
         // Drop stale cache entries for this file.
         for (const old of readdirSync(P.cache)) {
-          if (old.startsWith(`${f.id}-`) && old !== cacheName) rmSync(join(P.cache, old), { force: true });
+          if (old.startsWith(`${f.id}-`) && old !== cacheName)
+            rmSync(join(P.cache, old), { force: true });
         }
         fetched++;
       } else {
@@ -237,7 +251,9 @@ async function mirror(docs, filesById) {
       console.warn(`  mirror failed: ${err.message}`);
     }
   });
-  console.log(`  mirror: ${fetched} downloaded, ${reused} cached, ${failed} failed (of ${candidates.length})`);
+  console.log(
+    `  mirror: ${fetched} downloaded, ${reused} cached, ${failed} failed (of ${candidates.length})`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -267,11 +283,19 @@ async function getSnapshot() {
   if (HAS_CREDENTIALS) {
     console.log(`data:archive: crawling Drive (${SA_JSON ? "service account" : "API key"})`);
     const { files, skipped } = await crawl();
-    return { source: "drive", generatedAt: new Date().toISOString(), rootId: ROOT_ID, files, skipped };
+    return {
+      source: "drive",
+      generatedAt: new Date().toISOString(),
+      rootId: ROOT_ID,
+      files,
+      skipped,
+    };
   }
   if (!args.has("--fixture") && existsSync(P.snapshot)) {
     const snap = readJson(P.snapshot);
-    console.log(`data:archive: no Google credentials, reusing committed snapshot (source: ${snap.source})`);
+    console.log(
+      `data:archive: no Google credentials, reusing committed snapshot (source: ${snap.source})`,
+    );
     return snap;
   }
   console.log("data:archive: no Google credentials, using scripts/fixtures/drive-sample.json");
@@ -282,9 +306,29 @@ async function getSnapshot() {
 // Build
 // ---------------------------------------------------------------------------
 
-const TYPE_ORDER = ["question_paper", "internal_paper", "syllabus", "notes", "lab_manual", "gate_paper"];
+const TYPE_ORDER = [
+  "question_paper",
+  "internal_paper",
+  "syllabus",
+  "notes",
+  "lab_manual",
+  "gate_paper",
+];
 const semRank = (s) => (typeof s === "number" ? s : 99);
-const MONTH_ORDER = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTH_ORDER = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 const monthRank = (m) => MONTH_ORDER.indexOf(m);
 
 function buildArchive(snapshot) {
@@ -295,7 +339,9 @@ function buildArchive(snapshot) {
   const unsorted = [];
   const unparsed = [];
   const unmatched = new Map();
-  const confirm = new Set(subjects.filter((s) => s.confirm).map((s) => `S${s.semester} · ${s.name}`));
+  const confirm = new Set(
+    subjects.filter((s) => s.confirm).map((s) => `S${s.semester} · ${s.name}`),
+  );
   const foreignOwners = [];
   const seenIds = new Set();
 
@@ -328,7 +374,8 @@ function buildArchive(snapshot) {
     }
 
     let id = doc.id;
-    for (let n = 7; seenIds.has(id); n++) id = `${doc.id.replace(/-[^-]+$/, "")}-${file.id.slice(0, n)}`;
+    for (let n = 7; seenIds.has(id); n++)
+      id = `${doc.id.replace(/-[^-]+$/, "")}-${file.id.slice(0, n)}`;
     doc.id = id;
     seenIds.add(id);
 
@@ -377,7 +424,10 @@ function writeReport(snapshot, r) {
     "",
   ];
   if (snapshot.source === "fixture") {
-    lines.push("> **Sample data.** Built from `scripts/fixtures/drive-sample.json`, not a real crawl. Set `GOOGLE_API_KEY` and run `npm run data:archive`.", "");
+    lines.push(
+      "> **Sample data.** Built from `scripts/fixtures/drive-sample.json`, not a real crawl. Set `GOOGLE_API_KEY` and run `npm run data:archive`.",
+      "",
+    );
   }
 
   const table = (title, rows, head = ["", "Count"]) => {
@@ -389,33 +439,68 @@ function writeReport(snapshot, r) {
   };
 
   const semLabel = (s) => (typeof s === "number" ? `S${s}` : String(s || "—"));
-  table("Visible documents per semester", countBy(r.docs, (d) => semLabel(d.semester)), ["Semester", "Count"]);
-  table("Visible documents per kind", countBy(r.docs, (d) => d.type), ["Kind", "Count"]);
+  table(
+    "Visible documents per semester",
+    countBy(r.docs, (d) => semLabel(d.semester)),
+    ["Semester", "Count"],
+  );
+  table(
+    "Visible documents per kind",
+    countBy(r.docs, (d) => d.type),
+    ["Kind", "Count"],
+  );
   table(
     "Visible documents per subject",
-    countBy(r.docs, (d) => `${semLabel(d.semester)} · ${d.subject}`).sort((a, b) => a[0].localeCompare(b[0])),
+    countBy(r.docs, (d) => `${semLabel(d.semester)} · ${d.subject}`).sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    ),
     ["Subject", "Count"],
   );
-  table("Unparsed file names", r.unparsed.map((p) => [`\`${p}\``]), ["Path"]);
-  table("Unmatched subject folders (add to subjects.json aliases)", [...r.unmatched.entries()], ["Folder", "Files"]);
-  table("Subject names to confirm (marked confirm: true in subjects.json)", [...r.confirm].map((s) => [s]), ["Subject"]);
+  table(
+    "Unparsed file names",
+    r.unparsed.map((p) => [`\`${p}\``]),
+    ["Path"],
+  );
+  table(
+    "Unmatched subject folders (add to subjects.json aliases)",
+    [...r.unmatched.entries()],
+    ["Folder", "Files"],
+  );
+  table(
+    "Subject names to confirm (marked confirm: true in subjects.json)",
+    [...r.confirm].map((s) => [s]),
+    ["Subject"],
+  );
   table(
     "Files not owned by mesacusatacademy@gmail.com",
     r.foreignOwners.map((f) => [`\`${f.path}\``, f.owner]),
     ["Path", "Owner (masked)"],
   );
   if (!ownersKnown && snapshot.source === "drive") {
-    lines.push("> Drive returned no owner info for this crawl, so the owner check above is incomplete.", "");
+    lines.push(
+      "> Drive returned no owner info for this crawl, so the owner check above is incomplete.",
+      "",
+    );
   }
-  table("Hidden files (enable with archive-overrides.json `hide: false`)", r.hidden.map((d) => [`\`${d.sourcePath}\``, d.type, d.driveFileId]), ["Path", "Kind", "Drive id"]);
-  table("Skipped Google Docs / shortcuts", snapshot.skipped.map((s) => [`\`${s.path}\``, s.mimeType]), ["Path", "Type"]);
+  table(
+    "Hidden files (enable with archive-overrides.json `hide: false`)",
+    r.hidden.map((d) => [`\`${d.sourcePath}\``, d.type, d.driveFileId]),
+    ["Path", "Kind", "Drive id"],
+  );
+  table(
+    "Skipped Google Docs / shortcuts",
+    snapshot.skipped.map((s) => [`\`${s.path}\``, s.mimeType]),
+    ["Path", "Type"],
+  );
 
   writeIfChanged(P.report, lines.join("\n"));
 
   const csvCell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const csv = [
     "reason,path,drive_id,size",
-    ...r.unsorted.map((u) => [u.reason, u.doc.sourcePath, u.file.id, u.file.size].map(csvCell).join(",")),
+    ...r.unsorted.map((u) =>
+      [u.reason, u.doc.sourcePath, u.file.id, u.file.size].map(csvCell).join(","),
+    ),
   ].join("\n");
   writeIfChanged(P.unsorted, `${csv}\n`);
   return summary;

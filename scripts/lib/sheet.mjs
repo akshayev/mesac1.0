@@ -8,7 +8,11 @@ export const FALSE_WORDS = new Set(["false", "no", "n", "0", "hidden", "hide", "
 
 /** Empty means visible; FALSE / no / 0 / hidden hide the row. */
 export function parseVisible(v) {
-  return !FALSE_WORDS.has(String(v ?? "").trim().toLowerCase());
+  return !FALSE_WORDS.has(
+    String(v ?? "")
+      .trim()
+      .toLowerCase(),
+  );
 }
 
 export function parseOrder(v) {
@@ -110,7 +114,8 @@ function normalizeRows(text, tab, requiredKey, build, requiredLabels = [required
   const items = [];
   const need = new Set(requiredLabels);
   for (const h of need) {
-    if (rows.length > 0 && !headers.includes(h)) issues.push({ tab, line: 1, level: "error", message: `missing column "${h}"` });
+    if (rows.length > 0 && !headers.includes(h))
+      issues.push({ tab, line: 1, level: "error", message: `missing column "${h}"` });
   }
   for (const row of rows) {
     const note = (message, level = "warn") => issues.push({ tab, line: row._line, level, message });
@@ -240,12 +245,14 @@ export function normalizeSettings(text) {
   const issues = [];
   const values = {};
   for (const h of ["key", "value"]) {
-    if (rows.length > 0 && !headers.includes(h)) issues.push({ tab: "settings", line: 1, level: "error", message: `missing column "${h}"` });
+    if (rows.length > 0 && !headers.includes(h))
+      issues.push({ tab: "settings", line: 1, level: "error", message: `missing column "${h}"` });
   }
   for (const row of rows) {
     const key = (row.key ?? "").trim().toLowerCase();
     const value = (row.value ?? "").trim();
-    const note = (message) => issues.push({ tab: "settings", line: row._line, level: "warn", message });
+    const note = (message) =>
+      issues.push({ tab: "settings", line: row._line, level: "warn", message });
     if (!key || !value) continue;
     const kind = SETTING_KEYS[key];
     if (!kind) {

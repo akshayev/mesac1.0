@@ -17,7 +17,7 @@ import {
   Sparkles,
   Building2,
 } from "lucide-react";
-import { mockDepartmentOverview } from "@/data/mock/department";
+import { departmentOverview } from "@/data/department";
 
 const ABOUT_HERO_BG = "https://cdn.corenexis.com/f/3X8Antm4WLq.jpg";
 
@@ -125,7 +125,7 @@ export function AboutPage() {
                 <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-3xl bg-white p-3 shadow-xl border border-border flex items-center justify-center">
                   <img
                     src="/mesac-real-logo.png"
-                    alt="Official MESAC Emblem"
+                    alt="MESAC emblem"
                     className="h-full w-full object-contain"
                     onError={(e) => {
                       e.currentTarget.src = "/mesac-logo-real.png";
@@ -254,7 +254,7 @@ export function AboutPage() {
                       Division Mission
                     </span>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      {mockDepartmentOverview.mission[0]}
+                      {departmentOverview.mission[0]}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-border bg-card p-5 space-y-2">
@@ -262,7 +262,7 @@ export function AboutPage() {
                       Division Vision
                     </span>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                      {mockDepartmentOverview.vision}
+                      {departmentOverview.vision}
                     </p>
                   </div>
                 </div>

@@ -71,7 +71,9 @@ async function buildTab(tab) {
     try {
       const { items, issues } = normalize(await fetchCsv(url, tab));
       const snapshot = { source: "sheet", generatedAt: new Date().toISOString(), issues, items };
-      console.log(`  ${tab}: fetched from sheet (${Array.isArray(items) ? items.length : Object.keys(items).length} entries)`);
+      console.log(
+        `  ${tab}: fetched from sheet (${Array.isArray(items) ? items.length : Object.keys(items).length} entries)`,
+      );
       return snapshot;
     } catch (err) {
       console.warn(`  ${tab}: fetch failed (${err.message}); keeping the previous snapshot`);
@@ -90,7 +92,9 @@ async function buildTab(tab) {
 
   const csvPath = join(FIXTURE_DIR, `${tab}.csv`);
   const { items, issues } = normalize(readFileSync(csvPath, "utf8"));
-  console.log(`  ${tab}: using sample fixture (${Array.isArray(items) ? items.length : Object.keys(items).length} entries)`);
+  console.log(
+    `  ${tab}: using sample fixture (${Array.isArray(items) ? items.length : Object.keys(items).length} entries)`,
+  );
   return { source: "fixture", generatedAt: null, issues, items };
 }
 
@@ -100,9 +104,19 @@ function writeReport(snapshots) {
   const summary = {
     source: allSheet ? "sheet" : "fixture",
     tabs: Object.fromEntries(tabs.map((t) => [t, snapshots[t].source])),
-    generatedAt: tabs.map((t) => snapshots[t].generatedAt).filter(Boolean).sort().at(-1) ?? null,
+    generatedAt:
+      tabs
+        .map((t) => snapshots[t].generatedAt)
+        .filter(Boolean)
+        .sort()
+        .at(-1) ?? null,
     counts: Object.fromEntries(
-      tabs.map((t) => [t, Array.isArray(snapshots[t].items) ? snapshots[t].items.length : Object.keys(snapshots[t].items).length]),
+      tabs.map((t) => [
+        t,
+        Array.isArray(snapshots[t].items)
+          ? snapshots[t].items.length
+          : Object.keys(snapshots[t].items).length,
+      ]),
     ),
   };
   const lines = [
@@ -123,13 +137,17 @@ function writeReport(snapshots) {
     );
   }
   lines.push("## Skipped rows and warnings", "");
-  const issues = tabs.flatMap((t) => (snapshots[t].issues ?? []).map((i) => ({ ...i, tab: i.tab ?? t })));
+  const issues = tabs.flatMap((t) =>
+    (snapshots[t].issues ?? []).map((i) => ({ ...i, tab: i.tab ?? t })),
+  );
   if (issues.length === 0) {
     lines.push("_None._", "");
   } else {
     lines.push("| Tab | Line | Level | Problem |", "| --- | --- | --- | --- |");
     for (const i of issues) {
-      lines.push(`| ${i.tab} | ${i.line || "-"} | ${i.level} | ${String(i.message).replace(/\|/g, "\\|")} |`);
+      lines.push(
+        `| ${i.tab} | ${i.line || "-"} | ${i.level} | ${String(i.message).replace(/\|/g, "\\|")} |`,
+      );
     }
     lines.push("");
   }
@@ -145,7 +163,9 @@ async function main() {
     writeIfChanged(snapshotPath(tab), `${JSON.stringify(snapshots[tab], null, 2)}\n`);
   }
   const s = writeReport(snapshots);
-  console.log(`data:sheet: source=${s.source} -> src/data/generated/{${Object.keys(TABS).join(",")}}.json`);
+  console.log(
+    `data:sheet: source=${s.source} -> src/data/generated/{${Object.keys(TABS).join(",")}}.json`,
+  );
 }
 
 main().catch((err) => {

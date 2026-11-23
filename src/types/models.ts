@@ -313,12 +313,7 @@ export interface CusatGradeInfo {
 // ==========================================
 
 export type ArchiveDocumentType =
-  | "question_paper"
-  | "internal_paper"
-  | "syllabus"
-  | "notes"
-  | "lab_manual"
-  | "gate_paper";
+  "question_paper" | "internal_paper" | "syllabus" | "notes" | "lab_manual" | "gate_paper";
 
 export interface ArchiveDocumentPreview {
   url?: string;

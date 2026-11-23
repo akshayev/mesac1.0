@@ -67,7 +67,10 @@ test("team: hidden and nameless rows dropped, quoted comma kept, sorted by order
   const names = items.map((i) => i.name);
   assert.ok(!names.includes("SAMPLE Hidden Person"));
   assert.ok(names.includes("SAMPLE Treasurer, Jr"));
-  assert.deepEqual(items.map((i) => i.order), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(
+    items.map((i) => i.order),
+    [1, 2, 3, 4, 5, 6],
+  );
   assert.ok(issues.some((i) => /empty name/.test(i.message)));
 });
 
@@ -83,7 +86,10 @@ test("team: bad photo/link/email are blanked and reported, row is kept", () => {
 
 test("team: missing order sorts last, ties break by name", () => {
   const csv = "name,order\nZed,\nAmy,\nBob,1\n";
-  assert.deepEqual(normalizeTeam(csv).items.map((i) => i.name), ["Bob", "Amy", "Zed"]);
+  assert.deepEqual(
+    normalizeTeam(csv).items.map((i) => i.name),
+    ["Bob", "Amy", "Zed"],
+  );
 });
 
 test("team: reports a missing required column", () => {
@@ -105,8 +111,18 @@ test("placements: company required, no salary field leaks through", () => {
   const { items, issues } = normalizePlacements(fixture("placements"));
   assert.equal(items.length, 3);
   assert.ok(issues.some((i) => /empty company/.test(i.message)));
-  for (const it of items) assert.deepEqual(Object.keys(it).sort(), ["batch", "company", "linkedin", "name", "order", "photo", "role"]);
-  const withSalary = normalizePlacements("name,company,package,visible\nA,B,12 LPA,TRUE\n").items[0];
+  for (const it of items)
+    assert.deepEqual(Object.keys(it).sort(), [
+      "batch",
+      "company",
+      "linkedin",
+      "name",
+      "order",
+      "photo",
+      "role",
+    ]);
+  const withSalary = normalizePlacements("name,company,package,visible\nA,B,12 LPA,TRUE\n")
+    .items[0];
   assert.equal("package" in withSalary, false);
 });
 

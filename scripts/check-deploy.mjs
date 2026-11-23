@@ -25,7 +25,9 @@ for (const [rel, fix] of REPORTS) {
     continue;
   }
   if (/"source":\s*"fixture"/.test(readFileSync(file, "utf8"))) {
-    problems.push(`${rel} says "source": "fixture" (sample data). Run ${fix}, then commit the result.`);
+    problems.push(
+      `${rel} says "source": "fixture" (sample data). Run ${fix}, then commit the result.`,
+    );
   }
 }
 

@@ -1,9 +1,17 @@
 import type { FacultyMember, DepartmentProgram, Lab, DepartmentOverview } from "@/types";
 
+/**
+ * Faculty details here were carried over from the prototype and have not been verified
+ * (the old team data named a different Head of Division). Keep this false until the team has
+ * checked every name; the data stays so it can be re-enabled by flipping this one constant.
+ * When false, /mechanical-dept hides the Head-of-Division card and the faculty roster.
+ */
+export const SHOW_FACULTY_ROSTER = false;
+
 export const facultyDriveUrl =
   "https://docs.google.com/spreadsheets/d/1piGoyDXXS-rAC8SQzLHBRRNzE8flb-R3VoJRYT_3YnE/edit?gid=474521214#gid=474521214";
 
-export const mockDepartmentOverview: DepartmentOverview = {
+export const departmentOverview: DepartmentOverview = {
   name: "Division of Mechanical Engineering",
   establishedYear: 1995,
   school: "School of Engineering",
@@ -19,7 +27,7 @@ export const mockDepartmentOverview: DepartmentOverview = {
     "The Mechanical Engineering Division strives to be recognized globally for outstanding education and research, developing well-qualified engineers who are innovative, entrepreneurial, and successful in advanced fields of engineering and technology.",
 };
 
-export const mockDepartmentHOD: FacultyMember = {
+export const departmentHOD: FacultyMember = {
   id: "faculty-hod-dr-franklin",
   slNo: 1,
   name: "Dr. Franklin R John",
@@ -30,7 +38,7 @@ export const mockDepartmentHOD: FacultyMember = {
   img: "/images/mec/frank.jpg",
 };
 
-export const mockDepartmentFaculty: FacultyMember[] = [
+export const departmentFaculty: FacultyMember[] = [
   {
     id: "faculty-01",
     slNo: 1,
@@ -214,7 +222,7 @@ export const mockDepartmentFaculty: FacultyMember[] = [
   },
 ];
 
-export const mockDepartmentPrograms: DepartmentProgram[] = [
+export const departmentPrograms: DepartmentProgram[] = [
   {
     id: "prog-btech",
     name: "B.Tech in Mechanical Engineering",
@@ -253,7 +261,7 @@ export const mockDepartmentPrograms: DepartmentProgram[] = [
   },
 ];
 
-export const mockDepartmentLabs: Lab[] = [
+export const departmentLabs: Lab[] = [
   {
     id: "lab-thermal",
     name: "Thermal Engineering & IC Engines Laboratory",
@@ -292,6 +300,4 @@ export const mockDepartmentLabs: Lab[] = [
   },
 ];
 
-export const mockFacultyList = mockDepartmentFaculty;
-export const mockPrograms = mockDepartmentPrograms;
-export const mockLabs = mockDepartmentLabs;
+export const facultyList = departmentFaculty;

@@ -33,13 +33,48 @@ const PAPERS = [
   ["Thermal Engineering 2023 Janu  (2019 Ad).pdf", "Thermal Engineering", 2023, "January"],
   ["Thermal Engineering 2022 Sept (2019 Ad).pdf", "Thermal Engineering", 2022, "September"],
   ["Thermal Engineering 2021 Nov (2019 Ad).pdf", "Thermal Engineering", 2021, "November"],
-  ["Machine Science and Machine Tools   2021  Nov  (2019 Ad).pdf", "Machine Science and Machine Tools", 2021, "November"],
-  ["Machine Science and Machine Tools   2022  Sept  (2019 Ad).pdf", "Machine Science and Machine Tools", 2022, "September"],
-  ["Machine Science and Machine Tools   2023 Janu  (2019 Ad).pdf", "Machine Science and Machine Tools", 2023, "January"],
-  ["Machine Science and Machine Tools 2024 June (2019 Ad.).pdf", "Machine Science and Machine Tools", 2024, "June"],
-  ["Machine Science and Machine Tools 2025 Nov (2019 Ad.).pdf", "Machine Science and Machine Tools", 2025, "November"],
-  ["Refrigeration and Air Conditioning 2023 Nov(2019Ad.).pdf", "Refrigeration and Air Conditioning", 2023, "November"],
-  ["Refrigeration and Air Conditioning 2023 March (2019 Ad).pdf", "Refrigeration and Air Conditioning", 2023, "March"],
+  [
+    "Machine Science and Machine Tools   2021  Nov  (2019 Ad).pdf",
+    "Machine Science and Machine Tools",
+    2021,
+    "November",
+  ],
+  [
+    "Machine Science and Machine Tools   2022  Sept  (2019 Ad).pdf",
+    "Machine Science and Machine Tools",
+    2022,
+    "September",
+  ],
+  [
+    "Machine Science and Machine Tools   2023 Janu  (2019 Ad).pdf",
+    "Machine Science and Machine Tools",
+    2023,
+    "January",
+  ],
+  [
+    "Machine Science and Machine Tools 2024 June (2019 Ad.).pdf",
+    "Machine Science and Machine Tools",
+    2024,
+    "June",
+  ],
+  [
+    "Machine Science and Machine Tools 2025 Nov (2019 Ad.).pdf",
+    "Machine Science and Machine Tools",
+    2025,
+    "November",
+  ],
+  [
+    "Refrigeration and Air Conditioning 2023 Nov(2019Ad.).pdf",
+    "Refrigeration and Air Conditioning",
+    2023,
+    "November",
+  ],
+  [
+    "Refrigeration and Air Conditioning 2023 March (2019 Ad).pdf",
+    "Refrigeration and Air Conditioning",
+    2023,
+    "March",
+  ],
   ["Machine Design I 2022 April (2019 Ad. ).pdf", "Machine Design I", 2022, "April"],
   ["Fluid Mechanics  2022 Feb (2019 Ad).pdf", "Fluid Mechanics", 2022, "February"],
   ["Fluid Mechanics  2023 Nov (2019 Ad).pdf", "Fluid Mechanics", 2023, "November"],
@@ -144,7 +179,10 @@ test("notes, syllabus and lab layouts", () => {
 });
 
 test("Data Book and GATE study material are hidden; GATE PYQ is visible", () => {
-  assert.equal(classifyPath("S1-8/S7/Data Book/Refrigeration Data Book.pdf".split("/")).hidden, true);
+  assert.equal(
+    classifyPath("S1-8/S7/Data Book/Refrigeration Data Book.pdf".split("/")).hidden,
+    true,
+  );
   assert.equal(classifyPath("GATE/Study Material /Heat Transfer.pdf".split("/")).hidden, true);
   const gate = build("GATE/PYQ/2024/GATE2024.pdf").doc;
   assert.equal(gate.type, "gate_paper");
