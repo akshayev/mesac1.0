@@ -5,14 +5,11 @@ import { ChevronDown, Users, Info } from "lucide-react";
 // Gallery is now placed where Team was; Team is nested inside About MESAC
 const links = [
   { to: "/", label: "HOME" },
-  { to: "/events", label: "EVENTS" },
-  { to: "/academy", label: "ACADEMY" },
+  { to: "/academy", label: "GPA CALCULATOR" },
   { to: "/archive", label: "ARCHIVE" },
   { to: "/mechanical-dept", label: "MECHANICAL DEPT." },
   { to: "/placements", label: "PLACEMENTS" },
   { to: "/achievements", label: "ACHIEVEMENTS" },
-  { to: "/gallery", label: "GALLERY" },
-  { to: "/alumni", label: "ALUMNI" },
   { to: "/about-mesac", label: "ABOUT MESAC" },
 ] as const;
 

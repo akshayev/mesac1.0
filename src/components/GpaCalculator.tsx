@@ -10,7 +10,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import { CUSAT_GRADE_SCALE } from "@/data/mock/academy";
+import { CUSAT_GRADE_SCALE } from "@/data/grades";
 import type { CusatGradeLetter } from "@/types";
 
 export interface GpaSubjectRow {

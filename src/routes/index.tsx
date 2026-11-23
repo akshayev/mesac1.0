@@ -5,9 +5,7 @@ import { Layout } from "@/components/Layout";
 import { Reveal } from "@/components/Reveal";
 import { NotificationBanner } from "@/components/NotificationBanner";
 import { PageGearBackground } from "@/components/PageGearBackground";
-import { EventCard } from "@/components/EventCard";
 import { EmptyState } from "@/components/EmptyState";
-import { mockEvents } from "@/data/mock/events";
 import { mockFacultyAdvisors, mockCoreOfficers2026, DEFAULT_FACULTY_IMG } from "@/data/mock/team";
 import { mockSiteSettings } from "@/data/mock/site";
 import {
@@ -104,9 +102,6 @@ function Index() {
     return () => ctx.revert();
   }, []);
 
-  // Filter top 3 featured events from typed mock data
-  const featuredEvents = mockEvents.filter((e) => e.isFeatured).slice(0, 3);
-
   // Committee preview from typed mock data (Faculty Advisor, President, Secretary)
   const previewTeamMembers = [
     {
@@ -195,10 +190,10 @@ function Index() {
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
               <Link
-                to="/events"
+                to="/team"
                 className="hero-cta inline-flex items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-xs sm:text-sm font-semibold text-white hover:bg-white/20 backdrop-blur-md active:scale-95 transition-all w-full sm:w-auto min-h-[44px]"
               >
-                Yantra Techfest & Events
+                Meet the Team
               </Link>
             </div>
           </div>
@@ -257,54 +252,6 @@ function Index() {
                 </Link>
               </div>
             </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* 5. FEATURED EVENTS SECTION */}
-      <section className="py-16 sm:py-20 bg-secondary/30 border-b border-border/80">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <Reveal>
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-gold mb-3">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span>Flagship Programs</span>
-                </div>
-                <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-                  Featured Events & Workshops
-                </h2>
-                <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-2xl">
-                  Recent technical workshops, industrial symposiums, and student orientation
-                  sessions conducted by MESAC.
-                </p>
-              </div>
-
-              <Link
-                to="/events"
-                className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-gold hover:text-gold/80 transition-colors self-start sm:self-end min-h-[44px]"
-              >
-                <span>View All Events</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            {featuredEvents.length > 0 ? (
-              <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {featuredEvents.map((evt, idx) => (
-                  <Reveal key={evt.id} delay={idx * 60}>
-                    <EventCard eventItem={evt} />
-                  </Reveal>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No featured events available"
-                description="Upcoming events will be announced shortly. Check our complete calendar for past programs."
-                actionText="Explore All Events"
-                onAction={() => {}}
-              />
-            )}
           </Reveal>
         </div>
       </section>

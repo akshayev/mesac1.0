@@ -14,34 +14,14 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutMesacRouteImport } from './routes/about-mesac'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AchievementsRouteImport } from './routes/achievements'
-import { Route as AlumniRouteImport } from './routes/alumni'
 import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DownloadsRouteImport } from './routes/downloads'
-import { Route as EventsRouteImport } from './routes/events'
-import { Route as GaleryRouteImport } from './routes/galery'
-import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as MechanicalDeptRouteImport } from './routes/mechanical-dept'
 import { Route as PlacementsRouteImport } from './routes/placements'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as AboutMesacTeamRouteImport } from './routes/about-mesac_.team'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminAcademyRouteImport } from './routes/admin/academy'
-import { Route as AdminAchievementsRouteImport } from './routes/admin/achievements'
-import { Route as AdminActivityRouteImport } from './routes/admin/activity'
-import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
-import { Route as AdminArchiveRouteImport } from './routes/admin/archive'
-import { Route as AdminBackupsRouteImport } from './routes/admin/backups'
-import { Route as AdminDepartmentRouteImport } from './routes/admin/department'
-import { Route as AdminEventsRouteImport } from './routes/admin/events'
-import { Route as AdminGalleryRouteImport } from './routes/admin/gallery'
-import { Route as AdminHomeRouteImport } from './routes/admin/home'
-import { Route as AdminInboxRouteImport } from './routes/admin/inbox'
-import { Route as AdminLoginRouteImport } from './routes/admin/login'
-import { Route as AdminPlacementsRouteImport } from './routes/admin/placements'
-import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
-import { Route as AdminTeamRouteImport } from './routes/admin/team'
 import { Route as ArchiveDocumentIdRouteImport } from './routes/archive_.$documentId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -69,11 +49,6 @@ const AchievementsRoute = AchievementsRouteImport.update({
   path: '/achievements',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AlumniRoute = AlumniRouteImport.update({
-  id: '/alumni',
-  path: '/alumni',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ArchiveRoute = ArchiveRouteImport.update({
   id: '/archive',
   path: '/archive',
@@ -87,21 +62,6 @@ const ContactRoute = ContactRouteImport.update({
 const DownloadsRoute = DownloadsRouteImport.update({
   id: '/downloads',
   path: '/downloads',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GaleryRoute = GaleryRouteImport.update({
-  id: '/galery',
-  path: '/galery',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GalleryRoute = GalleryRouteImport.update({
-  id: '/gallery',
-  path: '/gallery',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MechanicalDeptRoute = MechanicalDeptRouteImport.update({
@@ -129,86 +89,6 @@ const AboutMesacTeamRoute = AboutMesacTeamRouteImport.update({
   path: '/about-mesac/team',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminAcademyRoute = AdminAcademyRouteImport.update({
-  id: '/admin/academy',
-  path: '/admin/academy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminAchievementsRoute = AdminAchievementsRouteImport.update({
-  id: '/admin/achievements',
-  path: '/admin/achievements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminActivityRoute = AdminActivityRouteImport.update({
-  id: '/admin/activity',
-  path: '/admin/activity',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminAdminsRoute = AdminAdminsRouteImport.update({
-  id: '/admin/admins',
-  path: '/admin/admins',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminArchiveRoute = AdminArchiveRouteImport.update({
-  id: '/admin/archive',
-  path: '/admin/archive',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminBackupsRoute = AdminBackupsRouteImport.update({
-  id: '/admin/backups',
-  path: '/admin/backups',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminDepartmentRoute = AdminDepartmentRouteImport.update({
-  id: '/admin/department',
-  path: '/admin/department',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminEventsRoute = AdminEventsRouteImport.update({
-  id: '/admin/events',
-  path: '/admin/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminGalleryRoute = AdminGalleryRouteImport.update({
-  id: '/admin/gallery',
-  path: '/admin/gallery',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminHomeRoute = AdminHomeRouteImport.update({
-  id: '/admin/home',
-  path: '/admin/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminInboxRoute = AdminInboxRouteImport.update({
-  id: '/admin/inbox',
-  path: '/admin/inbox',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminPlacementsRoute = AdminPlacementsRouteImport.update({
-  id: '/admin/placements',
-  path: '/admin/placements',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/admin/settings',
-  path: '/admin/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminTeamRoute = AdminTeamRouteImport.update({
-  id: '/admin/team',
-  path: '/admin/team',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ArchiveDocumentIdRoute = ArchiveDocumentIdRouteImport.update({
   id: '/archive_/$documentId',
   path: '/archive/$documentId',
@@ -221,35 +101,15 @@ export interface FileRoutesByFullPath {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
-  '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
-  '/events': typeof EventsRoute
-  '/galery': typeof GaleryRoute
-  '/gallery': typeof GalleryRoute
   '/mechanical-dept': typeof MechanicalDeptRoute
   '/placements': typeof PlacementsRoute
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
   '/about-mesac/team': typeof AboutMesacTeamRoute
-  '/admin/academy': typeof AdminAcademyRoute
-  '/admin/achievements': typeof AdminAchievementsRoute
-  '/admin/activity': typeof AdminActivityRoute
-  '/admin/admins': typeof AdminAdminsRoute
-  '/admin/archive': typeof AdminArchiveRoute
-  '/admin/backups': typeof AdminBackupsRoute
-  '/admin/department': typeof AdminDepartmentRoute
-  '/admin/events': typeof AdminEventsRoute
-  '/admin/gallery': typeof AdminGalleryRoute
-  '/admin/home': typeof AdminHomeRoute
-  '/admin/inbox': typeof AdminInboxRoute
-  '/admin/login': typeof AdminLoginRoute
-  '/admin/placements': typeof AdminPlacementsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/team': typeof AdminTeamRoute
   '/archive/$documentId': typeof ArchiveDocumentIdRoute
-  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -257,35 +117,15 @@ export interface FileRoutesByTo {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
-  '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
-  '/events': typeof EventsRoute
-  '/galery': typeof GaleryRoute
-  '/gallery': typeof GalleryRoute
   '/mechanical-dept': typeof MechanicalDeptRoute
   '/placements': typeof PlacementsRoute
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
   '/about-mesac/team': typeof AboutMesacTeamRoute
-  '/admin/academy': typeof AdminAcademyRoute
-  '/admin/achievements': typeof AdminAchievementsRoute
-  '/admin/activity': typeof AdminActivityRoute
-  '/admin/admins': typeof AdminAdminsRoute
-  '/admin/archive': typeof AdminArchiveRoute
-  '/admin/backups': typeof AdminBackupsRoute
-  '/admin/department': typeof AdminDepartmentRoute
-  '/admin/events': typeof AdminEventsRoute
-  '/admin/gallery': typeof AdminGalleryRoute
-  '/admin/home': typeof AdminHomeRoute
-  '/admin/inbox': typeof AdminInboxRoute
-  '/admin/login': typeof AdminLoginRoute
-  '/admin/placements': typeof AdminPlacementsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/team': typeof AdminTeamRoute
   '/archive/$documentId': typeof ArchiveDocumentIdRoute
-  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -294,35 +134,15 @@ export interface FileRoutesById {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
-  '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
-  '/events': typeof EventsRoute
-  '/galery': typeof GaleryRoute
-  '/gallery': typeof GalleryRoute
   '/mechanical-dept': typeof MechanicalDeptRoute
   '/placements': typeof PlacementsRoute
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
   '/about-mesac_/team': typeof AboutMesacTeamRoute
-  '/admin/academy': typeof AdminAcademyRoute
-  '/admin/achievements': typeof AdminAchievementsRoute
-  '/admin/activity': typeof AdminActivityRoute
-  '/admin/admins': typeof AdminAdminsRoute
-  '/admin/archive': typeof AdminArchiveRoute
-  '/admin/backups': typeof AdminBackupsRoute
-  '/admin/department': typeof AdminDepartmentRoute
-  '/admin/events': typeof AdminEventsRoute
-  '/admin/gallery': typeof AdminGalleryRoute
-  '/admin/home': typeof AdminHomeRoute
-  '/admin/inbox': typeof AdminInboxRoute
-  '/admin/login': typeof AdminLoginRoute
-  '/admin/placements': typeof AdminPlacementsRoute
-  '/admin/settings': typeof AdminSettingsRoute
-  '/admin/team': typeof AdminTeamRoute
   '/archive_/$documentId': typeof ArchiveDocumentIdRoute
-  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -332,35 +152,15 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
-    | '/alumni'
     | '/archive'
     | '/contact'
     | '/downloads'
-    | '/events'
-    | '/galery'
-    | '/gallery'
     | '/mechanical-dept'
     | '/placements'
     | '/privacy'
     | '/team'
     | '/about-mesac/team'
-    | '/admin/academy'
-    | '/admin/achievements'
-    | '/admin/activity'
-    | '/admin/admins'
-    | '/admin/archive'
-    | '/admin/backups'
-    | '/admin/department'
-    | '/admin/events'
-    | '/admin/gallery'
-    | '/admin/home'
-    | '/admin/inbox'
-    | '/admin/login'
-    | '/admin/placements'
-    | '/admin/settings'
-    | '/admin/team'
     | '/archive/$documentId'
-    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -368,35 +168,15 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
-    | '/alumni'
     | '/archive'
     | '/contact'
     | '/downloads'
-    | '/events'
-    | '/galery'
-    | '/gallery'
     | '/mechanical-dept'
     | '/placements'
     | '/privacy'
     | '/team'
     | '/about-mesac/team'
-    | '/admin/academy'
-    | '/admin/achievements'
-    | '/admin/activity'
-    | '/admin/admins'
-    | '/admin/archive'
-    | '/admin/backups'
-    | '/admin/department'
-    | '/admin/events'
-    | '/admin/gallery'
-    | '/admin/home'
-    | '/admin/inbox'
-    | '/admin/login'
-    | '/admin/placements'
-    | '/admin/settings'
-    | '/admin/team'
     | '/archive/$documentId'
-    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -404,35 +184,15 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
-    | '/alumni'
     | '/archive'
     | '/contact'
     | '/downloads'
-    | '/events'
-    | '/galery'
-    | '/gallery'
     | '/mechanical-dept'
     | '/placements'
     | '/privacy'
     | '/team'
     | '/about-mesac_/team'
-    | '/admin/academy'
-    | '/admin/achievements'
-    | '/admin/activity'
-    | '/admin/admins'
-    | '/admin/archive'
-    | '/admin/backups'
-    | '/admin/department'
-    | '/admin/events'
-    | '/admin/gallery'
-    | '/admin/home'
-    | '/admin/inbox'
-    | '/admin/login'
-    | '/admin/placements'
-    | '/admin/settings'
-    | '/admin/team'
     | '/archive_/$documentId'
-    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -441,35 +201,15 @@ export interface RootRouteChildren {
   AboutMesacRoute: typeof AboutMesacRoute
   AcademyRoute: typeof AcademyRoute
   AchievementsRoute: typeof AchievementsRoute
-  AlumniRoute: typeof AlumniRoute
   ArchiveRoute: typeof ArchiveRoute
   ContactRoute: typeof ContactRoute
   DownloadsRoute: typeof DownloadsRoute
-  EventsRoute: typeof EventsRoute
-  GaleryRoute: typeof GaleryRoute
-  GalleryRoute: typeof GalleryRoute
   MechanicalDeptRoute: typeof MechanicalDeptRoute
   PlacementsRoute: typeof PlacementsRoute
   PrivacyRoute: typeof PrivacyRoute
   TeamRoute: typeof TeamRoute
   AboutMesacTeamRoute: typeof AboutMesacTeamRoute
-  AdminAcademyRoute: typeof AdminAcademyRoute
-  AdminAchievementsRoute: typeof AdminAchievementsRoute
-  AdminActivityRoute: typeof AdminActivityRoute
-  AdminAdminsRoute: typeof AdminAdminsRoute
-  AdminArchiveRoute: typeof AdminArchiveRoute
-  AdminBackupsRoute: typeof AdminBackupsRoute
-  AdminDepartmentRoute: typeof AdminDepartmentRoute
-  AdminEventsRoute: typeof AdminEventsRoute
-  AdminGalleryRoute: typeof AdminGalleryRoute
-  AdminHomeRoute: typeof AdminHomeRoute
-  AdminInboxRoute: typeof AdminInboxRoute
-  AdminLoginRoute: typeof AdminLoginRoute
-  AdminPlacementsRoute: typeof AdminPlacementsRoute
-  AdminSettingsRoute: typeof AdminSettingsRoute
-  AdminTeamRoute: typeof AdminTeamRoute
   ArchiveDocumentIdRoute: typeof ArchiveDocumentIdRoute
-  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -509,13 +249,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/alumni': {
-      id: '/alumni'
-      path: '/alumni'
-      fullPath: '/alumni'
-      preLoaderRoute: typeof AlumniRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/archive': {
       id: '/archive'
       path: '/archive'
@@ -535,27 +268,6 @@ declare module '@tanstack/react-router' {
       path: '/downloads'
       fullPath: '/downloads'
       preLoaderRoute: typeof DownloadsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events': {
-      id: '/events'
-      path: '/events'
-      fullPath: '/events'
-      preLoaderRoute: typeof EventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/galery': {
-      id: '/galery'
-      path: '/galery'
-      fullPath: '/galery'
-      preLoaderRoute: typeof GaleryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gallery': {
-      id: '/gallery'
-      path: '/gallery'
-      fullPath: '/gallery'
-      preLoaderRoute: typeof GalleryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mechanical-dept': {
@@ -593,118 +305,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutMesacTeamRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/academy': {
-      id: '/admin/academy'
-      path: '/admin/academy'
-      fullPath: '/admin/academy'
-      preLoaderRoute: typeof AdminAcademyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/achievements': {
-      id: '/admin/achievements'
-      path: '/admin/achievements'
-      fullPath: '/admin/achievements'
-      preLoaderRoute: typeof AdminAchievementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/activity': {
-      id: '/admin/activity'
-      path: '/admin/activity'
-      fullPath: '/admin/activity'
-      preLoaderRoute: typeof AdminActivityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/admins': {
-      id: '/admin/admins'
-      path: '/admin/admins'
-      fullPath: '/admin/admins'
-      preLoaderRoute: typeof AdminAdminsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/archive': {
-      id: '/admin/archive'
-      path: '/admin/archive'
-      fullPath: '/admin/archive'
-      preLoaderRoute: typeof AdminArchiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/backups': {
-      id: '/admin/backups'
-      path: '/admin/backups'
-      fullPath: '/admin/backups'
-      preLoaderRoute: typeof AdminBackupsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/department': {
-      id: '/admin/department'
-      path: '/admin/department'
-      fullPath: '/admin/department'
-      preLoaderRoute: typeof AdminDepartmentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/events': {
-      id: '/admin/events'
-      path: '/admin/events'
-      fullPath: '/admin/events'
-      preLoaderRoute: typeof AdminEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/gallery': {
-      id: '/admin/gallery'
-      path: '/admin/gallery'
-      fullPath: '/admin/gallery'
-      preLoaderRoute: typeof AdminGalleryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/home': {
-      id: '/admin/home'
-      path: '/admin/home'
-      fullPath: '/admin/home'
-      preLoaderRoute: typeof AdminHomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/inbox': {
-      id: '/admin/inbox'
-      path: '/admin/inbox'
-      fullPath: '/admin/inbox'
-      preLoaderRoute: typeof AdminInboxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/placements': {
-      id: '/admin/placements'
-      path: '/admin/placements'
-      fullPath: '/admin/placements'
-      preLoaderRoute: typeof AdminPlacementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/admin/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/team': {
-      id: '/admin/team'
-      path: '/admin/team'
-      fullPath: '/admin/team'
-      preLoaderRoute: typeof AdminTeamRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/archive_/$documentId': {
       id: '/archive_/$documentId'
       path: '/archive/$documentId'
@@ -721,35 +321,15 @@ const rootRouteChildren: RootRouteChildren = {
   AboutMesacRoute: AboutMesacRoute,
   AcademyRoute: AcademyRoute,
   AchievementsRoute: AchievementsRoute,
-  AlumniRoute: AlumniRoute,
   ArchiveRoute: ArchiveRoute,
   ContactRoute: ContactRoute,
   DownloadsRoute: DownloadsRoute,
-  EventsRoute: EventsRoute,
-  GaleryRoute: GaleryRoute,
-  GalleryRoute: GalleryRoute,
   MechanicalDeptRoute: MechanicalDeptRoute,
   PlacementsRoute: PlacementsRoute,
   PrivacyRoute: PrivacyRoute,
   TeamRoute: TeamRoute,
   AboutMesacTeamRoute: AboutMesacTeamRoute,
-  AdminAcademyRoute: AdminAcademyRoute,
-  AdminAchievementsRoute: AdminAchievementsRoute,
-  AdminActivityRoute: AdminActivityRoute,
-  AdminAdminsRoute: AdminAdminsRoute,
-  AdminArchiveRoute: AdminArchiveRoute,
-  AdminBackupsRoute: AdminBackupsRoute,
-  AdminDepartmentRoute: AdminDepartmentRoute,
-  AdminEventsRoute: AdminEventsRoute,
-  AdminGalleryRoute: AdminGalleryRoute,
-  AdminHomeRoute: AdminHomeRoute,
-  AdminInboxRoute: AdminInboxRoute,
-  AdminLoginRoute: AdminLoginRoute,
-  AdminPlacementsRoute: AdminPlacementsRoute,
-  AdminSettingsRoute: AdminSettingsRoute,
-  AdminTeamRoute: AdminTeamRoute,
   ArchiveDocumentIdRoute: ArchiveDocumentIdRoute,
-  AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
