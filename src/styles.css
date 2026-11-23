@@ -4,33 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Garet Font Declarations */
-@font-face {
-  font-family: "Garet";
-  src:
-    local("Garet Book"),
-    local("Garet-Book"),
-    local("Garet"),
-    url("https://fonts.cdnfonts.com/s/91218/Garet-Book.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Garet";
-  src:
-    local("Garet Heavy"),
-    local("Garet-Heavy"),
-    url("https://fonts.cdnfonts.com/s/91218/Garet-Heavy.woff") format("woff");
-  font-weight: 700 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme {
-  --font-sans: "Garet", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-  --font-display: "Garet", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 }
 
 /*

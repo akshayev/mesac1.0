@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getInitials } from "@/lib/people";
 
 /**
@@ -15,11 +15,19 @@ export function PersonAvatar({
   className?: string;
 }) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // An image that already failed during server rendering never fires onError after hydration.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth === 0) setFailedSrc(photo ?? null);
+  }, [photo]);
   const showPhoto = Boolean(photo) && failedSrc !== photo;
 
   if (showPhoto) {
     return (
       <img
+        ref={imgRef}
         src={photo}
         alt={name}
         loading="lazy"

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AchievementEntry } from "@/types";
 import { Trophy, ExternalLink, ImageOff } from "lucide-react";
 import { formatAchievementDate } from "@/lib/format";
@@ -10,6 +10,13 @@ export interface AchievementCardProps {
 
 export function AchievementCard({ achievement, className = "" }: AchievementCardProps) {
   const [imgError, setImgError] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // An image that already failed during server rendering never fires onError after hydration.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth === 0) setImgError(true);
+  }, [achievement.image]);
   const dateLabel = formatAchievementDate(achievement.date);
 
   return (
@@ -21,6 +28,7 @@ export function AchievementCard({ achievement, className = "" }: AchievementCard
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-white/15 bg-black/60 shadow-lg mb-5">
             {!imgError ? (
               <img
+                ref={imgRef}
                 src={achievement.image}
                 alt={achievement.title}
                 referrerPolicy="no-referrer"

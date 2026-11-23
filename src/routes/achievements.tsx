@@ -12,7 +12,7 @@ import { getAchievements } from "@/data/site";
 export const Route = createFileRoute("/achievements")({
   head: () => ({
     meta: [
-      { title: "National & International Achievements — MESAC CUSAT" },
+      { title: "Achievements — MESAC CUSAT" },
       {
         name: "description",
         content:

@@ -1,7 +1,7 @@
 name,role,group,photo,linkedin,email_public,order,visible
 SAMPLE Faculty Advisor,Faculty Advisor,Faculty,,,,1,TRUE
 SAMPLE President,President,Core Committee,,https://www.linkedin.com/in/sample-president,president@example.com,2,TRUE
-SAMPLE Secretary,Secretary,Core Committee,people/sample-secretary.jpg,,,3,TRUE
+SAMPLE Secretary,Secretary,Core Committee,people/sample.svg,,,3,TRUE
 "SAMPLE Treasurer, Jr",Treasurer,Core Committee,1AbCdEfGhIjKlMnOpQrStUvWxYz012345,,,4,TRUE
 SAMPLE Technical Lead,Technical Lead,Division Heads,https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz012345/view?usp=sharing,,,5,TRUE
 SAMPLE Design Lead,Design Lead,Division Heads,not a photo,not-a-link,not-an-email,6,TRUE

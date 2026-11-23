@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { departmentOverview } from "@/data/department";
 
-const ABOUT_HERO_BG = "https://cdn.corenexis.com/f/3X8Antm4WLq.jpg";
+const ABOUT_HERO_BG = "/images/home/hero.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({

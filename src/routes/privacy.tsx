@@ -40,7 +40,7 @@ export function PrivacyPage() {
     },
     {
       title: "Fonts and map",
-      body: "Fonts load from Google Fonts and cdnfonts.com, and the contact page embeds a Google Map, so those providers see your IP address and browser details.",
+      body: "Fonts load from Google Fonts and the contact page embeds a Google Map, so Google sees your IP address and browser details.",
     },
     {
       title: "On your device",
