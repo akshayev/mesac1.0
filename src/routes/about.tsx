@@ -19,7 +19,7 @@ import {
 import { departmentOverview } from "@/data/department";
 import { pageHead } from "@/lib/seo";
 
-const ABOUT_HERO_BG = "/images/home/hero.jpg";
+const ABOUT_HERO_BG = "/images/home/hero.webp";
 
 export const Route = createFileRoute("/about")({
   head: () =>
@@ -115,7 +115,7 @@ export function AboutPage() {
               <div className="shrink-0 flex items-center justify-center">
                 <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-3xl bg-white p-3 shadow-xl border border-border flex items-center justify-center">
                   <img
-                    src="/mesac-real-logo.png"
+                    src="/mesac-logo-sm.webp"
                     alt="MESAC emblem"
                     className="h-full w-full object-contain"
                     onError={(e) => {

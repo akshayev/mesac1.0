@@ -121,9 +121,9 @@ export function DocumentPreviewViewer({ document, className = "" }: DocumentPrev
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-gold mb-4 border border-white/10">
               <FileText className="h-7 w-7" aria-hidden="true" />
             </div>
-            <h4 className="font-display text-lg sm:text-xl font-bold text-white">
+            <h2 className="font-display text-lg sm:text-xl font-bold text-white">
               Preview this paper
-            </h4>
+            </h2>
             <p className="mt-2 max-w-sm text-xs sm:text-sm text-white/70 leading-relaxed">
               Opens Google Drive&apos;s viewer here. On some phones it works better to open the file
               in Drive.

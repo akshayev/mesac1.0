@@ -54,7 +54,7 @@ export function Navbar() {
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-full overflow-hidden bg-white shadow-sm border border-border/80 flex items-center justify-center p-0.5 transition-opacity duration-200 group-hover:opacity-90 shrink-0">
               <img
-                src="/mesac-real-logo.png"
+                src="/mesac-logo-sm.webp"
                 alt="MESAC Logo"
                 className="h-full w-full object-contain"
                 onError={(e) => {

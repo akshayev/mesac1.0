@@ -32,8 +32,8 @@ export function PrivacyPage() {
       body: "The site is served by Cloudflare, which keeps standard server logs such as IP address, requested page and time.",
     },
     {
-      title: "Fonts and map",
-      body: "Fonts load from Google Fonts and the contact page embeds a Google Map, so Google sees your IP address and browser details.",
+      title: "Map",
+      body: "Fonts are served from this site. The contact page embeds a Google Map, so Google sees your IP address and browser details.",
     },
     {
       title: "On your device",

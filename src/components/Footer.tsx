@@ -27,7 +27,7 @@ export function Footer() {
               title="School of Engineering, Cochin University of Science and Technology (CUSAT)"
             >
               <img
-                src="/cusat-crest.png"
+                src="/cusat-crest.webp"
                 alt="Cochin University of Science and Technology (CUSAT) emblem"
                 className="h-full w-full object-contain drop-shadow-sm"
               />

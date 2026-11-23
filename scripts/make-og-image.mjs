@@ -12,7 +12,7 @@ const W = 1200;
 const H = 630;
 const LOGO = 440;
 
-const background = await sharp(join(ROOT, "public/images/home/hero.jpg"))
+const background = await sharp(join(ROOT, "public/images/home/hero.webp"))
   .resize(W, H, { fit: "cover", position: "centre" })
   .blur(2)
   .modulate({ brightness: 0.45 })

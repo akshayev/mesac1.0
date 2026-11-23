@@ -5,10 +5,18 @@ import {
   useState,
   useRef,
   useCallback,
+  lazy,
+  Suspense,
   type ReactNode,
 } from "react";
 import { useRouterState } from "@tanstack/react-router";
-import { Single3DRealisticGear } from "../components/Single3DRealisticGear";
+// three.js is large (~600 KB). Load the gear only when the first page transition shows it, so it is not
+// part of the code every visitor downloads and runs before they can read the page.
+const Single3DRealisticGear = lazy(() =>
+  import("../components/Single3DRealisticGear").then((m) => ({
+    default: m.Single3DRealisticGear,
+  })),
+);
 
 export interface AppLoaderContextType {
   isLoading: boolean;
@@ -52,6 +60,7 @@ export function AppLoaderProvider({ children }: AppLoaderProviderProps) {
 
   const [active, setActive] = useState(false);
   const [fading, setFading] = useState(false);
+  const [everActive, setEverActive] = useState(false);
 
   const prevPathRef = useRef(pathname);
   const activeRef = useRef(false);
@@ -72,6 +81,7 @@ export function AppLoaderProvider({ children }: AppLoaderProviderProps) {
     clearAllTimers();
     activeRef.current = true;
     setActive(true);
+    setEverActive(true);
     setFading(false);
 
     // Keep gear rotating smoothly (~280ms) to conceal transition lag and render content
@@ -110,10 +120,8 @@ export function AppLoaderProvider({ children }: AppLoaderProviderProps) {
     }, 140);
   }, []);
 
-  // 1. Initial Page Load Transition
-  useEffect(() => {
-    triggerTransition();
-  }, [triggerTransition]);
+  // (No overlay on the very first load: the page is already rendered by the server, and covering it with a
+  // loader only delayed the content. Transitions run on in-site navigation, below.)
 
   // 2. Trigger on EVERY Route / Page Change
   useEffect(() => {
@@ -193,7 +201,11 @@ export function AppLoaderProvider({ children }: AppLoaderProviderProps) {
         >
           {/* Centered Single High-Quality 3D Steel Gear */}
           <div className="relative flex items-center justify-center">
-            <Single3DRealisticGear size={135} speedSeconds={2.0} active={active} />
+            {everActive && (
+              <Suspense fallback={<div style={{ width: 135, height: 135 }} />}>
+                <Single3DRealisticGear size={135} speedSeconds={2.0} active={active} />
+              </Suspense>
+            )}
           </div>
 
           {/* Clean Industrial Typography */}

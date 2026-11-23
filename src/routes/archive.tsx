@@ -266,7 +266,7 @@ function ArchivePage() {
           </p>
 
           <div
-            role="tablist"
+            role="group"
             aria-label="Semester"
             className="mt-5 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
@@ -276,8 +276,7 @@ function ArchivePage() {
                 <button
                   key={s}
                   type="button"
-                  role="tab"
-                  aria-selected={active}
+                  aria-pressed={active}
                   onClick={() => setBrowseSemester(s)}
                   className={
                     "shrink-0 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-150 cursor-pointer min-h-[40px] " +

@@ -10,7 +10,7 @@ import { getSettings, getTeam } from "@/data/site";
 import { FileText, Download, ArrowRight, Sparkles, BookOpen, Layers } from "lucide-react";
 import { pageHead } from "@/lib/seo";
 
-const hero = "/images/home/hero.jpg";
+const hero = "/images/home/hero.webp";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -99,7 +99,10 @@ function Index() {
         <div ref={bgRef} className="absolute inset-0 will-change-transform">
           <img
             src={hero}
-            alt="MESAC CUSAT Mechanical Building"
+            alt=""
+            width={1278}
+            height={516}
+            fetchPriority="high"
             className="hero-image absolute inset-0 h-[115%] w-full object-cover"
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.65)_0%,rgba(0,0,0,0.85)_60%,#000000_100%)]" />
@@ -115,7 +118,7 @@ function Index() {
                 <div className="absolute -inset-3 rounded-full bg-gold/30 blur-xl opacity-70 group-hover:opacity-100 transition duration-500" />
                 <div className="relative h-24 w-24 sm:h-32 sm:w-32 md:h-36 md:w-36 rounded-full p-2 bg-white shadow-2xl border-2 border-white/40 transition-transform duration-500 group-hover:scale-105 flex items-center justify-center overflow-hidden shrink-0">
                   <img
-                    src="/mesac-real-logo.png"
+                    src="/mesac-logo-sm.webp"
                     alt="MESAC logo"
                     className="h-full w-full object-contain"
                     onError={(e) => {
@@ -250,7 +253,7 @@ function Index() {
                   to="/about-mesac"
                   className="inline-flex items-center justify-center rounded-xl bg-foreground text-background px-8 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider hover:opacity-90 active:scale-95 transition shadow-sm min-h-[44px]"
                 >
-                  Read more
+                  Read more about MESAC
                 </Link>
               </div>
             </div>

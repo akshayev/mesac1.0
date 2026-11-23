@@ -6,3 +6,9 @@ pnpm-lock.yaml
 package-lock.json
 bun.lock
 routeTree.gen.ts
+
+# Written by scripts (their own format); reformatting would dirty the tree after every build
+src/data/generated
+src/data/subjects.json
+data
+.output
