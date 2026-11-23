@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { ArchiveDocument } from "@/types";
 import { FileText, Download, ExternalLink, Maximize2, Flag, Eye, X, Info } from "lucide-react";
 import {
@@ -167,29 +168,33 @@ export function DocumentPreviewViewer({ document, className = "" }: DocumentPrev
         </a>
       </div>
 
-      {/* FULL-SCREEN OVERLAY */}
-      {isFullscreen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Preview of ${document.title}`}
-          className="fixed inset-0 z-[120] flex flex-col bg-black/95"
-        >
-          <div className="flex items-center justify-between gap-3 px-4 py-2 text-white">
-            <span className="text-xs sm:text-sm font-semibold line-clamp-1">{document.title}</span>
-            <button
-              type="button"
-              onClick={() => setIsFullscreen(false)}
-              aria-label="Close preview (Esc)"
-              autoFocus
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 bg-white/10 hover:bg-white/20 cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="flex-1 min-h-0">{iframe}</div>
-        </div>
-      )}
+      {/* FULL-SCREEN OVERLAY (portalled: <main> is its own stacking context below the navbar) */}
+      {isFullscreen &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Preview of ${document.title}`}
+            className="fixed inset-0 z-[200] flex flex-col bg-black"
+          >
+            <div className="flex items-center justify-between gap-3 px-4 py-2 text-white">
+              <span className="text-xs sm:text-sm font-semibold line-clamp-1">
+                {document.title}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(false)}
+                aria-label="Close preview (Esc)"
+                autoFocus
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 bg-white/10 hover:bg-white/20 cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 min-h-0">{iframe}</div>
+          </div>,
+          window.document.body,
+        )}
     </div>
   );
 }

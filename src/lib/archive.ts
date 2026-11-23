@@ -59,10 +59,7 @@ export function getPreviewUrl(doc: ArchiveDocument): string {
 /** Mirrored copy when the build downloaded it, otherwise Drive's direct-download URL. */
 export function getDownloadUrl(doc: ArchiveDocument): string {
   if (doc.localUrl) return doc.localUrl;
-  return withResourceKey(
-    `https://drive.google.com/uc?export=download&id=${doc.driveFileId}`,
-    doc,
-  );
+  return withResourceKey(`https://drive.google.com/uc?export=download&id=${doc.driveFileId}`, doc);
 }
 
 export function getDriveViewUrl(doc: ArchiveDocument): string {

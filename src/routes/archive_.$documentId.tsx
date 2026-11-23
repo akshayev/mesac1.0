@@ -31,7 +31,7 @@ import { toast } from "sonner";
 /** e.g. "Thermal Engineering, Nov 2021, 2019 scheme | CUSAT ME S5 question paper | MESAC" */
 function pageTitle(doc: ArchiveDocument): string {
   const session = [doc.examMonth.slice(0, 3), doc.examYear || ""].filter(Boolean).join(" ");
-  const head = [doc.subject, session, doc.scheme].filter(Boolean).join(", ");
+  const head = [doc.subject, session || doc.batch, doc.scheme].filter(Boolean).join(", ");
   const where =
     typeof doc.semester === "number" ? `CUSAT ME S${doc.semester}` : `CUSAT ME ${doc.semester}`;
   const kind = DOCUMENT_TYPE_LABELS[doc.type]?.toLowerCase() ?? "document";

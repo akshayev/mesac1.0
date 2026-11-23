@@ -128,7 +128,9 @@ export function AdminArchivePage() {
                           {doc.sourcePath}
                         </div>
                       </td>
-                      <td className="p-3 whitespace-nowrap">{formatSemester(doc.semester, true)}</td>
+                      <td className="p-3 whitespace-nowrap">
+                        {formatSemester(doc.semester, true)}
+                      </td>
                       <td className="p-3 whitespace-nowrap">{DOCUMENT_TYPE_LABELS[doc.type]}</td>
                       <td className="p-3 whitespace-nowrap">{doc.batch || doc.scheme || "—"}</td>
                       <td className="p-3 whitespace-nowrap">{formatExamSession(doc) || "—"}</td>

@@ -151,7 +151,13 @@ function ArchivePage() {
 
   const scrollToCatalog = () => {
     if (typeof window === "undefined") return;
-    window.document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+    // Lenis (SmoothScroll) cancels native smooth scrolling, so jump instantly.
+    // scroll-margin-top on .sticky-content-container accounts for the navbar + sticky filters.
+    const el = window.document.getElementById("catalog");
+    if (!el) return;
+    const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+    const top = el.getBoundingClientRect().top + window.scrollY - margin;
+    window.scrollTo({ top, behavior: "instant" });
   };
 
   const openSubject = (semester: string, subject: string) => {
@@ -270,7 +276,7 @@ function ArchivePage() {
           <div
             role="tablist"
             aria-label="Semester"
-            className="mt-5 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap"
+            className="mt-5 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {SEMESTERS.map((s) => {
               const active = browseSemester === s;
@@ -302,6 +308,12 @@ function ArchivePage() {
               </button>
             )}
           </div>
+
+          {browseSubjects.length === 0 && (
+            <p className="mt-5 rounded-2xl border border-dashed border-border/70 bg-card/40 p-5 text-sm text-muted-foreground">
+              No subjects listed for S{browseSemester} yet.
+            </p>
+          )}
 
           <div className="mt-5 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {browseSubjects.map((s) => {
@@ -594,8 +606,7 @@ function ArchivePage() {
           )}
 
           <p className="mt-10 text-center text-[11px] text-muted-foreground">
-            Files are hosted on the MESAC academic Google Drive. B.Tech Mechanical Engineering
-            only.
+            Files are hosted on the MESAC academic Google Drive. B.Tech Mechanical Engineering only.
           </p>
         </div>
       </section>
