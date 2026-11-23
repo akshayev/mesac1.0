@@ -1,0 +1,93 @@
+# Builds the site from live Google Drive + Google Sheet data and deploys it to Cloudflare Workers.
+#
+#   - on every push to main
+#   - every night at 20:30 UTC (= 02:00 IST) so edits made in Drive/Sheets show up by the next morning
+#   - on demand: GitHub -> Actions -> "Build and deploy" -> Run workflow ("Refresh now")
+#
+# It refuses to deploy sample data: `check:deploy` fails the run if the Drive or Sheet report still says
+# "source": "fixture", or if SITE_URL is missing. Nothing is committed back to the repository.
+# Secret names are listed in HANDOVER.md.
+
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "30 20 * * *"
+
+permissions:
+  contents: read
+
+# Two runs never overlap; a second run waits for the first to finish.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Manual runs from other branches must not publish the site.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The mirrored question-paper PDFs live in .cache. Keying on the ISO week means they are
+      # re-downloaded about once a week instead of every night (changed files are still detected by the script).
+      - name: Get the current week
+        id: week
+        run: echo "key=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the PDF mirror cache
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: drive-mirror-${{ steps.week.outputs.key }}
+          restore-keys: |
+            drive-mirror-
+
+      - name: Run data and parser tests
+        run: npm run test:data
+
+      # `npm run build` first runs the "prebuild" step: it crawls Drive, fetches the Sheet tabs and writes
+      # the sitemap, then builds the site.
+      - name: Build
+        run: npm run build
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          DRIVE_ROOT_ID: ${{ secrets.DRIVE_ROOT_ID }}
+          SHEET_TEAM_CSV: ${{ secrets.SHEET_TEAM_CSV }}
+          SHEET_ACHIEVEMENTS_CSV: ${{ secrets.SHEET_ACHIEVEMENTS_CSV }}
+          SHEET_PLACEMENTS_CSV: ${{ secrets.SHEET_PLACEMENTS_CSV }}
+          SHEET_SETTINGS_CSV: ${{ secrets.SHEET_SETTINGS_CSV }}
+          VITE_REPORT_FORM_URL: ${{ secrets.VITE_REPORT_FORM_URL }}
+          VITE_REPORT_FORM_FILE_ENTRY: ${{ secrets.VITE_REPORT_FORM_FILE_ENTRY }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+
+      # Fails the run (so nothing is deployed) if any report still says "fixture" or SITE_URL is not set.
+      - name: Refuse to deploy sample data
+        run: npm run check:deploy
+        env:
+          DEPLOY: "1"
+          SITE_URL: ${{ secrets.SITE_URL }}
+
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.166.0"
+          command: deploy
