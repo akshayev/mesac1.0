@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --host 0.0.0.0 --port 3000",
+    "prebuild": "npm run data:archive",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "data:archive": "node scripts/drive-index.mjs",
+    "test:data": "node --test \"scripts/tests/*.test.mjs\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

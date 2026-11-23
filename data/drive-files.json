@@ -1,0 +1,346 @@
+{
+  "source": "fixture",
+  "generatedAt": null,
+  "rootId": "1O_Q5coUAKKpSu3Egmz5YOu9MzdPxyiR6",
+  "files": [
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Thermal Engineering",
+        "2019 scheme",
+        "Thermal Engineering 2024 June   (2019 Ad)_0001.pdf"
+      ],
+      "id": "1y4x75Dmk_Qbm2jAyu5gqQvdpLIkU3YvE",
+      "size": 217697,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Thermal Engineering",
+        "2019 scheme",
+        "Thermal Engineering 2023 Janu  (2019 Ad).pdf"
+      ],
+      "id": "1sfqxp6wbhARpQUntqKhFbd1Nfg9ZC6oI",
+      "size": 146496,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Thermal Engineering",
+        "2019 scheme",
+        "Thermal Engineering 2022 Sept (2019 Ad).pdf"
+      ],
+      "id": "1BzTCEwRpCIFfwN9LL3QsY9eAofM092gs",
+      "size": 127861,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Thermal Engineering",
+        "2019 scheme",
+        "Thermal Engineering 2021 Nov (2019 Ad).pdf"
+      ],
+      "id": "1M6LYe8EM_TwnN3VSuo2hhMwJmZI2_wta",
+      "size": 85051,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Machine Tools",
+        "2019 scheme",
+        "Machine Science and Machine Tools   2021  Nov  (2019 Ad).pdf"
+      ],
+      "id": "1QdxLJljqLEBvrz3r6u23mGJnoWWR72r4",
+      "size": 95653,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Machine Tools",
+        "2019 scheme",
+        "Machine Science and Machine Tools   2022  Sept  (2019 Ad).pdf"
+      ],
+      "id": "1VFyrrxbv_AEhUpRCid8i1rUjhZrn-8Pd",
+      "size": 117964,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Machine Tools",
+        "2019 scheme",
+        "Machine Science and Machine Tools   2023 Janu  (2019 Ad).pdf"
+      ],
+      "id": "1n7XLjzpM05EOQ8xxc2WWk1sD0kd1_Qq5",
+      "size": 127276,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Machine Tools",
+        "2019 scheme",
+        "Machine Science and Machine Tools 2024 June (2019 Ad.).pdf"
+      ],
+      "id": "1H5U-_thmbgayKk0hfn_Nic8HIU2bbtz8",
+      "size": 129363,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "PYQ",
+        "Machine Tools",
+        "2019 scheme",
+        "Machine Science and Machine Tools 2025 Nov (2019 Ad.).pdf"
+      ],
+      "id": "1x3aHBAVZx_b-8MbWVl6W2-xfMmiM0evU",
+      "size": 185668,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S7",
+        "PYQ",
+        "RAC",
+        "2019 Scheme ",
+        "Refrigeration and Air Conditioning 2023 Nov(2019Ad.).pdf"
+      ],
+      "id": "1iiwv2lKZiEGuZ_uiFrh5iwz8vIBne8mU",
+      "size": 91375,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S7",
+        "PYQ",
+        "RAC",
+        "2019 Scheme ",
+        "Refrigeration and Air Conditioning 2023 March (2019 Ad).pdf"
+      ],
+      "id": "1jWex4mwwsB5l9NepiK6m8ZyRvOQbrQQa",
+      "size": 126414,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S6",
+        "PYQ",
+        "Machine Design 1",
+        "2019 Scheme",
+        "Machine Design I 2022 April (2019 Ad. ).pdf"
+      ],
+      "id": "1mxwcJZdgZDaLwiU9LLuKWFp4A1FkNowU",
+      "size": 158579,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S3",
+        "PYQ",
+        "Fluid Mechanics ",
+        "2019 Scheme ",
+        "Fluid Mechanics  2022 Feb (2019 Ad).pdf"
+      ],
+      "id": "1Gp_Hm0zD0KlecZSNGBjAxpHCinOsPnm0",
+      "size": 153757,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S3",
+        "PYQ",
+        "Fluid Mechanics ",
+        "2019 Scheme ",
+        "Fluid Mechanics  2023 Nov (2019 Ad).pdf"
+      ],
+      "id": "1Xr7BZT-R1n2LaPmI9MbVgbABsRFmdniU",
+      "size": 182544,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S3",
+        "PYQ",
+        "Fluid Mechanics ",
+        "2019 Scheme ",
+        "Fluid Mechanics  2024 July  (2019 Ad).pdf"
+      ],
+      "id": "1FMUzg54vN2I5fvDZXI0GNkKFFiuqgbKa",
+      "size": 112793,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S3",
+        "PYQ",
+        "2025 scheme S3 First internal.pdf"
+      ],
+      "id": "10qrfaBJrfcouoMEaiBUdQ3iGT9AVMQiV",
+      "size": 2386575,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": "o***@gmail.com",
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S5",
+        "Internals ",
+        "Thermal Engg",
+        " 2024-28 Batch",
+        "1st internals qp.pdf"
+      ],
+      "id": "1yvQXFUCmWob1BLXS5LcDgkxzZZOaQE3B",
+      "size": 9500382,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S7",
+        "Data Book",
+        "Refrigeration Data Book.pdf"
+      ],
+      "id": "1JZqKFVYpCOSFONI5gLtGMu7vSEaLNEKz",
+      "size": 44337777,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "S1-8",
+        "S7",
+        "Data Book",
+        "Psychrometric Chart_Colour.pdf"
+      ],
+      "id": "1YY8lX5YIf_fc55YNQ4Om4bbJKbr6-6cB",
+      "size": 24673,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "GATE",
+        "PYQ",
+        "2024",
+        "GATE2024.pdf"
+      ],
+      "id": "13VkLRKmrW1DcNILqZxX28ifOiucAWd1r",
+      "size": 1102200,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "GATE",
+        "Study Material ",
+        "GATE 2019 Mechanical Engineering Pearson.pdf"
+      ],
+      "id": "1QVvndhrNu4X3-G3cJyGJYUOPduNApZvt",
+      "size": 96398671,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    },
+    {
+      "path": [
+        "GATE",
+        "Study Material ",
+        "Heat Transfer.pdf"
+      ],
+      "id": "19WQ2c94n1a9qsLvmb6t--gmLc4FqDDol",
+      "size": 4765124,
+      "mimeType": "application/pdf",
+      "modifiedTime": null,
+      "owner": null,
+      "ownerKnown": true
+    }
+  ],
+  "skipped": []
+}
