@@ -51,6 +51,14 @@ test("steps run in order: tests, build, check:deploy, deploy", opts, () => {
   assert.equal(steps[idx("npm run check:deploy")].env.DEPLOY, "1");
 });
 
+test("the data reports are uploaded even when a step fails", opts, () => {
+  const step = doc.jobs.deploy.steps.find((s) =>
+    String(s.uses ?? "").startsWith("actions/upload-artifact"),
+  );
+  assert.ok(step, "no upload-artifact step");
+  assert.equal(step.if, "always()");
+});
+
 test("every action is pinned to a major version", opts, () => {
   for (const s of doc.jobs.deploy.steps) {
     if (s.uses) assert.match(s.uses, /@v\d+$/, s.uses);

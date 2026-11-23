@@ -77,6 +77,19 @@ jobs:
           VITE_REPORT_FORM_FILE_ENTRY: ${{ secrets.VITE_REPORT_FORM_FILE_ENTRY }}
           SITE_URL: ${{ secrets.SITE_URL }}
 
+      # Keep the reports (what was indexed, which rows/files were skipped) so a failed run can be diagnosed.
+      - name: Save data reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-reports
+          path: |
+            data/drive-report.md
+            data/sheet-report.md
+            data/unsorted.csv
+          if-no-files-found: ignore
+          retention-days: 14
+
       # Fails the run (so nothing is deployed) if any report still says "fixture" or SITE_URL is not set.
       - name: Refuse to deploy sample data
         run: npm run check:deploy
