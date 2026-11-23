@@ -5,7 +5,6 @@ import { Reveal } from "@/components/Reveal";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import {
   Target,
-  Award,
   UserCheck,
   ShieldCheck,
   Users,
@@ -280,8 +279,8 @@ export function AboutPage() {
             </Reveal>
           </div>
 
-          {/* SECTION 5: FACULTY PATRON & COORDINATOR */}
-          <div className="grid gap-6 sm:grid-cols-2">
+          {/* SECTION 5: FACULTY PATRON (Head-of-Division card removed until the name is confirmed) */}
+          <div className="grid gap-6 max-w-2xl mx-auto">
             <Reveal delay={180}>
               <div className="rounded-3xl border border-gold/30 bg-gradient-to-br from-card via-card to-gold/5 p-6 sm:p-8 shadow-lift relative overflow-hidden group hover:border-gold/60 transition-all">
                 <div className="flex items-center gap-4 mb-4">
@@ -300,25 +299,6 @@ export function AboutPage() {
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
                   Associate Professor, Division of Mechanical Engineering, School of Engineering,
                   CUSAT
-                </p>
-              </div>
-            </Reveal>
-
-            <Reveal delay={220}>
-              <div className="rounded-3xl border border-border bg-gradient-to-br from-card via-card to-secondary/40 p-6 sm:p-8 shadow-lift relative overflow-hidden group hover:border-gold/40 transition-all">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-12 w-12 rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold">
-                    <Award className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <span className="text-xs uppercase tracking-widest text-gold font-bold">
-                      Coordinator & Head of Division
-                    </span>
-                    <h3 className="font-display text-xl font-bold text-foreground">Dr. Biju N</h3>
-                  </div>
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
-                  Professor & Head of Division, Mechanical Engineering, School of Engineering, CUSAT
                 </p>
               </div>
             </Reveal>

@@ -1,15 +1,13 @@
-import type { FacultyMember, DepartmentProgram, Lab, DepartmentOverview } from "@/types";
-
 /**
- * Faculty details here were carried over from the prototype and have not been verified
- * (the old team data named a different Head of Division). Keep this false until the team has
- * checked every name; the data stays so it can be re-enabled by flipping this one constant.
- * When false, /mechanical-dept hides the Head-of-Division card and the faculty roster.
+ * Programs and labs shown on /mechanical-dept.
+ *
+ * The faculty list and Head-of-Division card were removed because the names could not be
+ * verified. To bring them back, confirm the names with the department office and add them to
+ * the team Sheet with group = "Faculty" (they then appear on /team). The old data is in git
+ * history: `git log --diff-filter=M -- src/data/department.ts`, look for the commit titled
+ * "remove unverified faculty data".
  */
-export const SHOW_FACULTY_ROSTER = false;
-
-export const facultyDriveUrl =
-  "https://docs.google.com/spreadsheets/d/1piGoyDXXS-rAC8SQzLHBRRNzE8flb-R3VoJRYT_3YnE/edit?gid=474521214#gid=474521214";
+import type { DepartmentProgram, Lab, DepartmentOverview } from "@/types";
 
 export const departmentOverview: DepartmentOverview = {
   name: "Division of Mechanical Engineering",
@@ -26,201 +24,6 @@ export const departmentOverview: DepartmentOverview = {
   vision:
     "The Mechanical Engineering Division strives to be recognized globally for outstanding education and research, developing well-qualified engineers who are innovative, entrepreneurial, and successful in advanced fields of engineering and technology.",
 };
-
-export const departmentHOD: FacultyMember = {
-  id: "faculty-hod-dr-franklin",
-  slNo: 1,
-  name: "Dr. Franklin R John",
-  designation: "Professor & Head of Division",
-  role: "Professor & HOD",
-  department: "Division of Mechanical Engineering, School of Engineering, CUSAT",
-  specialization: "Advanced Manufacturing & CNC Technology",
-  img: "/images/mec/frank.jpg",
-};
-
-export const departmentFaculty: FacultyMember[] = [
-  {
-    id: "faculty-01",
-    slNo: 1,
-    name: "Dr. Franklin R John",
-    designation: "Professor & Head of Division",
-    role: "Professor & HOD",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Advanced Manufacturing & CNC Technology",
-    img: "https://cdn.corenexis.com/f/2H2Y2w3Pdvr.png",
-  },
-  {
-    id: "faculty-02",
-    slNo: 2,
-    name: "Dr. K. K. Saju",
-    designation: "Professor",
-    role: "Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Machine Design, Tribology & Biomechanics",
-  },
-  {
-    id: "faculty-03",
-    slNo: 3,
-    name: "Dr. Akhil S. Karun, MIE",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Thermal Science & Materials Engineering",
-  },
-  {
-    id: "faculty-04",
-    slNo: 4,
-    name: "Dr. Harikrishnan. S.",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Fluid Power Systems & Heat Transfer",
-  },
-  {
-    id: "faculty-05",
-    slNo: 5,
-    name: "Dr. James Varghese",
-    designation: "Professor",
-    role: "Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Composite Materials & Metallurgy",
-  },
-  {
-    id: "faculty-06",
-    slNo: 6,
-    name: "Dr. Jayadas.N.H",
-    designation: "Professor",
-    role: "Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Vibration Analysis & Applied Mechanics",
-  },
-  {
-    id: "faculty-07",
-    slNo: 7,
-    name: "Dr. Gireesh Kumaran Thampi.B.S",
-    designation: "Professor",
-    role: "Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Industrial Engineering & Ergonomics",
-  },
-  {
-    id: "faculty-08",
-    slNo: 8,
-    name: "Dr. Joshy.P. J",
-    designation: "Associate Professor",
-    role: "Associate Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Manufacturing Process & Production Tech",
-  },
-  {
-    id: "faculty-09",
-    slNo: 9,
-    name: "Dr. Tide P. S.",
-    designation: "Professor",
-    role: "Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Fluid Dynamics, Aerodynamics & Turbomachinery",
-  },
-  {
-    id: "faculty-10",
-    slNo: 10,
-    name: "Dr. Biju N",
-    designation: "Professor",
-    role: "Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Thermal Engineering & Energy Systems",
-  },
-  {
-    id: "faculty-11",
-    slNo: 11,
-    name: "Dr. Senthil Prakash M N",
-    designation: "Professor",
-    role: "Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "CAD/CAM, Robotics & Automation",
-  },
-  {
-    id: "faculty-12",
-    slNo: 12,
-    name: "Dr. Salaji S",
-    designation: "Associate Professor",
-    role: "Associate Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Mechanical Systems & Design",
-  },
-  {
-    id: "faculty-13",
-    slNo: 13,
-    name: "Rashid Kareem",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Production & Mechanical Engineering",
-  },
-  {
-    id: "faculty-14",
-    slNo: 14,
-    name: "Vishnuprasad S",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Thermal Sciences & Applied Mechanics",
-  },
-  {
-    id: "faculty-15",
-    slNo: 15,
-    name: "Nidheesh Narayan",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Manufacturing Systems & CAD",
-  },
-  {
-    id: "faculty-16",
-    slNo: 16,
-    name: "Neethu Elsa John M",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Materials Science & Kinematics",
-  },
-  {
-    id: "faculty-17",
-    slNo: 17,
-    name: "Pramod Ramakrishnan",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Industrial Engineering & Operations",
-  },
-  {
-    id: "faculty-18",
-    slNo: 18,
-    name: "Dr. Sivaraj Murugan",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Mechatronics & Robotics",
-  },
-  {
-    id: "faculty-19",
-    slNo: 19,
-    name: "Venugopal K P",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Design Engineering & Fluid Power",
-  },
-  {
-    id: "faculty-20",
-    slNo: 20,
-    name: "Radhakrishnan P V",
-    designation: "Assistant Professor",
-    role: "Assistant Professor",
-    department: "Division of Mechanical Engineering, SOE CUSAT",
-    specialization: "Automotive Systems & Thermodynamics",
-  },
-];
 
 export const departmentPrograms: DepartmentProgram[] = [
   {
@@ -299,5 +102,3 @@ export const departmentLabs: Lab[] = [
       "Laboratory for sensors, instrumentation, pneumatic and hydraulic circuits, and microcontroller-based automation.",
   },
 ];
-
-export const facultyList = departmentFaculty;
