@@ -1,0 +1,16 @@
+key,value
+hero_title,SAMPLE hero title
+hero_subtitle,SAMPLE subtitle. Replace this by editing the settings tab of the Google Sheet.
+stat_members,100
+stat_papers,50
+stat_placements,10
+contact_email,
+contact_phone,
+instagram_url,https://example.com/instagram-sample
+linkedin_url,https://example.com/linkedin-sample
+report_form_url,
+placement_brochure_url,
+announcement_text,SAMPLE announcement. Connect the real Google Sheet before launch.
+announcement_link,/archive
+footer_text,SAMPLE DATA: connect the Google Sheet before launch.
+mystery_key,ignored

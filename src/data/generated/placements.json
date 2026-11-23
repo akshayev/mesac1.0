@@ -1,0 +1,41 @@
+{
+  "source": "fixture",
+  "generatedAt": null,
+  "issues": [
+    {
+      "tab": "placements",
+      "line": 5,
+      "level": "warn",
+      "message": "skipped: empty company"
+    }
+  ],
+  "items": [
+    {
+      "name": "SAMPLE Student A",
+      "company": "SAMPLE Company One",
+      "role": "Graduate Engineer Trainee",
+      "batch": "2025",
+      "photo": "",
+      "linkedin": "",
+      "order": 1
+    },
+    {
+      "name": "SAMPLE Student B",
+      "company": "SAMPLE Company One",
+      "role": "Design Engineer",
+      "batch": "2025",
+      "photo": "",
+      "linkedin": "https://www.linkedin.com/in/sample-b",
+      "order": 2
+    },
+    {
+      "name": "SAMPLE Student C",
+      "company": "SAMPLE Company Two",
+      "role": "Analyst",
+      "batch": "2024",
+      "photo": "",
+      "linkedin": "",
+      "order": 3
+    }
+  ]
+}

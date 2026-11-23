@@ -1,0 +1,50 @@
+{
+  "source": "fixture",
+  "generatedAt": null,
+  "issues": [
+    {
+      "tab": "achievements",
+      "line": 6,
+      "level": "warn",
+      "message": "date \"someday\" not understood; shown without a date"
+    }
+  ],
+  "items": [
+    {
+      "title": "SAMPLE Achievement: Design competition finalists",
+      "date": "2026-03-14",
+      "category": "Competition",
+      "description": "Placeholder text.\nSecond line of the description, with a comma.",
+      "image": "",
+      "link": "https://example.com/sample-achievement",
+      "order": 1
+    },
+    {
+      "title": "SAMPLE Achievement: Student project showcase",
+      "date": "2026-01-12",
+      "category": "Project",
+      "description": "Placeholder description for a student project.",
+      "image": "",
+      "link": "",
+      "order": 2
+    },
+    {
+      "title": "SAMPLE Achievement: Undated entry",
+      "date": null,
+      "category": "Award",
+      "description": "Placeholder description with no date.",
+      "image": "",
+      "link": "",
+      "order": 3
+    },
+    {
+      "title": "SAMPLE Achievement: Bad date",
+      "date": null,
+      "category": "Award",
+      "description": "Placeholder description with an unparseable date.",
+      "image": "",
+      "link": "",
+      "order": 4
+    }
+  ]
+}

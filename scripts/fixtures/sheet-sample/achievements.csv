@@ -1,0 +1,7 @@
+title,date,category,description,image,link,order,visible
+SAMPLE Achievement: Design competition finalists,2026-03-14,Competition,"Placeholder text.
+Second line of the description, with a comma.",,https://example.com/sample-achievement,1,TRUE
+SAMPLE Achievement: Student project showcase,12/01/2026,Project,Placeholder description for a student project.,,,2,TRUE
+SAMPLE Achievement: Undated entry,,Award,Placeholder description with no date.,,,3,TRUE
+SAMPLE Achievement: Bad date,someday,Award,Placeholder description with an unparseable date.,,,4,TRUE
+SAMPLE Achievement: Hidden,2026-01-01,Award,Should not appear.,,,5,FALSE

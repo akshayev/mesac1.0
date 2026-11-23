@@ -1,0 +1,6 @@
+name,company,role,batch,photo,linkedin,order,visible
+SAMPLE Student A,SAMPLE Company One,Graduate Engineer Trainee,2025,,,1,TRUE
+SAMPLE Student B,SAMPLE Company One,Design Engineer,2025,,https://www.linkedin.com/in/sample-b,2,TRUE
+SAMPLE Student C,SAMPLE Company Two,Analyst,2024,,,3,TRUE
+SAMPLE Student D,,Role without company,2024,,,4,TRUE
+SAMPLE Student E,SAMPLE Company Three,Engineer,2024,,,5,FALSE

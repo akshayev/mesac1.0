@@ -1,0 +1,86 @@
+{
+  "source": "fixture",
+  "generatedAt": null,
+  "issues": [
+    {
+      "tab": "team",
+      "line": 7,
+      "level": "warn",
+      "message": "email_public \"not-an-email\" is not an email; ignored"
+    },
+    {
+      "tab": "team",
+      "line": 7,
+      "level": "warn",
+      "message": "photo \"not a photo\" is not a usable image; initials will be shown"
+    },
+    {
+      "tab": "team",
+      "line": 7,
+      "level": "warn",
+      "message": "linkedin \"not-a-link\" is not an http(s) link; ignored"
+    },
+    {
+      "tab": "team",
+      "line": 9,
+      "level": "warn",
+      "message": "skipped: empty name"
+    }
+  ],
+  "items": [
+    {
+      "name": "SAMPLE Faculty Advisor",
+      "role": "Faculty Advisor",
+      "group": "Faculty",
+      "photo": "",
+      "linkedin": "",
+      "email": "",
+      "order": 1
+    },
+    {
+      "name": "SAMPLE President",
+      "role": "President",
+      "group": "Core Committee",
+      "photo": "",
+      "linkedin": "https://www.linkedin.com/in/sample-president",
+      "email": "president@example.com",
+      "order": 2
+    },
+    {
+      "name": "SAMPLE Secretary",
+      "role": "Secretary",
+      "group": "Core Committee",
+      "photo": "/people/sample-secretary.jpg",
+      "linkedin": "",
+      "email": "",
+      "order": 3
+    },
+    {
+      "name": "SAMPLE Treasurer, Jr",
+      "role": "Treasurer",
+      "group": "Core Committee",
+      "photo": "https://drive.google.com/thumbnail?id=1AbCdEfGhIjKlMnOpQrStUvWxYz012345&sz=w600",
+      "linkedin": "",
+      "email": "",
+      "order": 4
+    },
+    {
+      "name": "SAMPLE Technical Lead",
+      "role": "Technical Lead",
+      "group": "Division Heads",
+      "photo": "https://drive.google.com/thumbnail?id=1AbCdEfGhIjKlMnOpQrStUvWxYz012345&sz=w600",
+      "linkedin": "",
+      "email": "",
+      "order": 5
+    },
+    {
+      "name": "SAMPLE Design Lead",
+      "role": "Design Lead",
+      "group": "Division Heads",
+      "photo": "",
+      "linkedin": "",
+      "email": "",
+      "order": 6
+    }
+  ]
+}

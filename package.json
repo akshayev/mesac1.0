@@ -5,14 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --host 0.0.0.0 --port 3000",
-    "prebuild": "npm run data:archive",
+    "prebuild": "npm run data:all",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
     "data:archive": "node scripts/drive-index.mjs",
-    "test:data": "node --test \"scripts/tests/*.test.mjs\""
+    "test:data": "node --test \"scripts/tests/*.test.mjs\"",
+    "data:sheet": "node scripts/sheet-sync.mjs",
+    "data:all": "npm run data:archive && npm run data:sheet",
+    "check:deploy": "node scripts/check-deploy.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
