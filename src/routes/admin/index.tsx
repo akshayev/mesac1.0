@@ -19,7 +19,7 @@ import {
   ChevronRight,
   TrendingUp,
 } from "lucide-react";
-import { mockArchiveDocuments } from "@/data/mock/archive";
+import { getArchiveDocuments } from "@/data/archive";
 import { mockEvents } from "@/data/mock/events";
 import { mockTeamMembers } from "@/data/mock/team";
 import { mockActivityLogs, mockArchiveReports, mockContactSubmissions } from "@/data/mock/admin";
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/admin/")({
 export function AdminDashboardOverview() {
   const [activeTab, setActiveTab] = useState<"activity" | "submissions">("activity");
 
-  const archiveCount = mockArchiveDocuments.length;
+  const archiveCount = getArchiveDocuments().length;
   const eventsCount = mockEvents.length;
   const teamCount = mockTeamMembers.length;
   const pendingInboxCount =
