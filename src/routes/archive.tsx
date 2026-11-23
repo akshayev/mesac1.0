@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
@@ -7,205 +7,186 @@ import { EmptyState } from "@/components/EmptyState";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import { ArchiveDocumentCard } from "@/components/archive/ArchiveDocumentCard";
 import { DOCUMENT_TYPE_LABELS } from "@/lib/archive";
-import { mockArchiveDocuments } from "@/data/mock/archive";
+import { getArchiveDocuments, getSubjectsWithCounts } from "@/data/archive";
 import type { ArchiveDocument, ArchiveDocumentType } from "@/types";
 import {
   Search,
   SlidersHorizontal,
   X,
-  BookOpen,
   RotateCcw,
-  Layers,
-  GraduationCap,
-  Calendar,
-  FileText,
-  Building2,
   ChevronRight,
-  Filter,
+  GraduationCap,
+  FolderOpen,
 } from "lucide-react";
 
 export const Route = createFileRoute("/archive")({
   head: () => ({
     meta: [
-      { title: "Academic Archive — MESAC CUSAT" },
+      { title: "Question Paper Archive — CUSAT Mechanical Engineering | MESAC" },
       {
         name: "description",
         content:
-          "Browse official CUSAT Mechanical Engineering question papers, syllabus schemes, lab manuals, and notes indexed by department, program, semester and subject.",
+          "Previous year question papers and internal exam papers for CUSAT B.Tech Mechanical Engineering, organised by semester, subject, scheme and year. Free preview and download.",
       },
-      { property: "og:title", content: "Academic Archive — MESAC CUSAT" },
+      { property: "og:title", content: "Question Paper Archive — MESAC CUSAT" },
       {
         property: "og:description",
         content:
-          "Explore verified academic documents, previous year question papers, and course syllabus.",
+          "CUSAT B.Tech Mechanical previous year question papers by semester and subject, from the MESAC academic Drive.",
       },
     ],
   }),
   component: ArchivePage,
 });
 
+const ALL = "All";
+const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
+const TYPE_ORDER: ArchiveDocumentType[] = [
+  "question_paper",
+  "internal_paper",
+  "syllabus",
+  "notes",
+  "lab_manual",
+  "gate_paper",
+];
+
+const semKey = (d: ArchiveDocument) => String(d.semester);
+const semKeyLabel = (k: string) => (/^\d+$/.test(k) ? `Semester ${k}` : k);
+const semKeyRank = (k: string) => (/^\d+$/.test(k) ? Number(k) : 99);
+
+const selectClass =
+  "w-full rounded-xl border border-input bg-card px-2.5 py-2 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold min-h-[38px] cursor-pointer";
+const inlineSelectClass =
+  "rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold cursor-pointer";
+
 function ArchivePage() {
-  // Filter & Search State
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("All");
-  const [selectedProgram, setSelectedProgram] = useState<string>("All");
-  const [selectedSemester, setSelectedSemester] = useState<string>("All");
-  const [selectedSubject, setSelectedSubject] = useState<string>("All");
-  const [selectedType, setSelectedType] = useState<string>("All");
-  const [selectedScheme, setSelectedScheme] = useState<string>("All");
-  const [showMobileFilters, setShowMobileFilters] = useState<boolean>(false);
+  const documents = getArchiveDocuments();
 
-  // Derive unique filter options dynamically from mock data
-  const departments = useMemo(() => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState(ALL);
+  const [selectedSubject, setSelectedSubject] = useState(ALL);
+  const [selectedType, setSelectedType] = useState(ALL);
+  const [selectedScheme, setSelectedScheme] = useState(ALL);
+  const [selectedYear, setSelectedYear] = useState(ALL);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Browse view starts on the first semester that has files.
+  const firstWithFiles = SEMESTERS.find((s) => documents.some((d) => d.semester === s)) ?? 1;
+  const [browseSemester, setBrowseSemester] = useState<number>(firstWithFiles);
+  const gateCount = documents.filter((d) => d.semester === "GATE").length;
+  const browseSubjects = useMemo(() => getSubjectsWithCounts(browseSemester), [browseSemester]);
+
+  // Filter options come from the real data.
+  const semesters = useMemo(
+    () =>
+      [...new Set(documents.map(semKey))]
+        .filter(Boolean)
+        .sort((a, b) => semKeyRank(a) - semKeyRank(b)),
+    [documents],
+  );
+  const subjects = useMemo(() => {
     const set = new Set<string>();
-    mockArchiveDocuments.forEach((d) => {
-      if (d.department) set.add(d.department);
-    });
-    return ["All", ...Array.from(set)];
-  }, []);
+    for (const d of documents) {
+      if (selectedSemester === ALL || semKey(d) === selectedSemester) set.add(d.subject);
+    }
+    return [...set].sort();
+  }, [documents, selectedSemester]);
+  const types = useMemo(
+    () => TYPE_ORDER.filter((t) => documents.some((d) => d.type === t)),
+    [documents],
+  );
+  const schemes = useMemo(
+    () => [...new Set(documents.map((d) => d.scheme).filter(Boolean))].sort(),
+    [documents],
+  );
+  const years = useMemo(
+    () =>
+      [...new Set(documents.map((d) => d.examYear).filter((y) => y > 0))]
+        .sort((a, b) => b - a)
+        .map(String),
+    [documents],
+  );
 
-  const programs = useMemo(() => {
-    const set = new Set<string>();
-    mockArchiveDocuments.forEach((d) => {
-      if (d.program) set.add(d.program);
-    });
-    return ["All", ...Array.from(set)];
-  }, []);
-
-  const semesters = useMemo(() => {
-    const set = new Set<string>();
-    mockArchiveDocuments.forEach((d) => {
-      if (typeof d.semester === "number") {
-        set.add(`Semester ${d.semester}`);
-      } else if (d.semester) {
-        set.add(String(d.semester));
-      }
-    });
-    // Sort semesters numerically where possible
-    return [
-      "All",
-      ...Array.from(set).sort((a, b) => {
-        const numA = parseInt(a.replace(/\D/g, "")) || 999;
-        const numB = parseInt(b.replace(/\D/g, "")) || 999;
-        return numA - numB;
-      }),
-    ];
-  }, []);
-
-  const schemes = useMemo(() => {
-    const set = new Set<string>();
-    mockArchiveDocuments.forEach((d) => {
-      if (d.scheme) set.add(d.scheme);
-    });
-    return ["All", ...Array.from(set)];
-  }, []);
-
-  const documentTypes: Array<{ value: string; label: string }> = [
-    { value: "All", label: "All Document Types" },
-    { value: "question_paper", label: "Question Papers" },
-    { value: "syllabus", label: "Syllabus & Schemes" },
-    { value: "notes", label: "Lecture Notes" },
-    { value: "lab_manual", label: "Lab Manuals" },
-  ];
-
-  // Dynamic subjects based on current department, program & semester selection
-  const availableSubjects = useMemo(() => {
-    const set = new Set<string>();
-    mockArchiveDocuments.forEach((d) => {
-      const matchDept = selectedDepartment === "All" || d.department === selectedDepartment;
-      const matchProg = selectedProgram === "All" || d.program === selectedProgram;
-      const semStr = typeof d.semester === "number" ? `Semester ${d.semester}` : String(d.semester);
-      const matchSem =
-        selectedSemester === "All" || semStr === selectedSemester || d.semester === "All Semesters";
-
-      if (matchDept && matchProg && matchSem && d.subject) {
-        set.add(d.subject);
-      }
-    });
-    return ["All", ...Array.from(set).sort()];
-  }, [selectedDepartment, selectedProgram, selectedSemester]);
-
-  // Combined Search and Filter Logic
   const filteredDocuments = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-
-    return mockArchiveDocuments.filter((doc) => {
-      // 1. Department Filter
-      if (selectedDepartment !== "All" && doc.department !== selectedDepartment) {
-        return false;
-      }
-
-      // 2. Program Filter
-      if (selectedProgram !== "All" && doc.program !== selectedProgram) {
-        return false;
-      }
-
-      // 3. Semester Filter
-      if (selectedSemester !== "All") {
-        const docSemStr =
-          typeof doc.semester === "number" ? `Semester ${doc.semester}` : String(doc.semester);
-        if (docSemStr !== selectedSemester && doc.semester !== "All Semesters") {
-          return false;
-        }
-      }
-
-      // 4. Subject Filter
-      if (selectedSubject !== "All" && doc.subject !== selectedSubject) {
-        return false;
-      }
-
-      // 5. Document Type Filter
-      if (selectedType !== "All" && doc.type !== selectedType) {
-        return false;
-      }
-
-      // 6. Scheme Filter
-      if (selectedScheme !== "All" && doc.scheme !== selectedScheme) {
-        return false;
-      }
-
-      // 7. Search Query (Matches ONLY: title, subject name, subject code, tags)
+    return documents.filter((doc) => {
+      if (selectedSemester !== ALL && semKey(doc) !== selectedSemester) return false;
+      if (selectedSubject !== ALL && doc.subject !== selectedSubject) return false;
+      if (selectedType !== ALL && doc.type !== selectedType) return false;
+      if (selectedScheme !== ALL && doc.scheme !== selectedScheme) return false;
+      if (selectedYear !== ALL && String(doc.examYear) !== selectedYear) return false;
       if (q) {
-        const matchTitle = doc.title.toLowerCase().includes(q);
-        const matchSubject = doc.subject.toLowerCase().includes(q);
-        const matchCode = doc.subjectCode ? doc.subjectCode.toLowerCase().includes(q) : false;
-        const matchTags = doc.tags ? doc.tags.some((t) => t.toLowerCase().includes(q)) : false;
-
-        if (!matchTitle && !matchSubject && !matchCode && !matchTags) {
-          return false;
-        }
+        const haystack = [doc.title, doc.subject, doc.subjectCode, doc.batch, ...doc.tags]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(q)) return false;
       }
-
       return true;
     });
   }, [
+    documents,
     searchQuery,
-    selectedDepartment,
-    selectedProgram,
     selectedSemester,
     selectedSubject,
     selectedType,
     selectedScheme,
+    selectedYear,
   ]);
 
   const hasActiveFilters =
     searchQuery.trim().length > 0 ||
-    selectedDepartment !== "All" ||
-    selectedProgram !== "All" ||
-    selectedSemester !== "All" ||
-    selectedSubject !== "All" ||
-    selectedType !== "All" ||
-    selectedScheme !== "All";
+    [selectedSemester, selectedSubject, selectedType, selectedScheme, selectedYear].some(
+      (v) => v !== ALL,
+    );
 
   const handleResetFilters = () => {
     setSearchQuery("");
-    setSelectedDepartment("All");
-    setSelectedProgram("All");
-    setSelectedSemester("All");
-    setSelectedSubject("All");
-    setSelectedType("All");
-    setSelectedScheme("All");
+    setSelectedSemester(ALL);
+    setSelectedSubject(ALL);
+    setSelectedType(ALL);
+    setSelectedScheme(ALL);
+    setSelectedYear(ALL);
   };
+
+  const scrollToCatalog = () => {
+    if (typeof window === "undefined") return;
+    window.document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const openSubject = (semester: string, subject: string) => {
+    handleResetFilters();
+    setSelectedSemester(semester);
+    setSelectedSubject(subject);
+    scrollToCatalog();
+  };
+
+  const changeSemester = (v: string) => {
+    setSelectedSemester(v);
+    setSelectedSubject(ALL);
+  };
+
+  // A filter with a single value is noise; hide it.
+  const showSemester = semesters.length > 1;
+  const showSubject = subjects.length > 1 || selectedSubject !== ALL;
+  const showType = types.length > 1;
+  const showScheme = schemes.length > 1;
+  const showYear = years.length > 1;
+
+  const activeChips: Array<{ label: string; clear: () => void }> = [
+    searchQuery && { label: `Search: "${searchQuery}"`, clear: () => setSearchQuery("") },
+    selectedSemester !== ALL && {
+      label: semKeyLabel(selectedSemester),
+      clear: () => changeSemester(ALL),
+    },
+    selectedSubject !== ALL && { label: selectedSubject, clear: () => setSelectedSubject(ALL) },
+    selectedType !== ALL && {
+      label: DOCUMENT_TYPE_LABELS[selectedType as ArchiveDocumentType] ?? selectedType,
+      clear: () => setSelectedType(ALL),
+    },
+    selectedScheme !== ALL && { label: selectedScheme, clear: () => setSelectedScheme(ALL) },
+    selectedYear !== ALL && { label: selectedYear, clear: () => setSelectedYear(ALL) },
+  ].filter(Boolean) as Array<{ label: string; clear: () => void }>;
 
   return (
     <Layout>
@@ -218,95 +199,150 @@ function ArchivePage() {
             ACADEMIC <span className="italic text-gold">ARCHIVE</span>
           </>
         }
-        subtitle="Department repository for B.Tech & M.Tech semester question papers, university curriculum schemes, lab manuals, and faculty course notes."
+        subtitle="Previous year question papers and internal exam papers for CUSAT B.Tech Mechanical Engineering, collected by MESAC and organised by semester and subject."
       />
 
       {/* 2. BROWSE STEPPER / HIERARCHY BAR */}
       <section className="border-b border-border bg-card/60 py-3.5 px-4 sm:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground font-medium">
-            {/* Department Hierarchy Step */}
             <div className="flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5 text-gold shrink-0" aria-hidden="true" />
-              <span className="text-muted-foreground/80">Dept:</span>
-              <select
-                aria-label="Filter by department"
-                value={selectedDepartment}
-                onChange={(e) => {
-                  setSelectedDepartment(e.target.value);
-                  setSelectedSubject("All");
-                }}
-                className="rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold cursor-pointer"
-              >
-                {departments.map((d) => (
-                  <option key={d} value={d}>
-                    {d === "All" ? "All Departments" : d}
-                  </option>
-                ))}
-              </select>
+              <GraduationCap className="h-3.5 w-3.5 text-gold shrink-0" aria-hidden="true" />
+              <span className="font-semibold text-foreground">Mechanical · B.Tech</span>
             </div>
-            <ChevronRight className="h-3 w-3 opacity-50 shrink-0" aria-hidden="true" />
-
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground/80">Program:</span>
-              <select
-                aria-label="Filter by program"
-                value={selectedProgram}
-                onChange={(e) => {
-                  setSelectedProgram(e.target.value);
-                  setSelectedSubject("All");
-                }}
-                className="rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold cursor-pointer"
-              >
-                {programs.map((p) => (
-                  <option key={p} value={p}>
-                    {p === "All" ? "All Programs" : p}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <ChevronRight className="h-3 w-3 opacity-50 shrink-0" aria-hidden="true" />
-
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground/80">Semester:</span>
-              <select
-                aria-label="Filter by semester"
-                value={selectedSemester}
-                onChange={(e) => {
-                  setSelectedSemester(e.target.value);
-                  setSelectedSubject("All");
-                }}
-                className="rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold cursor-pointer"
-              >
-                {semesters.map((s) => (
-                  <option key={s} value={s}>
-                    {s === "All" ? "All Semesters" : s}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <ChevronRight className="h-3 w-3 opacity-50 shrink-0" aria-hidden="true" />
-
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground/80">Subject:</span>
-              <select
-                aria-label="Filter by subject"
-                value={selectedSubject}
-                onChange={(e) => setSelectedSubject(e.target.value)}
-                className="rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold max-w-[180px] sm:max-w-[220px] truncate cursor-pointer"
-              >
-                {availableSubjects.map((sub) => (
-                  <option key={sub} value={sub}>
-                    {sub === "All" ? "All Subjects" : sub}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {showSemester && (
+              <>
+                <ChevronRight className="h-3 w-3 opacity-50 shrink-0" aria-hidden="true" />
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground/80">Semester:</span>
+                  <select
+                    aria-label="Filter by semester"
+                    value={selectedSemester}
+                    onChange={(e) => changeSemester(e.target.value)}
+                    className={inlineSelectClass}
+                  >
+                    <option value={ALL}>All Semesters</option>
+                    {semesters.map((s) => (
+                      <option key={s} value={s}>
+                        {semKeyLabel(s)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+            {showSubject && (
+              <>
+                <ChevronRight className="h-3 w-3 opacity-50 shrink-0" aria-hidden="true" />
+                <div className="flex items-center gap-1 min-w-0">
+                  <span className="text-muted-foreground/80">Subject:</span>
+                  <select
+                    aria-label="Filter by subject"
+                    value={selectedSubject}
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                    className={`${inlineSelectClass} max-w-[180px] sm:max-w-[260px] truncate`}
+                  >
+                    <option value={ALL}>All Subjects</option>
+                    {subjects.map((sub) => (
+                      <option key={sub} value={sub}>
+                        {sub}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>
 
-      {/* 3. SEARCH & FILTER CONTROLS */}
+      {/* 3. BROWSE BY SEMESTER -> SUBJECT */}
+      <section className="py-10 sm:py-14 bg-background border-b border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h2 className="font-display text-lg sm:text-xl font-bold text-foreground">
+            Browse by semester
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Every subject in the B.Tech Mechanical curriculum, including ones we don&apos;t have
+            papers for yet.
+          </p>
+
+          <div
+            role="tablist"
+            aria-label="Semester"
+            className="mt-5 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap"
+          >
+            {SEMESTERS.map((s) => {
+              const active = browseSemester === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setBrowseSemester(s)}
+                  className={
+                    "shrink-0 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all duration-150 cursor-pointer min-h-[40px] " +
+                    (active
+                      ? "gradient-gold text-primary shadow-sm"
+                      : "border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-secondary")
+                  }
+                >
+                  S{s}
+                </button>
+              );
+            })}
+            {gateCount > 0 && (
+              <button
+                type="button"
+                onClick={() => openSubject("GATE", ALL)}
+                className="shrink-0 rounded-xl px-3.5 py-2 text-xs font-semibold border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-secondary transition-all cursor-pointer min-h-[40px]"
+              >
+                GATE ({gateCount})
+              </button>
+            )}
+          </div>
+
+          <div className="mt-5 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {browseSubjects.map((s) => {
+              const empty = s.count === 0;
+              return (
+                <button
+                  key={s.name}
+                  type="button"
+                  disabled={empty}
+                  onClick={() => openSubject(String(s.semester), s.name)}
+                  className={
+                    "group flex items-center justify-between gap-3 rounded-2xl border p-4 text-left transition-all min-h-[64px] " +
+                    (empty
+                      ? "border-dashed border-border/70 bg-card/40 cursor-default"
+                      : "border-border/80 bg-card hover:border-gold/50 cursor-pointer card-lift")
+                  }
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FolderOpen
+                      className={`h-5 w-5 shrink-0 ${empty ? "text-muted-foreground/50" : "text-gold"}`}
+                      aria-hidden="true"
+                    />
+                    <span
+                      className={`text-sm font-semibold leading-snug ${empty ? "text-muted-foreground" : "text-foreground group-hover:text-gold"}`}
+                    >
+                      {s.name}
+                    </span>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${empty ? "bg-secondary/40 text-muted-foreground" : "bg-gold/15 text-gold"}`}
+                  >
+                    {empty ? "Not uploaded yet" : `${s.count} ${s.count === 1 ? "file" : "files"}`}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. SEARCH & FILTER CONTROLS */}
       <StickyFilterBar className="border-b border-border bg-background/95 backdrop-blur-md shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4">
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
@@ -318,8 +354,8 @@ function ArchivePage() {
               />
               <input
                 type="text"
-                aria-label="Search by document title, subject name, code or tags"
-                placeholder="Search title, subject, code (e.g. 19-204), or tags..."
+                aria-label="Search by title, subject or year"
+                placeholder="Search subject, year or batch..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-xl border border-input bg-card/60 pl-10 pr-9 py-2 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-gold min-h-[42px]"
@@ -337,32 +373,37 @@ function ArchivePage() {
             </div>
 
             {/* QUICK TYPE TABS (DESKTOP) */}
-            <div className="hidden lg:flex items-center gap-1.5 overflow-x-auto">
-              {documentTypes.map((t) => {
-                const active = selectedType === t.value;
-                return (
-                  <button
-                    key={t.value}
-                    type="button"
-                    onClick={() => setSelectedType(t.value)}
-                    className={
-                      "rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[40px] flex items-center gap-1.5 " +
-                      (active
-                        ? "gradient-gold text-primary shadow-sm"
-                        : "border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-secondary")
-                    }
-                  >
-                    <span>{t.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {showType && (
+              <div className="hidden lg:flex items-center gap-1.5 overflow-x-auto">
+                {[ALL, ...types].map((t) => {
+                  const active = selectedType === t;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setSelectedType(t)}
+                      className={
+                        "rounded-xl px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer min-h-[40px] flex items-center gap-1.5 " +
+                        (active
+                          ? "gradient-gold text-primary shadow-sm"
+                          : "border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-secondary")
+                      }
+                    >
+                      <span>
+                        {t === ALL ? "All Types" : DOCUMENT_TYPE_LABELS[t as ArchiveDocumentType]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {/* MOBILE FILTER TRIGGER & RESET BUTTON */}
             <div className="flex items-center gap-2 justify-between md:justify-end">
               <button
                 type="button"
                 onClick={() => setShowMobileFilters(!showMobileFilters)}
+                aria-expanded={showMobileFilters}
                 className="lg:hidden inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors min-h-[40px] cursor-pointer"
               >
                 <SlidersHorizontal className="h-4 w-4 text-gold" />
@@ -385,140 +426,121 @@ function ArchivePage() {
 
           {/* EXPANDABLE / MOBILE FILTERS ROW */}
           <div
-            className={`pt-3 border-t border-border/60 mt-3 grid grid-cols-2 sm:grid-cols-5 gap-2.5 transition-all ${
-              showMobileFilters ? "block" : "hidden lg:grid"
+            className={`pt-3 border-t border-border/60 mt-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 ${
+              showMobileFilters ? "grid" : "hidden lg:grid"
             }`}
           >
-            {/* DEPARTMENT SELECT */}
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
-                Department
-              </label>
-              <select
-                aria-label="Filter by department"
-                value={selectedDepartment}
-                onChange={(e) => {
-                  setSelectedDepartment(e.target.value);
-                  setSelectedSubject("All");
-                }}
-                className="w-full rounded-xl border border-input bg-card px-2.5 py-2 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold min-h-[38px] cursor-pointer"
-              >
-                {departments.map((d) => (
-                  <option key={d} value={d}>
-                    {d === "All" ? "All Departments" : d}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {showSemester && (
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                  Semester
+                </label>
+                <select
+                  aria-label="Filter by semester"
+                  value={selectedSemester}
+                  onChange={(e) => changeSemester(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value={ALL}>All Semesters</option>
+                  {semesters.map((s) => (
+                    <option key={s} value={s}>
+                      {semKeyLabel(s)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            {/* DOCUMENT TYPE SELECT (MOBILE & SECONDARY) */}
-            <div className="lg:hidden">
-              <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
-                Document Type
-              </label>
-              <select
-                aria-label="Filter by document type"
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full rounded-xl border border-input bg-card px-2.5 py-2 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold min-h-[38px] cursor-pointer"
-              >
-                {documentTypes.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {showSubject && (
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                  Subject
+                </label>
+                <select
+                  aria-label="Filter by subject"
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className={`${selectClass} truncate`}
+                >
+                  <option value={ALL}>All Subjects</option>
+                  {subjects.map((sub) => (
+                    <option key={sub} value={sub}>
+                      {sub}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            {/* SCHEME SELECT */}
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
-                Scheme / Regulation
-              </label>
-              <select
-                aria-label="Filter by scheme"
-                value={selectedScheme}
-                onChange={(e) => setSelectedScheme(e.target.value)}
-                className="w-full rounded-xl border border-input bg-card px-2.5 py-2 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold min-h-[38px] cursor-pointer"
-              >
-                {schemes.map((s) => (
-                  <option key={s} value={s}>
-                    {s === "All" ? "All Schemes" : s}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {showType && (
+              <div className="lg:hidden">
+                <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                  Document Type
+                </label>
+                <select
+                  aria-label="Filter by document type"
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value={ALL}>All Types</option>
+                  {types.map((t) => (
+                    <option key={t} value={t}>
+                      {DOCUMENT_TYPE_LABELS[t]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            {/* PROGRAM SELECT */}
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
-                Degree Program
-              </label>
-              <select
-                aria-label="Filter by degree program"
-                value={selectedProgram}
-                onChange={(e) => {
-                  setSelectedProgram(e.target.value);
-                  setSelectedSubject("All");
-                }}
-                className="w-full rounded-xl border border-input bg-card px-2.5 py-2 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold min-h-[38px] cursor-pointer"
-              >
-                {programs.map((p) => (
-                  <option key={p} value={p}>
-                    {p === "All" ? "All Programs" : p}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {showScheme && (
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                  Scheme
+                </label>
+                <select
+                  aria-label="Filter by scheme"
+                  value={selectedScheme}
+                  onChange={(e) => setSelectedScheme(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value={ALL}>All Schemes</option>
+                  {schemes.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            {/* SEMESTER SELECT */}
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
-                Semester
-              </label>
-              <select
-                aria-label="Filter by semester level"
-                value={selectedSemester}
-                onChange={(e) => {
-                  setSelectedSemester(e.target.value);
-                  setSelectedSubject("All");
-                }}
-                className="w-full rounded-xl border border-input bg-card px-2.5 py-2 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold min-h-[38px] cursor-pointer"
-              >
-                {semesters.map((s) => (
-                  <option key={s} value={s}>
-                    {s === "All" ? "All Semesters" : s}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* SUBJECT SELECT */}
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
-                Subject
-              </label>
-              <select
-                aria-label="Filter by course subject"
-                value={selectedSubject}
-                onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full rounded-xl border border-input bg-card px-2.5 py-2 text-xs text-foreground font-semibold outline-none focus:ring-1 focus:ring-gold min-h-[38px] truncate cursor-pointer"
-              >
-                {availableSubjects.map((sub) => (
-                  <option key={sub} value={sub}>
-                    {sub === "All" ? "All Subjects" : sub}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {showYear && (
+              <div>
+                <label className="block text-[10px] uppercase font-bold text-muted-foreground mb-1">
+                  Exam Year
+                </label>
+                <select
+                  aria-label="Filter by exam year"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value={ALL}>All Years</option>
+                  {years.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
       </StickyFilterBar>
 
-      {/* 4. RESULTS OVERVIEW & DOCUMENTS GRID */}
-      <section className="sticky-content-container py-10 sm:py-16 bg-background">
+      {/* 5. RESULTS */}
+      <section id="catalog" className="sticky-content-container py-10 sm:py-16 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          {/* RESULT COUNT & ACTIVE FILTER BADGES */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-8">
             <div>
               <h2 className="font-display text-lg sm:text-xl font-bold text-foreground">
@@ -528,67 +550,32 @@ function ArchivePage() {
                 {filteredDocuments.length === 1
                   ? "1 document found"
                   : `${filteredDocuments.length} documents found`}
-                {hasActiveFilters ? " matching your filter selection" : ""}
+                {hasActiveFilters ? " matching your filters" : ""}
               </p>
             </div>
 
-            {hasActiveFilters && (
+            {activeChips.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5">
-                {searchQuery && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-foreground">
-                    <span>Search: &quot;{searchQuery}&quot;</span>
+                {activeChips.map((chip) => (
+                  <span
+                    key={chip.label}
+                    className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-foreground"
+                  >
+                    <span>{chip.label}</span>
                     <button
                       type="button"
-                      onClick={() => setSearchQuery("")}
-                      className="hover:text-gold"
+                      onClick={chip.clear}
+                      aria-label={`Remove filter ${chip.label}`}
+                      className="hover:text-gold cursor-pointer"
                     >
                       ×
                     </button>
                   </span>
-                )}
-                {selectedProgram !== "All" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-foreground">
-                    <span>{selectedProgram}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedProgram("All")}
-                      className="hover:text-gold"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {selectedSemester !== "All" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-foreground">
-                    <span>{selectedSemester}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSemester("All")}
-                      className="hover:text-gold"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
-                {selectedType !== "All" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-foreground">
-                    <span>
-                      {DOCUMENT_TYPE_LABELS[selectedType as ArchiveDocumentType] || selectedType}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedType("All")}
-                      className="hover:text-gold"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+                ))}
               </div>
             )}
           </div>
 
-          {/* GRID OF DOCUMENTS */}
           {filteredDocuments.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filteredDocuments.map((doc) => (
@@ -599,12 +586,17 @@ function ArchivePage() {
             </div>
           ) : (
             <EmptyState
-              title="No documents match your query"
-              description="Try clearing some filter criteria, broadening your search term, or selecting a different semester."
+              title="No documents match your search"
+              description="Try clearing some filters or picking a different semester."
               actionText="Reset All Filters"
               onAction={handleResetFilters}
             />
           )}
+
+          <p className="mt-10 text-center text-[11px] text-muted-foreground">
+            Files are hosted on the MESAC academic Google Drive. B.Tech Mechanical Engineering
+            only.
+          </p>
         </div>
       </section>
     </Layout>

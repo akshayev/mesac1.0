@@ -312,7 +312,13 @@ export interface CusatGradeInfo {
 // 7. ACADEMIC ARCHIVE (CRITICAL LAUNCH MODEL)
 // ==========================================
 
-export type ArchiveDocumentType = "question_paper" | "syllabus" | "notes" | "lab_manual";
+export type ArchiveDocumentType =
+  | "question_paper"
+  | "internal_paper"
+  | "syllabus"
+  | "notes"
+  | "lab_manual"
+  | "gate_paper";
 
 export interface ArchiveDocumentPreview {
   url?: string;
@@ -346,6 +352,19 @@ export interface ArchiveDocument {
   download: ArchiveDocumentDownload;
   createdAt?: string;
   updatedAt?: string;
+  batch?: string; // e.g. "2024-28 batch" (internals / notes)
+  sourcePath?: string; // cleaned path inside the Drive root
+  localUrl?: string; // "/files/<id>.pdf" when mirrored at build time
+  driveViewUrl?: string; // override; defaults to drive.google.com/file/d/<id>/view
+  resourceKey?: string; // Drive resource key for older link-shared files
+}
+
+export interface ArchiveSubject {
+  semester: number;
+  name: string;
+  aliases: string[];
+  code: string;
+  confirm?: boolean;
 }
 
 // ==========================================

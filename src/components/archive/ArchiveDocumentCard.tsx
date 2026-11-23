@@ -1,20 +1,13 @@
-import React from "react";
 import { Link } from "@tanstack/react-router";
-import type { ArchiveDocument, ArchiveDocumentType } from "@/types";
+import type { ArchiveDocument } from "@/types";
+import { FileText, Download, Eye, Calendar, BookOpen, Layers, Users } from "lucide-react";
 import {
-  FileText,
-  Download,
-  Eye,
-  Calendar,
-  BookOpen,
-  Award,
-  Layers,
-  Tag,
-  ArrowRight,
-  ShieldCheck,
-} from "lucide-react";
-import { toast } from "sonner";
-import { DOCUMENT_TYPE_LABELS, DOCUMENT_TYPE_STYLES } from "@/lib/archive";
+  DOCUMENT_TYPE_LABELS,
+  DOCUMENT_TYPE_STYLES,
+  formatExamSession,
+  formatSemester,
+  getDownloadUrl,
+} from "@/lib/archive";
 
 export interface ArchiveDocumentCardProps {
   document: ArchiveDocument;
@@ -29,19 +22,6 @@ export function ArchiveDocumentCard({
 }: ArchiveDocumentCardProps) {
   const typeStyle = DOCUMENT_TYPE_STYLES[document.type] || DOCUMENT_TYPE_STYLES.question_paper;
   const typeLabel = DOCUMENT_TYPE_LABELS[document.type] || document.type.replace("_", " ");
-
-  const isDownloadAvailable = Boolean(
-    document.download?.directDownloadAvailable && document.download?.url,
-  );
-
-  const handleDownload = (e: React.MouseEvent) => {
-    if (!isDownloadAvailable) {
-      e.preventDefault();
-      toast.info("Download file source is pending Google Drive storage indexing.");
-      return;
-    }
-    toast.success(`Starting download: ${document.title}`);
-  };
 
   return (
     <article
@@ -63,9 +43,7 @@ export function ArchiveDocumentCard({
             </span>
             {document.semester && (
               <span className="rounded-md bg-secondary/60 px-2 py-0.5 text-muted-foreground text-[11px]">
-                {typeof document.semester === "number"
-                  ? `Sem ${document.semester}`
-                  : document.semester}
+                {formatSemester(document.semester, true)}
               </span>
             )}
           </div>
@@ -105,10 +83,14 @@ export function ArchiveDocumentCard({
           {(document.examYear || document.examMonth) && (
             <span className="inline-flex items-center gap-1 rounded-md bg-secondary/40 border border-border/60 px-2 py-0.5">
               <Calendar className="h-3 w-3 text-gold/80" aria-hidden="true" />
-              <span>
-                {document.examMonth ? `${document.examMonth} ` : ""}
-                {document.examYear || ""}
-              </span>
+              <span>{formatExamSession(document)}</span>
+            </span>
+          )}
+
+          {document.batch && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-secondary/40 border border-border/60 px-2 py-0.5">
+              <Users className="h-3 w-3 text-gold/80" aria-hidden="true" />
+              <span>{document.batch}</span>
             </span>
           )}
 
@@ -116,26 +98,6 @@ export function ArchiveDocumentCard({
             <span className="text-muted-foreground/80 px-1">{document.preview.fileSize}</span>
           )}
         </div>
-
-        {/* TAGS */}
-        {document.tags && document.tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5 pt-3 border-t border-border/60">
-            {document.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/90 bg-secondary/30 rounded px-1.5 py-0.5"
-              >
-                <Tag className="h-2.5 w-2.5 text-gold/70" aria-hidden="true" />
-                <span>{tag}</span>
-              </span>
-            ))}
-            {document.tags.length > 3 && (
-              <span className="text-[10px] text-muted-foreground self-center">
-                +{document.tags.length - 3} more
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
       {/* BOTTOM ACTION BUTTONS */}
@@ -149,29 +111,17 @@ export function ArchiveDocumentCard({
           <span>View Details</span>
         </Link>
 
-        {isDownloadAvailable ? (
-          <a
-            href={document.download.url}
-            target="_blank"
-            rel="noreferrer"
-            onClick={handleDownload}
-            className="inline-flex items-center gap-1.5 rounded-xl gradient-gold text-primary font-bold px-3.5 py-2 text-xs shadow-sm hover:brightness-105 active:scale-95 transition-all min-h-[40px] cursor-pointer"
-            title="Download PDF document"
-          >
-            <Download className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Download</span>
-          </a>
-        ) : (
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-muted/40 text-muted-foreground px-3 py-2 text-xs font-medium min-h-[40px] cursor-not-allowed opacity-80"
-            title="File download pending indexing"
-          >
-            <Download className="h-3.5 w-3.5 opacity-50" aria-hidden="true" />
-            <span>Unavailable</span>
-          </button>
-        )}
+        <a
+          href={getDownloadUrl(document)}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-xl gradient-gold text-primary font-bold px-3.5 py-2 text-xs shadow-sm hover:brightness-105 active:scale-95 transition-all min-h-[40px] cursor-pointer"
+          title="Download PDF"
+          aria-label={`Download ${document.title}`}
+        >
+          <Download className="h-3.5 w-3.5" aria-hidden="true" />
+          <span>Download</span>
+        </a>
       </div>
     </article>
   );

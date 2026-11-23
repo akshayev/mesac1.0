@@ -1,50 +1,66 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
 import { Layout } from "@/components/Layout";
 import { EmptyState } from "@/components/EmptyState";
 import { DocumentPreviewViewer } from "@/components/archive/DocumentPreviewViewer";
-import { ReportProblemModal } from "@/components/archive/ReportProblemModal";
-import { DOCUMENT_TYPE_LABELS, DOCUMENT_TYPE_STYLES } from "@/lib/archive";
-import { mockArchiveDocuments } from "@/data/mock/archive";
-import type { ArchiveDocument, ArchiveDocumentType } from "@/types";
+import {
+  DOCUMENT_TYPE_LABELS,
+  DOCUMENT_TYPE_STYLES,
+  DRIVE_QUOTA_NOTE,
+  formatExamSession,
+  formatSemester,
+  getDownloadUrl,
+  getDriveViewUrl,
+  getReportUrl,
+} from "@/lib/archive";
+import { getDocumentById } from "@/data/archive";
+import type { ArchiveDocument } from "@/types";
 import {
   ArrowLeft,
   FileText,
   Download,
   Calendar,
-  Layers,
   BookOpen,
-  GraduationCap,
   Building2,
-  Tag,
   Flag,
   Share2,
-  HardDrive,
-  CheckCircle2,
-  ShieldCheck,
+  ExternalLink,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 
+/** e.g. "Thermal Engineering, Nov 2021, 2019 scheme | CUSAT ME S5 question paper | MESAC" */
+function pageTitle(doc: ArchiveDocument): string {
+  const session = [doc.examMonth.slice(0, 3), doc.examYear || ""].filter(Boolean).join(" ");
+  const head = [doc.subject, session, doc.scheme].filter(Boolean).join(", ");
+  const where =
+    typeof doc.semester === "number" ? `CUSAT ME S${doc.semester}` : `CUSAT ME ${doc.semester}`;
+  const kind = DOCUMENT_TYPE_LABELS[doc.type]?.toLowerCase() ?? "document";
+  return `${head} | ${where} ${kind} | MESAC`;
+}
+
+function pageDescription(doc: ArchiveDocument): string {
+  const session = formatExamSession(doc);
+  const kind = DOCUMENT_TYPE_LABELS[doc.type]?.toLowerCase() ?? "document";
+  return (
+    `${doc.subject} ${kind}${session ? ` (${session})` : ""} for CUSAT B.Tech Mechanical ` +
+    `Engineering ${formatSemester(doc.semester)}${doc.scheme ? `, ${doc.scheme}` : ""}. ` +
+    "Preview or download the PDF free from the MESAC academic archive."
+  );
+}
+
 export const Route = createFileRoute("/archive_/$documentId")({
   head: ({ params }) => {
-    const doc = mockArchiveDocuments.find((d) => d.id === params.documentId);
+    const doc = getDocumentById(params.documentId);
+    const title = doc ? pageTitle(doc) : "Document not found | MESAC Academic Archive";
+    const description = doc
+      ? pageDescription(doc)
+      : "CUSAT Mechanical Engineering question papers and academic documents from MESAC.";
     return {
       meta: [
-        {
-          title: doc
-            ? `${doc.title} — MESAC Academic Archive`
-            : "Document Details — MESAC Academic Archive",
-        },
-        {
-          name: "description",
-          content: doc
-            ? `${doc.title} for ${doc.program} Semester ${doc.semester} under ${doc.scheme}. Access in-browser preview and download.`
-            : "View and download official academic documents from the MESAC CUSAT repository.",
-        },
-        {
-          property: "og:title",
-          content: doc ? `${doc.title} — MESAC CUSAT` : "Archive Document",
-        },
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
       ],
     };
   },
@@ -54,11 +70,7 @@ export const Route = createFileRoute("/archive_/$documentId")({
 function DocumentDetailPage() {
   const { documentId } = Route.useParams();
   const router = useRouter();
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-
-  const documentItem = useMemo(() => {
-    return mockArchiveDocuments.find((d) => d.id === documentId);
-  }, [documentId]);
+  const documentItem = getDocumentById(documentId);
 
   if (!documentItem) {
     return (
@@ -66,7 +78,7 @@ function DocumentDetailPage() {
         <div className="py-32 px-4 sm:px-6 mx-auto max-w-4xl">
           <EmptyState
             title="Document Not Found"
-            description={`The requested document reference "${documentId}" does not exist in the active academic index.`}
+            description={`No document with the id "${documentId}" is in the archive. It may have been renamed or removed in Drive.`}
             actionText="Return to Academic Archive"
             onAction={() => {
               router.navigate({ to: "/archive" });
@@ -79,25 +91,29 @@ function DocumentDetailPage() {
 
   const typeStyle = DOCUMENT_TYPE_STYLES[documentItem.type] || DOCUMENT_TYPE_STYLES.question_paper;
   const typeLabel = DOCUMENT_TYPE_LABELS[documentItem.type] || documentItem.type.replace("_", " ");
+  const session = formatExamSession(documentItem);
+  const reportUrl = getReportUrl(documentItem);
 
-  const isDownloadAvailable = Boolean(
-    documentItem.download?.directDownloadAvailable && documentItem.download?.url,
-  );
-
-  const handleShare = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Document link copied to clipboard!");
+  const handleShare = async () => {
+    if (typeof window === "undefined") return;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard");
+    } catch {
+      toast.error("Couldn't copy the link");
     }
   };
 
-  const handleDownload = () => {
-    if (!isDownloadAvailable) {
-      toast.info("Download is pending official storage indexing by MESAC maintainers.");
-      return;
-    }
-    toast.success(`Starting download: ${documentItem.title}`);
-  };
+  const specs: Array<[string, string | undefined]> = [
+    ["Semester", formatSemester(documentItem.semester)],
+    ["Subject", documentItem.subject],
+    ["Subject Code", documentItem.subjectCode || undefined],
+    ["Scheme", documentItem.scheme || undefined],
+    ["Batch", documentItem.batch],
+    ["Examination", session || undefined],
+    ["File Size", documentItem.preview?.fileSize || undefined],
+    ["Department", `${documentItem.department} · ${documentItem.program}`],
+  ];
 
   return (
     <Layout>
@@ -118,21 +134,22 @@ function DocumentDetailPage() {
                 type="button"
                 onClick={handleShare}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors min-h-[40px] cursor-pointer"
-                title="Copy shareable link to this document"
+                title="Copy link to this document"
               >
                 <Share2 className="h-3.5 w-3.5 text-gold" />
                 <span className="hidden sm:inline">Share</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setIsReportModalOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-secondary/80 px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors min-h-[40px] cursor-pointer"
-                title="Report issue with this document"
+              <a
+                href={reportUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-secondary/80 px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors min-h-[40px]"
+                title="Report a problem with this document"
               >
                 <Flag className="h-3.5 w-3.5 text-gold" />
                 <span>Report Problem</span>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -147,10 +164,7 @@ function DocumentDetailPage() {
               </span>
 
               <span className="rounded-full bg-secondary px-3 py-0.5 text-xs font-bold text-foreground">
-                {documentItem.program} ·{" "}
-                {typeof documentItem.semester === "number"
-                  ? `Semester ${documentItem.semester}`
-                  : documentItem.semester}
+                {documentItem.program} · {formatSemester(documentItem.semester)}
               </span>
 
               {documentItem.scheme && (
@@ -160,7 +174,7 @@ function DocumentDetailPage() {
               )}
             </div>
 
-            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight tracking-tight break-words">
               {documentItem.title}
             </h1>
 
@@ -175,13 +189,10 @@ function DocumentDetailPage() {
                 )}
               </div>
 
-              {(documentItem.examYear || documentItem.examMonth) && (
+              {session && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-gold shrink-0" aria-hidden="true" />
-                  <span>
-                    Exam Session: {documentItem.examMonth ? `${documentItem.examMonth} ` : ""}
-                    {documentItem.examYear || ""}
-                  </span>
+                  <span>Exam session: {session}</span>
                 </div>
               )}
 
@@ -194,200 +205,78 @@ function DocumentDetailPage() {
 
           {/* MAIN GRID: PREVIEW VIEWER & METADATA DETAILS */}
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            {/* LEFT / CENTER: PDF PREVIEW VIEWER */}
-            <div className="lg:col-span-8">
-              <DocumentPreviewViewer
-                document={documentItem}
-                onReportProblem={() => setIsReportModalOpen(true)}
-              />
+            <div className="lg:col-span-8 min-w-0">
+              <DocumentPreviewViewer document={documentItem} />
             </div>
 
-            {/* RIGHT SIDEBAR: DOCUMENT SPECIFICATIONS & DOWNLOAD */}
             <div className="lg:col-span-4 space-y-6">
-              {/* PRIMARY DOWNLOAD CARD */}
+              {/* ACTIONS */}
               <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm">
                 <h3 className="font-display text-base font-bold text-foreground mb-4">
                   Document Actions
                 </h3>
 
                 <div className="space-y-3">
-                  {isDownloadAvailable ? (
-                    <a
-                      href={documentItem.download.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      onClick={handleDownload}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl gradient-gold text-primary font-bold px-5 py-3 text-sm shadow-md hover:brightness-105 active:scale-95 transition-all min-h-[44px]"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span>Download File</span>
-                    </a>
-                  ) : (
-                    <div className="space-y-2">
-                      <button
-                        type="button"
-                        onClick={handleDownload}
-                        className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border/80 bg-muted/40 text-muted-foreground px-5 py-3 text-sm font-semibold cursor-not-allowed min-h-[44px]"
-                      >
-                        <Download className="h-4 w-4 opacity-50" />
-                        <span>Download Unavailable</span>
-                      </button>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed text-center">
-                        This file is registered in the metadata index but awaiting cloud repository
-                        syncing.
-                      </p>
-                    </div>
-                  )}
+                  <a
+                    href={getDownloadUrl(documentItem)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl gradient-gold text-primary font-bold px-5 py-3 text-sm shadow-md hover:brightness-105 active:scale-95 transition-all min-h-[44px]"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>Download PDF</span>
+                  </a>
 
-                  <button
-                    type="button"
-                    onClick={() => setIsReportModalOpen(true)}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-secondary/80 px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary transition-colors min-h-[42px] cursor-pointer"
+                  <a
+                    href={getDriveViewUrl(documentItem)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary transition-colors min-h-[42px]"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-gold" />
+                    <span>Open in Drive</span>
+                  </a>
+
+                  <a
+                    href={reportUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-secondary/80 px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-secondary transition-colors min-h-[42px]"
                   >
                     <Flag className="h-3.5 w-3.5 text-gold" />
                     <span>Report Missing/Incorrect File</span>
-                  </button>
+                  </a>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-border/80 text-[11px] text-muted-foreground space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span>Verified Academic Source</span>
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                  </div>
-                  {documentItem.download?.downloadCount && (
-                    <div className="flex items-center justify-between">
-                      <span>Total Downloads</span>
-                      <span className="font-semibold text-foreground">
-                        {documentItem.download.downloadCount.toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                <p className="mt-4 pt-4 border-t border-border/80 flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed">
+                  <Info className="h-3.5 w-3.5 text-gold shrink-0 mt-px" aria-hidden="true" />
+                  <span>{DRIVE_QUOTA_NOTE}</span>
+                </p>
               </div>
 
-              {/* DETAILED SPECIFICATIONS */}
+              {/* DETAILS */}
               <div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm">
-                <h3 className="font-display text-base font-bold text-foreground mb-4">
-                  Archive Specifications
-                </h3>
-
+                <h3 className="font-display text-base font-bold text-foreground mb-4">Details</h3>
                 <dl className="space-y-3 text-xs">
-                  {documentItem.department && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">Department</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {documentItem.department}
-                      </dd>
-                    </div>
-                  )}
-
-                  {documentItem.program && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">Program & Degree</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {documentItem.program}
-                      </dd>
-                    </div>
-                  )}
-
-                  {documentItem.semester && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">Semester</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {typeof documentItem.semester === "number"
-                          ? `Semester ${documentItem.semester}`
-                          : documentItem.semester}
-                      </dd>
-                    </div>
-                  )}
-
-                  {documentItem.subject && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">Subject</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {documentItem.subject}
-                      </dd>
-                    </div>
-                  )}
-
-                  {documentItem.subjectCode && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">Subject Code</dt>
-                      <dd className="font-mono font-semibold text-foreground text-right">
-                        {documentItem.subjectCode}
-                      </dd>
-                    </div>
-                  )}
-
-                  {documentItem.scheme && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">Curriculum Scheme</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {documentItem.scheme}
-                      </dd>
-                    </div>
-                  )}
-
-                  {(documentItem.examYear || documentItem.examMonth) && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">Examination Term</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {documentItem.examMonth ? `${documentItem.examMonth} ` : ""}
-                        {documentItem.examYear || ""}
-                      </dd>
-                    </div>
-                  )}
-
-                  {documentItem.preview?.fileSize && (
-                    <div className="flex justify-between py-1 border-b border-border/60">
-                      <dt className="text-muted-foreground">File Size</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {documentItem.preview.fileSize}
-                      </dd>
-                    </div>
-                  )}
-
-                  {documentItem.preview?.pageCount && (
-                    <div className="flex justify-between py-1">
-                      <dt className="text-muted-foreground">Page Count</dt>
-                      <dd className="font-semibold text-foreground text-right">
-                        {documentItem.preview.pageCount} Pages
-                      </dd>
-                    </div>
-                  )}
+                  {specs
+                    .filter(([, v]) => Boolean(v))
+                    .map(([label, value], i, arr) => (
+                      <div
+                        key={label}
+                        className={`flex justify-between gap-4 py-1 ${i < arr.length - 1 ? "border-b border-border/60" : ""}`}
+                      >
+                        <dt className="text-muted-foreground shrink-0">{label}</dt>
+                        <dd className="font-semibold text-foreground text-right break-words min-w-0">
+                          {value}
+                        </dd>
+                      </div>
+                    ))}
                 </dl>
-
-                {/* TAGS */}
-                {documentItem.tags && documentItem.tags.length > 0 && (
-                  <div className="mt-5 pt-4 border-t border-border/80">
-                    <span className="block text-[11px] font-semibold text-muted-foreground mb-2">
-                      Academic Index Tags:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {documentItem.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center gap-1 text-[11px] text-foreground bg-secondary/80 border border-border/80 rounded-md px-2 py-0.5"
-                        >
-                          <Tag className="h-3 w-3 text-gold" />
-                          <span>{tag}</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* REPORT PROBLEM MODAL */}
-      <ReportProblemModal
-        document={documentItem}
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-      />
     </Layout>
   );
 }
