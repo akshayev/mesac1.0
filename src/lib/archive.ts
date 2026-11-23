@@ -1,4 +1,5 @@
 import type { ArchiveDocument, ArchiveDocumentType } from "@/types";
+import { getSettings } from "@/data/site";
 
 export const DOCUMENT_TYPE_LABELS: Record<ArchiveDocumentType, string> = {
   question_paper: "Question Paper",
@@ -41,7 +42,6 @@ export const DOCUMENT_TYPE_STYLES: Record<
 
 export const DRIVE_ROOT_URL =
   "https://drive.google.com/drive/folders/1O_Q5coUAKKpSu3Egmz5YOu9MzdPxyiR6";
-export const ARCHIVE_CONTACT_EMAIL = "mesacusatacademy@gmail.com";
 export const DRIVE_QUOTA_NOTE =
   "If Drive says too many downloads, use Open in Drive → Make a copy.";
 
@@ -70,8 +70,12 @@ export function getDriveViewUrl(doc: ArchiveDocument): string {
 /** Google Form (VITE_REPORT_FORM_URL) with the doc prefilled, or a prefilled email. */
 export function getReportUrl(doc: ArchiveDocument): string {
   const label = `${doc.title} [${doc.id}]`;
-  const formUrl = import.meta.env.VITE_REPORT_FORM_URL as string | undefined;
-  const entry = import.meta.env.VITE_REPORT_FORM_FILE_ENTRY as string | undefined;
+  const settings = getSettings();
+  const formUrl =
+    settings.reportFormUrl || (import.meta.env.VITE_REPORT_FORM_URL as string | undefined);
+  const entry =
+    settings.reportFormFileEntry ||
+    (import.meta.env.VITE_REPORT_FORM_FILE_ENTRY as string | undefined);
   if (formUrl) {
     try {
       const u = new URL(formUrl);
@@ -95,7 +99,7 @@ export function getReportUrl(doc: ArchiveDocument): string {
     `Drive file: ${doc.driveFileId}`,
     ...(doc.sourcePath ? [`Drive path: ${doc.sourcePath}`] : []),
   ].join("\n");
-  return `mailto:${ARCHIVE_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  return `mailto:${settings.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 export function formatSemester(sem: ArchiveDocument["semester"], short = false): string {

@@ -5,19 +5,9 @@ import { Layout } from "@/components/Layout";
 import { Reveal } from "@/components/Reveal";
 import { NotificationBanner } from "@/components/NotificationBanner";
 import { PageGearBackground } from "@/components/PageGearBackground";
-import { EmptyState } from "@/components/EmptyState";
-import { mockFacultyAdvisors, mockCoreOfficers2026, DEFAULT_FACULTY_IMG } from "@/data/mock/team";
-import { mockSiteSettings } from "@/data/mock/site";
-import {
-  FileText,
-  Download,
-  ArrowRight,
-  ShieldCheck,
-  Sparkles,
-  BookOpen,
-  Calendar,
-  Users,
-} from "lucide-react";
+import { PersonAvatar } from "@/components/PersonAvatar";
+import { getSettings, getTeam } from "@/data/site";
+import { FileText, Download, ArrowRight, Sparkles, BookOpen, Layers } from "lucide-react";
 
 const hero = "/images/home/hero.jpg";
 
@@ -28,12 +18,12 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "The official student portal of Mechanical Engineering at CUSAT — downloading syllabus PDFs, event rulebooks, lab manuals, question papers, Yantra techfest updates and placements.",
+          "Previous year question papers, the student committee and placements for CUSAT Mechanical Engineering, from the Mechanical Engineering Students Association (MESAC).",
       },
       { property: "og:title", content: "MESAC CUSAT — Engineering Reimagined" },
       {
         property: "og:description",
-        content: "The official student platform of Mechanical Engineering at CUSAT.",
+        content: "Question papers, team and placements for CUSAT Mechanical Engineering students.",
       },
     ],
   }),
@@ -102,24 +92,9 @@ function Index() {
     return () => ctx.revert();
   }, []);
 
-  // Committee preview from typed mock data (Faculty Advisor, President, Secretary)
-  const previewTeamMembers = [
-    {
-      role: "FACULTY ADVISOR",
-      img: mockFacultyAdvisors[0]?.img || DEFAULT_FACULTY_IMG,
-      name: mockFacultyAdvisors[0]?.name || "Dr. BIJU N",
-    },
-    {
-      role: "PRESIDENT",
-      img: mockCoreOfficers2026[0]?.img || "https://cdn.corenexis.com/f/iLLZmB21xPv.png",
-      name: mockCoreOfficers2026[0]?.name || "JAANAKY RENGITH",
-    },
-    {
-      role: "SECRETARY",
-      img: mockCoreOfficers2026[1]?.img || "https://cdn.corenexis.com/f/3pxBon39P0D.png",
-      name: mockCoreOfficers2026[1]?.name || "KALIDASAN V R",
-    },
-  ];
+  const settings = getSettings();
+  // First three people in the sheet's order (the sheet's `order` column decides who is shown).
+  const previewTeamMembers = getTeam().slice(0, 3);
 
   return (
     <Layout>
@@ -141,14 +116,14 @@ function Index() {
 
         <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center items-center px-4 sm:px-6 text-center my-auto">
           <div className="hero-copy flex flex-col items-center">
-            {/* OFFICIAL MESAC LOGO EMBLEM */}
+            {/* MESAC LOGO */}
             <div className="mb-4 sm:mb-6 flex flex-col items-center">
               <div className="relative group">
                 <div className="absolute -inset-3 rounded-full bg-gold/30 blur-xl opacity-70 group-hover:opacity-100 transition duration-500" />
                 <div className="relative h-24 w-24 sm:h-32 sm:w-32 md:h-36 md:w-36 rounded-full p-2 bg-white shadow-2xl border-2 border-white/40 transition-transform duration-500 group-hover:scale-105 flex items-center justify-center overflow-hidden shrink-0">
                   <img
                     src="/mesac-real-logo.png"
-                    alt="Official MESAC Logo — Mechanical Engineering Students Association of CUSAT"
+                    alt="MESAC logo"
                     className="h-full w-full object-contain"
                     onError={(e) => {
                       e.currentTarget.src = "/mesac-logo-real.png";
@@ -164,20 +139,28 @@ function Index() {
             </div>
 
             <h1 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl tracking-tight text-center max-w-5xl mx-auto font-extrabold text-white leading-[1.12] uppercase">
-              <span className="block overflow-hidden">
-                <span className="hero-line inline-block">MECHANICAL ENGINEERING</span>
-              </span>
-              <span className="block overflow-hidden mt-1">
-                <span className="hero-line inline-block">STUDENTS ASSOCIATION OF CUSAT</span>
-              </span>
-              <span className="block overflow-hidden mt-1">
-                <span className="hero-line inline-block text-gold">(MESAC)</span>
-              </span>
+              {settings.heroTitle ? (
+                <span className="block overflow-hidden">
+                  <span className="hero-line inline-block">{settings.heroTitle}</span>
+                </span>
+              ) : (
+                <>
+                  <span className="block overflow-hidden">
+                    <span className="hero-line inline-block">MECHANICAL ENGINEERING</span>
+                  </span>
+                  <span className="block overflow-hidden mt-1">
+                    <span className="hero-line inline-block">STUDENTS ASSOCIATION OF CUSAT</span>
+                  </span>
+                  <span className="block overflow-hidden mt-1">
+                    <span className="hero-line inline-block text-gold">(MESAC)</span>
+                  </span>
+                </>
+              )}
             </h1>
 
             <p className="hero-sub mt-5 sm:mt-6 max-w-2xl text-sm sm:text-base md:text-lg text-white/80 leading-relaxed font-normal px-2">
-              Official Student Body of the Division of Mechanical Engineering at Cochin University
-              of Science and Technology.
+              {settings.heroSubtitle ||
+                "The student association of the Division of Mechanical Engineering at Cochin University of Science and Technology."}
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto px-4 sm:px-0">
@@ -205,28 +188,54 @@ function Index() {
       </section>
 
       {/* 2. REUSABLE ANNOUNCEMENT BANNER */}
-      <NotificationBanner config={mockSiteSettings.announcement} />
+      {settings.announcementText && (
+        <NotificationBanner
+          config={{
+            active: true,
+            message: settings.announcementText,
+            href: settings.announcementLink,
+            linkText: "Learn more",
+          }}
+        />
+      )}
+
+      {/* 2b. STATS (each one appears only if the settings tab has a value for it) */}
+      {settings.stats.length > 0 && (
+        <section className="relative py-10 sm:py-12 bg-background border-b border-border/80">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            <Reveal>
+              <div
+                className={`grid gap-4 sm:gap-6 ${
+                  settings.stats.length === 1
+                    ? "grid-cols-1 max-w-xs mx-auto"
+                    : settings.stats.length === 2
+                      ? "grid-cols-2"
+                      : "grid-cols-1 sm:grid-cols-3"
+                }`}
+              >
+                {settings.stats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 text-center shadow-sm"
+                  >
+                    <div className="font-display text-3xl sm:text-4xl font-black text-gold tracking-tight">
+                      {stat.value}
+                    </div>
+                    <div className="font-display text-xs sm:text-sm font-bold text-foreground mt-2">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* 3. ABOUT MESAC PREVIEW */}
       <section className="relative py-16 sm:py-20 bg-background border-b border-border/80">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <Reveal>
-            {/* GROUP PHOTO IMAGE FRAME */}
-            <div className="relative mb-10 sm:mb-12 overflow-hidden rounded-2xl border border-border bg-card shadow-lg group">
-              <img
-                src="/images/home/hero.jpg"
-                alt="MESAC Committee & Members Group Photo"
-                loading="lazy"
-                className="w-full h-auto max-h-[520px] object-cover transition-transform duration-700 group-hover:scale-[1.01]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white text-xs sm:text-sm font-semibold tracking-wide drop-shadow flex items-center justify-between">
-                <span>
-                  MESAC Committee & Executive Members · Division of Mechanical Engineering, CUSAT
-                </span>
-              </div>
-            </div>
-
             {/* ABOUT US TEXT */}
             <div className="text-center max-w-4xl mx-auto">
               <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-wide text-foreground inline-block border-b-2 border-foreground pb-1 mb-6">
@@ -265,15 +274,15 @@ function Index() {
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-gold/15 px-3.5 py-1 text-xs font-bold text-gold uppercase tracking-wider mb-3">
                     <Sparkles className="h-3.5 w-3.5" />
-                    <span>Academic Resource Archive</span>
+                    <span>Academic Archive</span>
                   </div>
                   <h2 className="font-display text-2xl sm:text-3xl md:text-5xl leading-tight text-foreground">
-                    All CUSAT Mechanical PDFs <br />
+                    CUSAT Mechanical question papers <br />
                     <span className="italic text-gold">in one place.</span>
                   </h2>
                   <p className="mt-3 text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-                    Access official B.Tech & M.Tech syllabus schemes, lab manuals, semester question
-                    papers, Yantra event rulebooks, department magazines, and placement brochures.
+                    Previous year question papers and internal exam papers for B.Tech Mechanical,
+                    sorted by semester and subject. Preview them online or download the PDF.
                   </p>
                 </div>
 
@@ -287,27 +296,22 @@ function Index() {
                 </Link>
               </div>
 
-              <div className="mt-8 sm:mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-6 sm:pt-8 border-t border-border">
+              <div className="mt-8 sm:mt-10 grid gap-4 sm:grid-cols-3 pt-6 sm:pt-8 border-t border-border">
                 {[
                   {
-                    title: "B.Tech & M.Tech Syllabus",
-                    icon: BookOpen,
-                    desc: "2023 Scheme & Subject Credits",
-                  },
-                  {
-                    title: "Lab Manuals & Guides",
-                    icon: ShieldCheck,
-                    desc: "CNC, Fluid Mechanics & Heat Transfer",
-                  },
-                  {
-                    title: "Previous Question Papers",
+                    title: "University question papers",
                     icon: FileText,
-                    desc: "S1 to S8 End-Semester Archives",
+                    desc: "Previous years, by semester and subject",
                   },
                   {
-                    title: "Event & Yantra Rulebooks",
-                    icon: Sparkles,
-                    desc: "RoboWars & CAD Marathon Rules",
+                    title: "Internal exam papers",
+                    icon: Layers,
+                    desc: "Series tests, organised by batch",
+                  },
+                  {
+                    title: "Browse by subject",
+                    icon: BookOpen,
+                    desc: "Every subject listed, even before papers are added",
                   },
                 ].map((res) => {
                   const Icon = res.icon;
@@ -328,48 +332,51 @@ function Index() {
         </div>
       </section>
 
-      {/* 7. THE TEAM PREVIEW */}
-      <section className="relative bg-black text-white">
-        <div className="w-full bg-neutral-950/90 py-4 text-center border-y border-white/10 shadow-sm">
-          <h2 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-widest text-white">
-            THE TEAM
-          </h2>
-        </div>
-
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-center">
-            {previewTeamMembers.map((m, i) => (
-              <Reveal key={m.name + i} delay={i * 80}>
-                <div className="flex flex-col items-center">
-                  <h3 className="mb-4 font-display text-xs sm:text-sm font-extrabold uppercase tracking-widest text-amber-400">
-                    {m.role}
-                  </h3>
-                  <div className="relative aspect-[4/5] w-full max-w-xs overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 shadow-xl group">
-                    <img
-                      src={m.img}
-                      alt={m.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="mt-4 font-display text-sm sm:text-base font-bold uppercase tracking-wider text-white">
-                    {m.name}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
+      {/* 7. THE TEAM PREVIEW (hidden until the team tab has rows) */}
+      {previewTeamMembers.length > 0 && (
+        <section className="relative bg-black text-white">
+          <div className="w-full bg-neutral-950/90 py-4 text-center border-y border-white/10 shadow-sm">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-widest text-white">
+              THE TEAM
+            </h2>
           </div>
 
-          <div className="mt-12 flex justify-center">
-            <Link
-              to="/team"
-              className="inline-flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 border border-white/15 px-8 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-widest transition shadow-sm min-h-[44px]"
-            >
-              VIEW ALL
-            </Link>
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-center">
+              {previewTeamMembers.map((m, i) => (
+                <Reveal key={m.name + i} delay={i * 80}>
+                  <div className="flex flex-col items-center">
+                    {m.role && (
+                      <h3 className="mb-4 font-display text-xs sm:text-sm font-extrabold uppercase tracking-widest text-amber-400">
+                        {m.role}
+                      </h3>
+                    )}
+                    <div className="relative aspect-[4/5] w-full max-w-xs overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 shadow-xl group">
+                      <PersonAvatar
+                        name={m.name}
+                        photo={m.photo}
+                        className="h-full w-full transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="mt-4 font-display text-sm sm:text-base font-bold uppercase tracking-wider text-white">
+                      {m.name}
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            <div className="mt-12 flex justify-center">
+              <Link
+                to="/team"
+                className="inline-flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 border border-white/15 px-8 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-widest transition shadow-sm min-h-[44px]"
+              >
+                VIEW ALL
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 8. CTA SECTION */}
       <section className="relative py-16 sm:py-24">
@@ -382,8 +389,8 @@ function Index() {
                   Ready to build with CUSAT Mechanical?
                 </h2>
                 <p className="mt-4 max-w-xl text-white/75 text-sm sm:text-base md:text-lg leading-relaxed">
-                  Connect with the MESAC committee for event sponsorships, alumni workshops, or
-                  student inquiries.
+                  Get in touch with the MESAC committee for questions, collaborations, or to report
+                  a mistake in the archive.
                 </p>
                 <div className="mt-8 flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                   <Link

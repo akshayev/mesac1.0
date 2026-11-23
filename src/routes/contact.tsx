@@ -1,27 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { PageHero } from "@/components/PageHero";
 import { Layout } from "@/components/Layout";
 import { Reveal } from "@/components/Reveal";
+import { InstagramIcon } from "@/components/InstagramIcon";
+import { getSettings } from "@/data/site";
 import {
-  MapPin,
   Mail,
   Phone,
-  ExternalLink,
-  Compass,
-  Building2,
-  Navigation,
   Copy,
   Check,
+  ExternalLink,
+  MapPin,
+  Building2,
+  Navigation,
   Linkedin,
-  UserCheck,
-  Send,
-  AlertCircle,
-  CheckCircle2,
   MessageSquare,
 } from "lucide-react";
-import { InstagramIcon } from "@/components/InstagramIcon";
-import { useState } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -35,92 +31,31 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact MESAC CUSAT" },
       {
         property: "og:description",
-        content: "Get in touch with the MESAC team, direct helplines, and campus location map.",
+        content: "Email the MESAC team and find the Division of Mechanical Engineering at CUSAT.",
       },
     ],
   }),
   component: ContactPage,
 });
 
-interface ContactFormValues {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-interface ContactFormErrors {
-  name?: string;
-  email?: string;
-  subject?: string;
-  message?: string;
-}
-
-const INITIAL_FORM: ContactFormValues = {
-  name: "",
-  email: "",
-  subject: "",
-  message: "",
-};
+const linkCard =
+  "inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:border-gold hover:text-gold shadow-sm transition min-h-[44px]";
 
 function ContactPage() {
+  const settings = getSettings();
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const email = settings.contactEmail;
+  const phoneHref = settings.contactPhone?.replace(/[^\d+]/g, "");
 
-  // Form State
-  const [formData, setFormData] = useState<ContactFormValues>(INITIAL_FORM);
-  const [formErrors, setFormErrors] = useState<ContactFormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [lastSubmittedName, setLastSubmittedName] = useState("");
-
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText("mesactechnical@gmail.com");
-    setCopiedEmail(true);
-    toast.success("Email address copied to clipboard!");
-    setTimeout(() => setCopiedEmail(false), 2500);
-  };
-
-  const validateForm = (): boolean => {
-    const errors: ContactFormErrors = {};
-
-    if (!formData.name.trim() || formData.name.trim().length < 2) {
-      errors.name = "Please enter your name (at least 2 characters).";
+  const handleCopyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopiedEmail(true);
+      toast.success("Email address copied to clipboard");
+      setTimeout(() => setCopiedEmail(false), 2500);
+    } catch {
+      toast.error("Couldn't copy the address");
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      errors.email = "Email address is required.";
-    } else if (!emailRegex.test(formData.email.trim())) {
-      errors.email = "Please enter a valid email address.";
-    }
-
-    if (!formData.subject.trim() || formData.subject.trim().length < 3) {
-      errors.subject = "Subject must be at least 3 characters.";
-    }
-
-    if (!formData.message.trim() || formData.message.trim().length < 10) {
-      errors.message = "Message must be at least 10 characters.";
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-
-    // Frontend-only simulation: does not connect to email or backend API
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitted(true);
-      setLastSubmittedName(formData.name.trim());
-      toast.success("Message Recorded (Prototype)", {
-        description: "Your message has been received in this frontend prototype.",
-      });
-    }, 450);
   };
 
   return (
@@ -136,11 +71,14 @@ function ContactPage() {
         subtitle="Connect with the Mechanical Engineering Students Association at School of Engineering, CUSAT."
       />
 
-      {/* QUICK CONTACT CHANNELS */}
       <section className="py-16 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-16">
-          <div className="grid gap-6 md:grid-cols-3">
-            {/* OFFICIAL EMAIL & SECRETARY HELPLINE */}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 space-y-16">
+          <div
+            className={`grid gap-6 ${
+              settings.contactPhone || settings.reportFormUrl ? "md:grid-cols-2" : ""
+            }`}
+          >
+            {/* EMAIL */}
             <Reveal delay={40}>
               <div className="h-full rounded-3xl border border-border bg-card p-6 sm:p-8 card-lift flex flex-col justify-between">
                 <div>
@@ -148,33 +86,28 @@ function ContactPage() {
                     <div className="h-12 w-12 rounded-2xl bg-gold/10 text-gold grid place-items-center font-bold">
                       <Mail className="h-6 w-6" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground font-bold">
-                        Official Contact Email
+                        Email
                       </div>
                       <a
-                        href="mailto:mesactechnical@gmail.com"
+                        href={`mailto:${email}`}
                         className="font-display text-base font-extrabold text-foreground hover:text-gold transition break-all"
                       >
-                        mesactechnical@gmail.com
+                        {email}
                       </a>
                     </div>
                   </div>
-                  <div className="space-y-2 text-xs text-muted-foreground pt-3 border-t border-border/60">
-                    <div className="flex items-center gap-2 font-mono text-foreground font-semibold">
-                      <Phone className="h-3.5 w-3.5 text-gold shrink-0" />
-                      <span>KALIDASAN - 8921552313</span>
-                    </div>
-                    <p className="text-[11px] leading-relaxed">
-                      Division of Mechanical Engineering, School of Engineering, CUSAT.
-                    </p>
-                  </div>
+                  <p className="pt-3 border-t border-border/60 text-xs text-muted-foreground leading-relaxed">
+                    Questions, collaborations, or a mistake in the question paper archive? Email us
+                    and we will get back to you.
+                  </p>
                 </div>
 
                 <div className="mt-6 flex items-center gap-2">
                   <a
-                    href="mailto:mesactechnical@gmail.com"
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl gradient-gold py-2.5 px-4 text-xs font-bold text-primary shadow-sm hover:brightness-105 active:scale-95 transition min-h-[38px]"
+                    href={`mailto:${email}`}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl gradient-gold py-2.5 px-4 text-xs font-bold text-primary shadow-sm hover:brightness-105 active:scale-95 transition min-h-[44px]"
                   >
                     <span>Send Mail</span>
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -182,8 +115,8 @@ function ContactPage() {
                   <button
                     type="button"
                     onClick={handleCopyEmail}
-                    className="inline-flex items-center justify-center rounded-xl border border-border bg-secondary/60 hover:bg-secondary p-2.5 text-xs font-semibold text-foreground transition cursor-pointer min-h-[38px] min-w-[38px]"
-                    title="Copy Email Address"
+                    className="inline-flex items-center justify-center rounded-xl border border-border bg-secondary/60 hover:bg-secondary p-2.5 text-xs font-semibold text-foreground transition cursor-pointer min-h-[44px] min-w-[44px]"
+                    title="Copy email address"
                     aria-label="Copy email address"
                   >
                     {copiedEmail ? (
@@ -196,376 +129,116 @@ function ContactPage() {
               </div>
             </Reveal>
 
-            {/* HELPLINE & STUDENT CONTACTS */}
-            <Reveal delay={80}>
-              <div className="h-full rounded-3xl border border-border bg-card p-6 sm:p-8 card-lift flex flex-col justify-between">
-                <div>
+            {/* PHONE: only when the settings tab has contact_phone */}
+            {settings.contactPhone && (
+              <Reveal delay={80}>
+                <div className="h-full rounded-3xl border border-border bg-card p-6 sm:p-8 card-lift flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-12 w-12 rounded-2xl bg-gold/10 text-gold grid place-items-center font-bold">
+                        <Phone className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground font-bold">
+                          Phone
+                        </div>
+                        <div className="font-display text-base font-extrabold text-foreground break-words">
+                          {settings.contactPhone}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <a
+                      href={`tel:${phoneHref}`}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-secondary/80 hover:bg-secondary py-2.5 px-4 text-xs font-bold text-foreground transition min-h-[44px]"
+                    >
+                      <Phone className="h-3.5 w-3.5 text-gold" />
+                      <span>Call</span>
+                    </a>
+                  </div>
+                </div>
+              </Reveal>
+            )}
+
+            {/* FORM LINK: only when the settings tab has report_form_url */}
+            {settings.reportFormUrl && (
+              <Reveal delay={120}>
+                <div className="h-full rounded-3xl border border-border bg-card p-6 sm:p-8 card-lift flex flex-col justify-between">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="h-12 w-12 rounded-2xl bg-gold/10 text-gold grid place-items-center font-bold">
-                      <Phone className="h-6 w-6" />
+                      <MessageSquare className="h-6 w-6" />
                     </div>
                     <div>
                       <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground font-bold">
-                        Website & Enquiries
+                        Feedback form
                       </div>
                       <div className="font-display text-base font-extrabold text-foreground">
-                        Direct Helpline Numbers
+                        Report or suggest
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-2 pt-3 border-t border-border/60 font-mono text-xs">
-                    <div className="flex items-center gap-2 text-foreground font-semibold">
-                      <Phone className="h-3.5 w-3.5 text-gold shrink-0" />
-                      <span>ASHISH - 60066 20730</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-foreground font-semibold">
-                      <Phone className="h-3.5 w-3.5 text-gold shrink-0" />
-                      <span>AIBEL JOY - 90617 40269</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
                   <a
-                    href="tel:+916006620730"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-secondary/80 hover:bg-secondary py-2.5 px-4 text-xs font-bold text-foreground transition min-h-[38px]"
+                    href={settings.reportFormUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-secondary/80 hover:bg-secondary py-2.5 px-4 text-xs font-bold text-foreground transition min-h-[44px]"
                   >
-                    <Phone className="h-3.5 w-3.5 text-gold" />
-                    <span>Call Helpline</span>
+                    <span>Open the form</span>
+                    <ExternalLink className="h-3.5 w-3.5 text-gold" />
                   </a>
                 </div>
-              </div>
-            </Reveal>
-
-            {/* DIVISION LEADERSHIP */}
-            <Reveal delay={120}>
-              <div className="h-full rounded-3xl border border-border bg-card p-6 sm:p-8 card-lift flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-12 w-12 rounded-2xl bg-gold/10 text-gold grid place-items-center font-bold">
-                      <UserCheck className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground font-bold">
-                        Division Leadership
-                      </div>
-                      <div className="font-display text-base font-extrabold text-foreground">
-                        Faculty Advisor & Core Team
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2.5 pt-3 border-t border-border/60 text-xs">
-                    <div>
-                      <div className="text-[10px] font-mono uppercase font-bold text-gold">
-                        Head of Division & Faculty Advisor
-                      </div>
-                      <div className="font-semibold text-foreground">Dr. BIJU N</div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
-                      <div>
-                        <div className="text-[10px] font-mono uppercase font-bold text-gold">
-                          President
-                        </div>
-                        <div className="font-semibold text-foreground">JAANAKY RENGITH</div>
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-mono uppercase font-bold text-gold">
-                          Secretary
-                        </div>
-                        <div className="font-semibold text-foreground">KALIDASAN V R</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-center gap-2 text-xs text-gold font-semibold pt-2">
-                  <Building2 className="h-4 w-4 shrink-0" />
-                  <span className="truncate">Division of Mechanical Engineering, CUSAT</span>
-                </div>
-              </div>
-            </Reveal>
+              </Reveal>
+            )}
           </div>
 
-          {/* FRONTEND CONTACT MESSAGE FORM */}
-          <div className="grid gap-10 lg:grid-cols-12 items-start">
-            <div className="lg:col-span-5 space-y-4">
-              <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-gold">
-                <MessageSquare className="h-4 w-4" />
-                <span>Message Inquiries</span>
-              </div>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-                Leave a Note for <span className="italic text-gold">MESAC</span>
-              </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Have a query regarding Yantra events, academy workshops, alumni coordination, or
-                department initiatives? Fill out the form below or contact our student leads
-                directly.
-              </p>
-              <div className="rounded-2xl border border-border bg-secondary/30 p-4 text-xs text-muted-foreground space-y-1.5">
-                <div className="font-semibold text-foreground flex items-center gap-1.5">
-                  <AlertCircle className="h-3.5 w-3.5 text-gold" />
-                  <span>Frontend Prototype Note</span>
-                </div>
-                <p>
-                  This form is currently a frontend prototype. Submissions are validated locally in
-                  your browser. For immediate correspondence, email{" "}
-                  <a href="mailto:mesactechnical@gmail.com" className="text-gold underline">
-                    mesactechnical@gmail.com
-                  </a>
-                  .
-                </p>
-              </div>
-            </div>
-
-            <div className="lg:col-span-7">
-              <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-lift">
-                {submitted ? (
-                  <div className="text-center py-8 space-y-4">
-                    <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                      <CheckCircle2 className="h-8 w-8" />
-                    </div>
-                    <div className="space-y-1">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-400 font-bold block">
-                        Frontend Prototype Recorded
-                      </span>
-                      <h3 className="font-display text-2xl font-bold text-foreground">
-                        Message Received!
-                      </h3>
-                    </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                      Thank you, <strong className="text-foreground">{lastSubmittedName}</strong>!
-                      Your inquiry has been recorded in this frontend demo. For official responses,
-                      please reach out via{" "}
-                      <code className="text-gold">mesactechnical@gmail.com</code>.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSubmitted(false);
-                        setFormData(INITIAL_FORM);
-                      }}
-                      className="mt-2 rounded-xl gradient-gold text-primary font-bold px-6 py-2.5 text-xs transition hover:brightness-105 cursor-pointer"
-                    >
-                      Send Another Message
-                    </button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Name */}
-                      <div>
-                        <label
-                          htmlFor="contact-name"
-                          className="block text-xs font-mono uppercase tracking-wider text-muted-foreground font-semibold mb-1"
-                        >
-                          Your Name <span className="text-gold">*</span>
-                        </label>
-                        <input
-                          id="contact-name"
-                          type="text"
-                          required
-                          value={formData.name}
-                          onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, name: e.target.value }));
-                            if (formErrors.name)
-                              setFormErrors((prev) => ({ ...prev, name: undefined }));
-                          }}
-                          placeholder="e.g. Sandra VM"
-                          aria-invalid={Boolean(formErrors.name)}
-                          aria-describedby={formErrors.name ? "name-err" : undefined}
-                          className={`w-full rounded-xl border bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-gold transition min-h-[42px] ${
-                            formErrors.name ? "border-red-500/80" : "border-border"
-                          }`}
-                        />
-                        {formErrors.name && (
-                          <p
-                            id="name-err"
-                            className="mt-1 text-xs text-red-400 flex items-center gap-1"
-                          >
-                            <AlertCircle className="h-3 w-3" />
-                            <span>{formErrors.name}</span>
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Email */}
-                      <div>
-                        <label
-                          htmlFor="contact-email"
-                          className="block text-xs font-mono uppercase tracking-wider text-muted-foreground font-semibold mb-1"
-                        >
-                          Email Address <span className="text-gold">*</span>
-                        </label>
-                        <input
-                          id="contact-email"
-                          type="email"
-                          required
-                          value={formData.email}
-                          onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, email: e.target.value }));
-                            if (formErrors.email)
-                              setFormErrors((prev) => ({ ...prev, email: undefined }));
-                          }}
-                          placeholder="sandra@cusat.ac.in"
-                          aria-invalid={Boolean(formErrors.email)}
-                          aria-describedby={formErrors.email ? "email-err" : undefined}
-                          className={`w-full rounded-xl border bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-gold transition min-h-[42px] ${
-                            formErrors.email ? "border-red-500/80" : "border-border"
-                          }`}
-                        />
-                        {formErrors.email && (
-                          <p
-                            id="email-err"
-                            className="mt-1 text-xs text-red-400 flex items-center gap-1"
-                          >
-                            <AlertCircle className="h-3 w-3" />
-                            <span>{formErrors.email}</span>
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Subject */}
-                    <div>
-                      <label
-                        htmlFor="contact-subject"
-                        className="block text-xs font-mono uppercase tracking-wider text-muted-foreground font-semibold mb-1"
-                      >
-                        Subject / Query Topic <span className="text-gold">*</span>
-                      </label>
-                      <input
-                        id="contact-subject"
-                        type="text"
-                        required
-                        value={formData.subject}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, subject: e.target.value }));
-                          if (formErrors.subject)
-                            setFormErrors((prev) => ({ ...prev, subject: undefined }));
-                        }}
-                        placeholder="e.g. Yantra Techfest / CAD Workshop Inquiry"
-                        aria-invalid={Boolean(formErrors.subject)}
-                        aria-describedby={formErrors.subject ? "sub-err" : undefined}
-                        className={`w-full rounded-xl border bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-gold transition min-h-[42px] ${
-                          formErrors.subject ? "border-red-500/80" : "border-border"
-                        }`}
-                      />
-                      {formErrors.subject && (
-                        <p
-                          id="sub-err"
-                          className="mt-1 text-xs text-red-400 flex items-center gap-1"
-                        >
-                          <AlertCircle className="h-3 w-3" />
-                          <span>{formErrors.subject}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Message */}
-                    <div>
-                      <label
-                        htmlFor="contact-message"
-                        className="block text-xs font-mono uppercase tracking-wider text-muted-foreground font-semibold mb-1"
-                      >
-                        Message <span className="text-gold">*</span>
-                      </label>
-                      <textarea
-                        id="contact-message"
-                        rows={4}
-                        required
-                        value={formData.message}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, message: e.target.value }));
-                          if (formErrors.message)
-                            setFormErrors((prev) => ({ ...prev, message: undefined }));
-                        }}
-                        placeholder="Write your inquiry or question here..."
-                        aria-invalid={Boolean(formErrors.message)}
-                        aria-describedby={formErrors.message ? "msg-err" : undefined}
-                        className={`w-full rounded-xl border bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-gold transition ${
-                          formErrors.message ? "border-red-500/80" : "border-border"
-                        }`}
-                      />
-                      {formErrors.message && (
-                        <p
-                          id="msg-err"
-                          className="mt-1 text-xs text-red-400 flex items-center gap-1"
-                        >
-                          <AlertCircle className="h-3 w-3" />
-                          <span>{formErrors.message}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full sm:w-auto rounded-xl gradient-gold text-primary font-bold px-8 py-3 text-xs shadow-glass hover:brightness-105 active:scale-95 transition cursor-pointer min-h-[42px] disabled:opacity-50 inline-flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <span className="h-3.5 w-3.5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                          <span>Recording Message...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-3.5 w-3.5" />
-                          <span>Submit Message</span>
-                        </>
-                      )}
-                    </button>
-                  </form>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* OFFICIAL PORTALS & SOCIAL HANDLES */}
+          {/* LINKS */}
           <Reveal delay={140}>
             <div className="rounded-3xl border border-border bg-secondary/30 p-8 text-center space-y-4">
               <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground font-bold">
-                Official CUSAT Portals & Social Handles
+                Find us online
               </div>
               <div className="flex flex-wrap items-center justify-center gap-3">
-                <a
-                  href="https://www.instagram.com/mesa_cusat?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:border-gold hover:text-gold shadow-sm transition"
-                >
-                  <InstagramIcon className="h-4 w-4 text-pink-500" />
-                  <span>Instagram</span>
-                  <ExternalLink className="h-3.5 w-3.5 text-gold" />
-                </a>
-
-                <a
-                  href="https://www.linkedin.com/company/mesa-cusat"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:border-gold hover:text-gold shadow-sm transition"
-                >
-                  <Linkedin className="h-4 w-4 text-blue-500" />
-                  <span>LinkedIn</span>
-                  <ExternalLink className="h-3.5 w-3.5 text-gold" />
-                </a>
-
+                {settings.instagramUrl && (
+                  <a
+                    href={settings.instagramUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={linkCard}
+                  >
+                    <InstagramIcon className="h-4 w-4 text-pink-500" />
+                    <span>Instagram</span>
+                    <ExternalLink className="h-3.5 w-3.5 text-gold" />
+                  </a>
+                )}
+                {settings.linkedinUrl && (
+                  <a
+                    href={settings.linkedinUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={linkCard}
+                  >
+                    <Linkedin className="h-4 w-4 text-blue-500" />
+                    <span>LinkedIn</span>
+                    <ExternalLink className="h-3.5 w-3.5 text-gold" />
+                  </a>
+                )}
                 <a
                   href="https://soe.cusat.ac.in"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:border-gold hover:text-gold shadow-sm transition"
+                  className={linkCard}
                 >
-                  <span>SOE CUSAT Website</span>
+                  <span>School of Engineering, CUSAT</span>
                   <ExternalLink className="h-3.5 w-3.5 text-gold" />
                 </a>
-
                 <a
                   href="https://admissions.cusat.ac.in/"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:border-gold hover:text-gold shadow-sm transition"
+                  className={linkCard}
                 >
-                  <span>CUSAT Admissions Portal</span>
+                  <span>CUSAT Admissions</span>
                   <ExternalLink className="h-3.5 w-3.5 text-gold" />
                 </a>
               </div>
@@ -589,18 +262,15 @@ function ContactPage() {
                     Visit Us At CUSAT Campus
                   </h2>
                   <p className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    Located at the heart of Cochin University of Science and Technology in
-                    Kalamassery, Kochi.
+                    Cochin University of Science and Technology, Kalamassery, Kochi.
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="rounded-2xl border border-border bg-card p-6 mt-6">
                   <div className="flex items-start gap-3">
                     <Building2 className="h-5 w-5 text-gold shrink-0 mt-0.5" />
                     <div>
-                      <div className="text-xs font-bold text-foreground">
-                        Complete Postal Address
-                      </div>
+                      <div className="text-xs font-bold text-foreground">Postal Address</div>
                       <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
                         Division of Mechanical Engineering,
                         <br />
@@ -610,23 +280,13 @@ function ContactPage() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="flex items-start gap-3 pt-2 border-t border-border/60">
-                    <Compass className="h-5 w-5 text-gold shrink-0 mt-0.5" />
-                    <div>
-                      <div className="text-xs font-bold text-foreground">Key Landmarks</div>
-                      <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Adjacent to CUSAT University Library & South Campus Main Gate.
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <a
                   href="https://maps.google.com/?q=School+of+Engineering+CUSAT+Kalamassery"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2.5 rounded-full gradient-gold px-6 py-3 text-xs font-bold text-primary shadow-lg hover:brightness-105 transition"
+                  className="mt-6 inline-flex items-center gap-2.5 rounded-full gradient-gold px-6 py-3 text-xs font-bold text-primary shadow-lg hover:brightness-105 transition min-h-[44px]"
                 >
                   <Navigation className="h-4 w-4" />
                   <span>Get Directions On Google Maps</span>

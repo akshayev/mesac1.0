@@ -14,26 +14,12 @@ export interface AnnouncementConfig {
   icon?: string;
 }
 
-// Configuration for active announcement banner. Set `active: true` when a new notification/registration is live.
-const CURRENT_ANNOUNCEMENT: AnnouncementConfig = {
-  active: true,
-  badge: "Announcement",
-  title: "MESAC Committee 2026-27 Announced",
-  message: "Explore upcoming flagship workshops, technical seminars, and student initiatives.",
-  linkText: "View Events & Details",
-  href: "/events",
-  icon: "📣",
-};
-
-export function NotificationBanner({
-  config = CURRENT_ANNOUNCEMENT,
-}: {
-  config?: AnnouncementConfig;
-}) {
+export function NotificationBanner({ config }: { config?: AnnouncementConfig }) {
+  if (!config) return null;
   const isLive = config.active ?? config.enabled ?? false;
   const message = config.description || config.message;
 
-  if (!config || !isLive || (!message && !config.title)) {
+  if (!isLive || (!message && !config.title)) {
     return null;
   }
 

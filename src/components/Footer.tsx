@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Linkedin } from "lucide-react";
 import { InstagramIcon } from "@/components/InstagramIcon";
+import { getSettings } from "@/data/site";
 
 export function Footer() {
+  const settings = getSettings();
   return (
     <footer className="relative overflow-hidden bg-black text-white/80 border-t border-white/10 transition-colors">
       {/* BACKGROUND ACCENTS — FULL BLACK WITH AMBER ACCENT */}
@@ -26,34 +28,38 @@ export function Footer() {
             >
               <img
                 src="/cusat-crest.png"
-                alt="Cochin University of Science and Technology (CUSAT) Official Emblem"
+                alt="Cochin University of Science and Technology (CUSAT) emblem"
                 className="h-full w-full object-contain drop-shadow-sm"
               />
             </a>
 
             {/* INSTAGRAM LOGO */}
-            <a
-              href="https://www.instagram.com/mesa_cusat?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-              target="_blank"
-              rel="noreferrer"
-              aria-label="MESAC CUSAT Instagram Profile"
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] shadow-lg shadow-rose-950/40 transition-transform duration-200 hover:scale-110"
-              title="MESAC Instagram"
-            >
-              <InstagramIcon className="h-6 w-6 text-white" />
-            </a>
+            {settings.instagramUrl && (
+              <a
+                href={settings.instagramUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="MESAC CUSAT Instagram Profile"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] shadow-lg shadow-rose-950/40 transition-transform duration-200 hover:scale-110"
+                title="MESAC Instagram"
+              >
+                <InstagramIcon className="h-6 w-6 text-white" />
+              </a>
+            )}
 
             {/* LINKEDIN LOGO */}
-            <a
-              href="https://www.linkedin.com/company/mesa-cusat"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="MESAC CUSAT LinkedIn Organization Page"
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0077b5] shadow-lg shadow-sky-950/40 transition-transform duration-200 hover:scale-110"
-              title="MESAC LinkedIn"
-            >
-              <Linkedin className="h-6 w-6 text-white" />
-            </a>
+            {settings.linkedinUrl && (
+              <a
+                href={settings.linkedinUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="MESAC CUSAT LinkedIn Organization Page"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0077b5] shadow-lg shadow-sky-950/40 transition-transform duration-200 hover:scale-110"
+                title="MESAC LinkedIn"
+              >
+                <Linkedin className="h-6 w-6 text-white" />
+              </a>
+            )}
           </div>
 
           {/* RIGHT COLUMN: RESTORED ORIGINAL FOOTER INFO (WITHOUT COCHIN ADDRESS / DIVIDER) */}
@@ -73,11 +79,8 @@ export function Footer() {
                 Contact
               </Link>
               <span>·</span>
-              <Link
-                to="/about-mesac"
-                className="hover:text-white uppercase font-bold text-amber-400"
-              >
-                DISCLAIMER
+              <Link to="/archive" className="hover:text-amber-400 transition">
+                Archive
               </Link>
               <span>·</span>
               <Link to="/privacy" className="hover:text-amber-400 transition">
@@ -85,7 +88,7 @@ export function Footer() {
               </Link>
             </div>
             <div>All rights reserved</div>
-            <div>Designed, Hosted and Maintained by MESAC COMMITTEE</div>
+            {settings.footerText && <div>{settings.footerText}</div>}
           </div>
         </div>
       </div>
