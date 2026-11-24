@@ -95,6 +95,20 @@ test("no risky triggers, no secret echo, no untrusted input in run scripts", opt
   }
 });
 
+test("guards compare against the last good run, restored before the build", opts, () => {
+  const steps = doc.jobs.deploy.steps;
+  const restore = steps.findIndex(
+    (s) =>
+      String(s.uses ?? "").startsWith("actions/cache") &&
+      String(s.with?.key ?? "").startsWith("last-good-data-"),
+  );
+  const build = steps.findIndex((s) => String(s.run ?? "").includes("npm run build"));
+  assert.ok(restore >= 0 && restore < build, "snapshot must be restored before the build");
+  assert.match(steps[restore].with.path, /data\/drive-files\.json/);
+  assert.ok("allow_shrink" in doc.on.workflow_dispatch.inputs);
+  assert.match(String(steps[build].env.ARCHIVE_ALLOW_SHRINK), /inputs\.allow_shrink/);
+});
+
 test("the job only deploys from main", opts, () => {
   assert.match(doc.jobs.deploy.if, /refs\/heads\/main/);
 });

@@ -410,6 +410,20 @@ test("sheets: a tab losing more than half its rows fails under DEPLOY=1, warns o
     assert.equal(lenient.code, 0);
     assert.match(lenient.out, /less than half/);
     assert.equal(readJson(root, "src/data/generated/team.json").items.length, 1);
+
+    // A deliberate drop can be allowed explicitly, even when deploying.
+    assert.equal((await run("sheet-sync.mjs", root, sheetEnv(mock))).code, 0);
+    mock.state.sheets.team = {
+      status: 200,
+      body: "name,role,group,photo,linkedin,email_public,order,visible\nNobody,Role,Core,,,,1,FALSE\n",
+    };
+    const allowed = await run(
+      "sheet-sync.mjs",
+      root,
+      sheetEnv(mock, { DEPLOY: "1", SHEET_ALLOW_SHRINK: "1" }),
+    );
+    assert.equal(allowed.code, 0, allowed.out);
+    assert.equal(readJson(root, "src/data/generated/team.json").items.length, 0);
   } finally {
     await mock.close();
     rmSync(root, { recursive: true, force: true });

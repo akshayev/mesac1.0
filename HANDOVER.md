@@ -166,7 +166,7 @@ npm ci
 cp .env.example .env     # fill in what you have; everything is optional
 npm run dev              # http://localhost:3000
 npm run build            # full production build (also runs the data steps)
-npm run test:data        # checks the file-name parser and the Sheet reader
+npm run test:data        # parser, Sheet reader, workflow checks, and the Drive/Sheet code against a mock Google
 ```
 
 Without any keys the site builds with **sample data** (names like "SAMPLE Student A"). That is fine for development but must never be published; the deploy check (below) refuses it.
@@ -204,7 +204,18 @@ GitHub **pauses scheduled workflows after 60 days with no activity** in the repo
    - **"source: fixture"**: a secret is missing or wrong, so sample data was used. The deploy is refused on purpose.
    - **`SITE_URL` not set**: add the secret.
    - **HTTP 403 from Google**: the API key is wrong/expired, the Drive API is not enabled, or the folder is not shared publicly.
-   - **"got a web page, not CSV"**: that Sheet tab is not published to the web.
+   - **"got a web page, not CSV"** or **"empty response"**: that Sheet tab is not published to the web (or the link is wrong).
+   - **"is not set"**: one of the `SHEET_*_CSV` or `GOOGLE_API_KEY` secrets is missing.
+   - **"the crawl found 0 files"**: `DRIVE_ROOT_ID` is wrong or the folder is no longer shared.
+   - **"less than half of the previous …"**: Drive or a Sheet tab suddenly has less than half the entries of the last
+     successful run. This is a safety stop against publishing a half-empty site by accident (a moved folder, a deleted
+     tab, a filter left on). Fix the data and run again. If you really deleted that much on purpose: Actions → Build and
+     deploy → Run workflow → tick **"Allow a large drop in files or Sheet rows"** → Run. (Locally the same switches are
+     `ARCHIVE_ALLOW_SHRINK=1` and `SHEET_ALLOW_SHRINK=1`.)
+   - **A folder failing with HTTP 500 after several retries**: a temporary Google problem; run the workflow again later.
+
+The safety checks only become strict on the deploy (`DEPLOY=1`, set by the workflow). On your own computer they print
+warnings instead, and a failed download never overwrites the previous data.
 
 ---
 
@@ -212,19 +223,19 @@ GitHub **pauses scheduled workflows after 60 days with no activity** in the repo
 
 Create each in GitHub → **Settings → Secrets and variables → Actions → New repository secret**. Never put these in the code or in chat.
 
-| Secret                        | What it is                                      | Where to get it                                                                                                                                                                                                                                               |
-| ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GOOGLE_API_KEY`              | Lets the build read the public Drive folder     | Google Cloud Console (log in with the MESAC Google account) → create a project → **APIs & Services → Library → Google Drive API → Enable** → **Credentials → Create credentials → API key**. Then **Restrict key → API restrictions → Google Drive API only** |
-| `DRIVE_ROOT_ID`               | Which folder to index                           | Open the "Mesac-Academics" folder in Drive; the id is the last part of the address (`.../folders/<this part>`)                                                                                                                                                |
-| `SHEET_TEAM_CSV`              | Published CSV address of the `team` tab         | Sheet → Publish to web (section 3)                                                                                                                                                                                                                            |
-| `SHEET_ACHIEVEMENTS_CSV`      | same, `achievements` tab                        | same                                                                                                                                                                                                                                                          |
-| `SHEET_PLACEMENTS_CSV`        | same, `placements` tab                          | same                                                                                                                                                                                                                                                          |
-| `SHEET_SETTINGS_CSV`          | same, `settings` tab                            | same                                                                                                                                                                                                                                                          |
-| `VITE_REPORT_FORM_URL`        | Google Form for "report a problem"              | Google Forms → Send → link (`.../viewform`). Leave empty to use an email instead                                                                                                                                                                              |
-| `VITE_REPORT_FORM_FILE_ENTRY` | The form field that gets the file name          | In the form: ⋮ → **Get pre-filled link** → fill that field with `abc` → open the link; the part like `entry.123456789=abc` gives `entry.123456789`                                                                                                            |
-| `SITE_URL`                    | The website's public address, no trailing slash | See "Address of the site" below                                                                                                                                                                                                                               |
-| `CLOUDFLARE_API_TOKEN`        | Lets GitHub publish to Cloudflare               | Cloudflare dashboard → **My Profile → API Tokens → Create Token → "Edit Cloudflare Workers" template**                                                                                                                                                        |
-| `CLOUDFLARE_ACCOUNT_ID`       | Your Cloudflare account                         | Cloudflare dashboard → **Workers & Pages** → Account ID on the right                                                                                                                                                                                          |
+| Secret                        | What it is                                                                                              | Where to get it                                                                                                                                                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GOOGLE_API_KEY`              | Lets the build read the public Drive folder                                                             | Google Cloud Console (log in with the MESAC Google account) → create a project → **APIs & Services → Library → Google Drive API → Enable** → **Credentials → Create credentials → API key**. Then **Restrict key → API restrictions → Google Drive API only** |
+| `DRIVE_ROOT_ID`               | Which folder to index                                                                                   | Open the "Mesac-Academics" folder in Drive; the id is the last part of the address (`.../folders/<this part>`)                                                                                                                                                |
+| `SHEET_TEAM_CSV`              | Published CSV address of the `team` tab                                                                 | Sheet → Publish to web (section 3)                                                                                                                                                                                                                            |
+| `SHEET_ACHIEVEMENTS_CSV`      | same, `achievements` tab                                                                                | same                                                                                                                                                                                                                                                          |
+| `SHEET_PLACEMENTS_CSV`        | same, `placements` tab                                                                                  | same                                                                                                                                                                                                                                                          |
+| `SHEET_SETTINGS_CSV`          | same, `settings` tab                                                                                    | same                                                                                                                                                                                                                                                          |
+| `VITE_REPORT_FORM_URL`        | Google Form for "report a problem" (the `report_form_url` key in the Sheet's settings tab overrides it) | Google Forms → Send → link (`.../viewform`). Leave empty to use an email instead                                                                                                                                                                              |
+| `VITE_REPORT_FORM_FILE_ENTRY` | The form field that gets the file name                                                                  | In the form: ⋮ → **Get pre-filled link** → fill that field with `abc` → open the link; the part like `entry.123456789=abc` gives `entry.123456789`                                                                                                            |
+| `SITE_URL`                    | The website's public address, no trailing slash                                                         | See "Address of the site" below                                                                                                                                                                                                                               |
+| `CLOUDFLARE_API_TOKEN`        | Lets GitHub publish to Cloudflare                                                                       | Cloudflare dashboard → **My Profile → API Tokens → Create Token → "Edit Cloudflare Workers" template**                                                                                                                                                        |
+| `CLOUDFLARE_ACCOUNT_ID`       | Your Cloudflare account                                                                                 | Cloudflare dashboard → **Workers & Pages** → Account ID on the right                                                                                                                                                                                          |
 
 ### Address of the site (`SITE_URL`)
 
@@ -271,3 +282,26 @@ Until you have a custom domain, `SITE_URL` is the Worker's **workers.dev address
 - The font (Plus Jakarta Sans, SIL Open Font License) is stored in `public/fonts`; nothing is loaded from Google Fonts.
 - Deleted content (old events, gallery, alumni, admin pages and the unverified faculty list) is still in the Git history if anyone needs it back.
 - The 3D gear on page transitions loads only when someone clicks to another page; that keeps the first load fast.
+
+---
+
+## 10. First deployment checklist
+
+Do these in order. Each step is explained above; nothing here needs code changes.
+
+1. **Drive key** (section 6): in Google Cloud, under the MESAC account, enable the Drive API and create an API key
+   restricted to it. Check the "Mesac-Academics" folder is shared "Anyone with the link: Viewer".
+2. **Publish the Sheet tabs** (section 3): publish each of `team`, `achievements`, `placements`, `settings` as CSV and copy
+   the four links. Delete every `SAMPLE` row and fill in real rows first.
+3. **Report form** (optional): create the Google Form, copy its link and the pre-filled field id (`entry.…`).
+4. **Cloudflare**: create the API token ("Edit Cloudflare Workers" template) and note the Account ID.
+5. **Set the secrets** in GitHub (section 6). For the first run set `SITE_URL` to a temporary value such as
+   `https://mesac-cusat.workers.dev`; you will correct it in step 8.
+6. **Merge** the work into `main` (GitHub pull request → Merge).
+7. **Run the workflow**: Actions → Build and deploy → Run workflow. When it is green, open the "Deploy to Cloudflare"
+   step: it prints the site's `https://mesac-cusat.<your-subdomain>.workers.dev` address.
+8. **Set the real `SITE_URL`** to that address (or your custom domain) and run the workflow again, so share links,
+   canonical URLs and the sitemap are correct.
+9. **Verify** on a phone: home, team, a question paper preview and download, the "report a problem" link, the contact
+   page. Open `/sitemap.xml` and check the addresses. Download the `data-reports` artifact and read both reports.
+10. Tick off the checklist in section 8 (names to confirm, photo consent).

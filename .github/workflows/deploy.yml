@@ -14,6 +14,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      allow_shrink:
+        description: "Allow a large drop in files or Sheet rows (tick only after deleting a lot on purpose)"
+        type: boolean
+        default: false
   schedule:
     - cron: "30 20 * * *"
 
@@ -59,6 +64,22 @@ jobs:
           restore-keys: |
             drive-mirror-
 
+      # The data guards compare against the last *successful* run (a Drive crawl or Sheet tab that suddenly has less
+      # than half its entries fails the build). actions/cache only saves at the end of a successful job, so this
+      # restores the most recent good snapshot. It holds public data only (no secrets).
+      - name: Restore the last good data snapshot
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/drive-files.json
+            src/data/generated/team.json
+            src/data/generated/achievements.json
+            src/data/generated/placements.json
+            src/data/generated/settings.json
+          key: last-good-data-${{ github.run_id }}
+          restore-keys: |
+            last-good-data-
+
       - name: Run data and parser tests
         run: npm run test:data
 
@@ -69,6 +90,8 @@ jobs:
         run: npm run build
         env:
           DEPLOY: "1"
+          ARCHIVE_ALLOW_SHRINK: ${{ inputs.allow_shrink && '1' || '' }}
+          SHEET_ALLOW_SHRINK: ${{ inputs.allow_shrink && '1' || '' }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           DRIVE_ROOT_ID: ${{ secrets.DRIVE_ROOT_ID }}
           SHEET_TEAM_CSV: ${{ secrets.SHEET_TEAM_CSV }}

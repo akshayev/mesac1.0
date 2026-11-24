@@ -12,7 +12,7 @@
 //
 // Safety: a failed, empty, HTML or HTTP-error response never overwrites a snapshot. With DEPLOY=1 the run fails
 // (exit 1) when a SHEET_*_CSV variable is missing, a tab cannot be fetched, or a tab has fewer than half the
-// rows of its previous real snapshot (without DEPLOY those are warnings).
+// rows of its previous real snapshot (without DEPLOY those are warnings; SHEET_ALLOW_SHRINK=1 allows a deliberate drop).
 // Overrides for tests: MESAC_PROJECT_ROOT, RETRY_BASE_MS.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -32,6 +32,9 @@ if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
 const useFixture = process.argv.includes("--fixture");
 const DEPLOYING = ["1", "true"].includes(String(process.env.DEPLOY ?? "").toLowerCase());
 const RETRY_BASE_MS = Number(process.env.RETRY_BASE_MS) || 800;
+const ALLOW_SHRINK = ["1", "true"].includes(
+  String(process.env.SHEET_ALLOW_SHRINK ?? "").toLowerCase(),
+);
 const countOf = (items) => (Array.isArray(items) ? items.length : Object.keys(items ?? {}).length);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const snapshotPath = (tab) => join(OUT_DIR, `${tab}.json`);
@@ -93,11 +96,13 @@ async function buildTab(tab) {
       console.log(`  ${tab}: fetched from sheet (${now} entries)`);
       if (prev > 0 && now < prev * 0.5) {
         const problem = `${tab}: only ${now} entries, less than half of the previous ${prev}`;
-        if (DEPLOYING) {
+        if (DEPLOYING && !ALLOW_SHRINK) {
           // Keep the old snapshot; the run fails below.
           return { snapshot: existing, write: false, problem };
         }
-        console.warn(`  ${problem} (using the new data; this fails when DEPLOY=1)`);
+        console.warn(
+          `  ${problem} (using the new data${ALLOW_SHRINK ? ", SHEET_ALLOW_SHRINK is set" : "; this fails when DEPLOY=1"})`,
+        );
         snapshot.issues = [...issues, { tab, line: 0, level: "warn", message: problem }];
       }
       return { snapshot, write: true, problem: null };
