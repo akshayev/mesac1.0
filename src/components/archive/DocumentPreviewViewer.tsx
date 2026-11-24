@@ -161,7 +161,7 @@ export function DocumentPreviewViewer({ document, className = "" }: DocumentPrev
           href={driveUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-gold hover:underline font-medium ml-auto"
+          className="inline-flex min-h-[24px] items-center gap-1 text-gold hover:underline font-medium ml-auto"
         >
           <span>Open in Drive</span>
           <ExternalLink className="h-3 w-3" />

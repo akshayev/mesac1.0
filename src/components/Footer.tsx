@@ -71,19 +71,31 @@ export function Footer() {
               Division of Mechanical Engineering, CUSAT
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 pt-1 text-[11px] text-white/60">
-              <Link to="/about" className="hover:text-amber-400 transition">
+              <Link
+                to="/about"
+                className="inline-flex min-h-[24px] items-center px-1 hover:text-amber-400 transition"
+              >
                 About
               </Link>
               <span>·</span>
-              <Link to="/contact" className="hover:text-amber-400 transition">
+              <Link
+                to="/contact"
+                className="inline-flex min-h-[24px] items-center px-1 hover:text-amber-400 transition"
+              >
                 Contact
               </Link>
               <span>·</span>
-              <Link to="/archive" className="hover:text-amber-400 transition">
+              <Link
+                to="/archive"
+                className="inline-flex min-h-[24px] items-center px-1 hover:text-amber-400 transition"
+              >
                 Archive
               </Link>
               <span>·</span>
-              <Link to="/privacy" className="hover:text-amber-400 transition">
+              <Link
+                to="/privacy"
+                className="inline-flex min-h-[24px] items-center px-1 hover:text-amber-400 transition"
+              >
                 Privacy Policy
               </Link>
             </div>

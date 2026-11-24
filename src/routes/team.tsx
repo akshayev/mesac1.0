@@ -63,7 +63,7 @@ function MemberPhotoCard({
                   target="_blank"
                   rel="noreferrer"
                   aria-label={`${member.name} on LinkedIn`}
-                  className="inline-flex items-center gap-1 hover:text-gold"
+                  className="inline-flex min-h-[24px] items-center gap-1 hover:text-gold"
                 >
                   <ExternalLink className="h-3 w-3" />
                   <span>LinkedIn</span>
@@ -73,7 +73,7 @@ function MemberPhotoCard({
                 <a
                   href={`mailto:${member.email}`}
                   aria-label={`Email ${member.name}`}
-                  className="inline-flex items-center gap-1 hover:text-gold"
+                  className="inline-flex min-h-[24px] items-center gap-1 hover:text-gold"
                 >
                   <Mail className="h-3 w-3" />
                   <span>Email</span>

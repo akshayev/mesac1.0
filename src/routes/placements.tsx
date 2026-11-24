@@ -351,7 +351,7 @@ function PlacementsPage() {
                             href={item.linkedin}
                             target="_blank"
                             rel="noreferrer"
-                            className="mt-2 inline-flex items-center gap-1 text-[11px] text-gold hover:underline"
+                            className="mt-2 inline-flex min-h-[24px] items-center gap-1 text-[11px] text-gold hover:underline"
                           >
                             <ExternalLink className="h-3 w-3" />
                             <span>LinkedIn</span>
