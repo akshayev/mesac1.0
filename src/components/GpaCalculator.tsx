@@ -57,7 +57,7 @@ export function GpaCalculator() {
   // Show Grade Reference drawer
   const [showGradeScale, setShowGradeScale] = useState(false);
 
-  // Helper to map letter grade to points using verified CUSAT scale
+  // Helper to map letter grade to points (scale in src/data/grades.ts)
   const getPointsFromGrade = (grade: CusatGradeLetter | ""): number => {
     if (!grade) return 0;
     const found = CUSAT_GRADE_SCALE.find((g) => g.letter === grade);
@@ -213,7 +213,7 @@ export function GpaCalculator() {
     const safeGpa = isNaN(calculated) || !isFinite(calculated) ? 0 : calculated;
     const gpaFormatted = safeGpa.toFixed(2);
 
-    // CUSAT official conversion standard: Percentage = (SGPA - 0.5) * 10
+    // Commonly used approximation: Percentage = (SGPA - 0.5) * 10 (confirm with the university rules)
     const pct = safeGpa >= 0.5 ? ((safeGpa - 0.5) * 10).toFixed(1) : "0.0";
 
     return {
@@ -298,7 +298,8 @@ export function GpaCalculator() {
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
               Calculates credit-weighted Semester GPA (SGPA) and Cumulative Grade Point Average
-              (CGPA) using the official Cochin University of Science and Technology 10-point scale.
+              (CGPA) on the CUSAT 10-point grade scale. Check results against your official grade
+              card.
             </p>
           </div>
 
@@ -388,7 +389,7 @@ export function GpaCalculator() {
               <code className="text-gold font-mono">
                 SGPA = Σ (Course Credit × Grade Point) / Σ Course Credits
               </code>{" "}
-              · CUSAT Percentage Equivalent:{" "}
+              · Approximate percentage:{" "}
               <code className="text-gold font-mono">Percentage = (SGPA - 0.5) × 10</code>
             </p>
           </div>

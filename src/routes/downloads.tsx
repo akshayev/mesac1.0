@@ -16,7 +16,7 @@ export const Route = createFileRoute("/downloads")({
       { title: "Academic Archive — MESAC CUSAT" },
       {
         name: "description",
-        content: "Redirecting to the official MESAC Academic Archive repository.",
+        content: "Redirecting to the MESAC question paper archive.",
       },
     ],
   }),

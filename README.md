@@ -1,5 +1,11 @@
 # MESAC Website
 
+> **Current state (MVP):** the live site is the question-paper archive (Google Drive), team, achievements,
+> placements and contact details (Google Sheet), a GPA calculator and static About/Department pages. Events,
+> gallery, alumni registration and the admin area described below were **removed** before launch, and there is no
+> backend or login. For how to run, update and deploy the site, read **[HANDOVER.md](HANDOVER.md)**. The sections
+> below are the original project proposal and are kept for reference only.
+
 **Mechanical Engineering Students' Association (MESAC)**  
 School of Engineering, Cochin University of Science and Technology (CUSAT)
 
@@ -300,4 +306,3 @@ The next stages are to:
 The current MESAC website development establishes the public-facing frontend and its principal sections, including the academic archive interface and alumni registration prototype.
 
 The work prepares the website for the next stage of development while retaining the existing frontend architecture. Backend integration, persistent data management, and production readiness remain separate tasks required to satisfy the complete requirements document.
-

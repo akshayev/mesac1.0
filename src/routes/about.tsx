@@ -149,7 +149,7 @@ export function AboutPage() {
             </div>
           </Reveal>
 
-          {/* SECTION 2: OFFICIAL OBJECTIVES */}
+          {/* SECTION 2: OBJECTIVES */}
           <div>
             <Reveal delay={60}>
               <div className="rounded-3xl border border-border bg-card p-6 sm:p-10 shadow-lift space-y-6">
