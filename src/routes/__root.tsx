@@ -9,6 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { AppLoaderProvider } from "../context/AppLoaderContext";
@@ -148,6 +149,8 @@ function RootComponent() {
         <PageTransitionWrapper>
           <Outlet />
         </PageTransitionWrapper>
+        {/* Shows the small confirmations ("Link copied", "Email copied") fired with toast() */}
+        <Toaster theme="dark" position="bottom-center" richColors closeButton={false} />
       </AppLoaderProvider>
     </QueryClientProvider>
   );
