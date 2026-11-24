@@ -63,10 +63,12 @@ jobs:
         run: npm run test:data
 
       # `npm run build` first runs the "prebuild" step: it crawls Drive, fetches the Sheet tabs and writes
-      # the sitemap, then builds the site.
+      # the sitemap, then builds the site. DEPLOY=1 turns on the data guards: the run fails if a secret is
+      # missing, a Sheet tab cannot be fetched, or Drive/Sheet data shrank by more than half.
       - name: Build
         run: npm run build
         env:
+          DEPLOY: "1"
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           DRIVE_ROOT_ID: ${{ secrets.DRIVE_ROOT_ID }}
           SHEET_TEAM_CSV: ${{ secrets.SHEET_TEAM_CSV }}

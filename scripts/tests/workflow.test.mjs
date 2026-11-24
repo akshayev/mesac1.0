@@ -49,6 +49,8 @@ test("steps run in order: tests, build, check:deploy, deploy", opts, () => {
     false,
   );
   assert.equal(steps[idx("npm run check:deploy")].env.DEPLOY, "1");
+  // The data guards run during the build, which regenerates the reports read by check:deploy.
+  assert.equal(steps[idx("npm run build")].env.DEPLOY, "1");
 });
 
 test("the data reports are uploaded even when a step fails", opts, () => {
@@ -82,6 +84,15 @@ test("the workflow only reads the documented secrets", opts, () => {
   ]);
   for (const name of used) assert.ok(allowed.has(name), `unexpected secret ${name}`);
   assert.equal(new Set(used).size >= 11, true);
+});
+
+test("no risky triggers, no secret echo, no untrusted input in run scripts", opts, () => {
+  assert.ok(!("pull_request_target" in doc.on) && !("pull_request" in doc.on));
+  for (const s of doc.jobs.deploy.steps) {
+    const script = String(s.run ?? "");
+    assert.doesNotMatch(script, /\$\{\{\s*(secrets|github\.event)\./, s.name);
+    assert.doesNotMatch(script, /\b(echo|printf)\b.*\$\{?[A-Z_]*(KEY|TOKEN|SECRET)/, s.name);
+  }
 });
 
 test("the job only deploys from main", opts, () => {
