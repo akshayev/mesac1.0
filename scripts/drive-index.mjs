@@ -8,6 +8,15 @@
 // Pipeline: file list (crawl | snapshot | fixture) -> parse -> overrides -> archive.json + report.
 // The file list is saved to data/drive-files.json so builds without a key produce the same output.
 // Never logs API keys or resource keys.
+//
+// Safety guards (the run fails, exit 1, and the previous snapshot is kept):
+//   - the crawl finds 0 files, or fewer than half the files of the previous real crawl
+//     (set ARCHIVE_ALLOW_SHRINK=1 once after a deliberate large clean-up)
+//   - any folder still fails after retries (never publish a partial archive)
+//   - DEPLOY=1 but no Google credentials (a deploy must always use a fresh crawl)
+//
+// Overrides for tests: MESAC_PROJECT_ROOT (read/write somewhere else), DRIVE_API_BASE (mock server),
+// RETRY_BASE_MS (shorter backoff).
 
 import {
   existsSync,
@@ -20,11 +29,13 @@ import {
   rmSync,
   renameSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDocument, clean, isMesacOwner, maskEmail } from "./lib/parse.mjs";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = process.env.MESAC_PROJECT_ROOT
+  ? resolve(process.env.MESAC_PROJECT_ROOT)
+  : join(dirname(fileURLToPath(import.meta.url)), "..");
 const P = {
   env: join(ROOT, ".env"),
   fixture: join(ROOT, "scripts/fixtures/drive-sample.json"),
@@ -51,6 +62,16 @@ const API_KEY = process.env.GOOGLE_API_KEY?.trim() || "";
 const SA_JSON = process.env.GOOGLE_SERVICE_ACCOUNT_JSON?.trim() || "";
 const ROOT_ID = process.env.DRIVE_ROOT_ID?.trim() || "1O_Q5coUAKKpSu3Egmz5YOu9MzdPxyiR6";
 const HAS_CREDENTIALS = Boolean(API_KEY || SA_JSON);
+const DEPLOYING = ["1", "true"].includes(String(process.env.DEPLOY ?? "").toLowerCase());
+const ALLOW_SHRINK = ["1", "true"].includes(
+  String(process.env.ARCHIVE_ALLOW_SHRINK ?? "").toLowerCase(),
+);
+const API_BASE = (
+  process.env.DRIVE_API_BASE?.trim() || "https://www.googleapis.com/drive/v3"
+).replace(/\/+$/, "");
+const RETRY_BASE_MS = Number(process.env.RETRY_BASE_MS) || 500;
+/** Drive ids are letters, digits, "-" and "_". Anything else is refused (it would end up in a query and a file path). */
+const SAFE_ID = /^[A-Za-z0-9_-]{10,200}$/;
 
 const readJson = (p, fallback) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : fallback);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -106,7 +127,7 @@ async function authHeaders(resourceKeys = []) {
 }
 
 function apiUrl(path, params) {
-  const u = new URL(`https://www.googleapis.com/drive/v3/${path}`);
+  const u = new URL(`${API_BASE}/${path}`);
   for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
   if (!SA_JSON && API_KEY) u.searchParams.set("key", API_KEY);
   return u;
@@ -120,7 +141,7 @@ async function fetchWithRetry(url, headers, label, attempts = 6) {
       res = await fetch(url, { headers });
     } catch (err) {
       if (i >= attempts - 1) throw new Error(`${label}: network error (${err.code ?? err.name})`);
-      await sleep(2 ** i * 500 + Math.random() * 300);
+      await sleep(2 ** i * RETRY_BASE_MS + Math.random() * (RETRY_BASE_MS * 0.6));
       continue;
     }
     if (res.ok) return res;
@@ -133,7 +154,7 @@ async function fetchWithRetry(url, headers, label, attempts = 6) {
       const reason = /"reason":\s*"([^"]+)"/.exec(body)?.[1] ?? "";
       throw new Error(`${label}: HTTP ${res.status} ${reason}`.trim());
     }
-    const wait = 2 ** i * 500 + Math.random() * 300;
+    const wait = 2 ** i * RETRY_BASE_MS + Math.random() * (RETRY_BASE_MS * 0.6);
     console.warn(`  ${label}: HTTP ${res.status}, retrying in ${Math.round(wait)} ms`);
     await sleep(wait);
   }
@@ -175,11 +196,15 @@ async function crawl() {
     level.forEach((folder, i) => {
       for (const f of children[i]) {
         const path = [...folder.path, f.name];
+        if (!SAFE_ID.test(String(f.id ?? ""))) {
+          skipped.push({ path: path.map(clean).join("/"), mimeType: "unsafe id (ignored)" });
+          continue;
+        }
         if (f.mimeType === FOLDER_MIME) {
           nextLevel.push({ id: f.id, path, resourceKey: f.resourceKey ?? "" });
         } else if (
           f.mimeType === SHORTCUT_MIME ||
-          f.mimeType.startsWith("application/vnd.google-apps.")
+          String(f.mimeType ?? "").startsWith("application/vnd.google-apps.")
         ) {
           skipped.push({ path: path.map(clean).join("/"), mimeType: f.mimeType });
         } else {
@@ -231,8 +256,12 @@ async function mirror(docs, filesById) {
           await authHeaders([f]),
           `download ${d.sourcePath}`,
         );
+        const body = Buffer.from(await res.arrayBuffer());
+        if (body.length === 0 || body.length >= MIRROR_MAX_BYTES) {
+          throw new Error(`download ${d.sourcePath}: unexpected size ${body.length} bytes`);
+        }
         const tmp = `${cached}.part`;
-        writeFileSync(tmp, Buffer.from(await res.arrayBuffer()));
+        writeFileSync(tmp, body);
         renameSync(tmp, cached);
         // Drop stale cache entries for this file.
         for (const old of readdirSync(P.cache)) {
@@ -251,8 +280,17 @@ async function mirror(docs, filesById) {
       console.warn(`  mirror failed: ${err.message}`);
     }
   });
+  // Remove copies of files that are no longer published (deleted, renamed away or now hidden).
+  const keep = new Set(candidates.map((d) => `${d.driveFileId}.pdf`));
+  let pruned = 0;
+  for (const name of readdirSync(P.publicFiles)) {
+    if (name.endsWith(".pdf") && !keep.has(name)) {
+      rmSync(join(P.publicFiles, name), { force: true });
+      pruned++;
+    }
+  }
   console.log(
-    `  mirror: ${fetched} downloaded, ${reused} cached, ${failed} failed (of ${candidates.length})`,
+    `  mirror: ${fetched} downloaded, ${reused} cached, ${failed} failed (of ${candidates.length}), ${pruned} removed`,
   );
 }
 
@@ -279,10 +317,35 @@ function loadFixture() {
   };
 }
 
+/** Throws (so the run fails and the old snapshot stays) when a fresh crawl looks wrong. */
+function guardCrawl(files, previous) {
+  if (files.length === 0) {
+    throw new Error(
+      "the crawl found 0 files. Is DRIVE_ROOT_ID right and the folder shared? Keeping the previous snapshot.",
+    );
+  }
+  const prevCount = previous?.source === "drive" ? (previous.files?.length ?? 0) : 0;
+  if (prevCount > 0 && files.length < prevCount * 0.5) {
+    const msg = `the crawl found ${files.length} files, less than half of the previous ${prevCount}.`;
+    if (!ALLOW_SHRINK) {
+      throw new Error(
+        `${msg} Keeping the previous snapshot. If files were removed on purpose, run once with ARCHIVE_ALLOW_SHRINK=1.`,
+      );
+    }
+    console.warn(`  ${msg} Continuing because ARCHIVE_ALLOW_SHRINK is set.`);
+  }
+}
+
 async function getSnapshot() {
+  if (DEPLOYING && !HAS_CREDENTIALS) {
+    throw new Error(
+      "DEPLOY is set but GOOGLE_API_KEY (or GOOGLE_SERVICE_ACCOUNT_JSON) is missing; a deploy needs a fresh crawl.",
+    );
+  }
   if (HAS_CREDENTIALS) {
     console.log(`data:archive: crawling Drive (${SA_JSON ? "service account" : "API key"})`);
     const { files, skipped } = await crawl();
+    guardCrawl(files, readJson(P.snapshot, null));
     return {
       source: "drive",
       generatedAt: new Date().toISOString(),
