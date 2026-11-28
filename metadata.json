@@ -1,6 +1,6 @@
 {
   "name": "MESAC 2026",
-  "description": "Mechanical Engineering Students' Association - MESAC Official Portal",
+  "description": "Website of MESAC, the Mechanical Engineering Students' Association at CUSAT",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
