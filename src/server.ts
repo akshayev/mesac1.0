@@ -49,6 +49,7 @@ const SECURITY_HEADERS: Record<string, string> = {
   "x-content-type-options": "nosniff",
   "referrer-policy": "strict-origin-when-cross-origin",
   "permissions-policy": "camera=(), microphone=(), geolocation=()",
+  "x-frame-options": "SAMEORIGIN",
 };
 
 function withSecurityHeaders(response: Response): Response {
