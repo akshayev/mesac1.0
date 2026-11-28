@@ -2,12 +2,13 @@
 import { useEffect, useId, useState, type FormEvent } from "react";
 import { SETTING_KEYS } from "../../../scripts/lib/validate.mjs";
 import { SETTING_LABELS } from "@/shared/entities";
-import { ApiError, api, errorText } from "./api";
-import { BTN, BTN_PRIMARY, CARD, Field, INPUT, Notice } from "./ui";
+import { ApiError, api, errorText, type Me } from "./api";
+import { CleanupCard, RefreshCard } from "./MaintenanceCards";
+import { BTN_PRIMARY, CARD, Field, INPUT, Notice } from "./ui";
 
 const HINT = { text: undefined, email: "email", url: "url", link: "text" } as const;
 
-export function SettingsSection() {
+export function SettingsSection({ me }: { me: Me }) {
   const uid = useId();
   const [saved, setSaved] = useState<Record<string, string> | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -54,21 +55,8 @@ export function SettingsSection() {
 
   return (
     <div className="space-y-4">
-      <section className={`${CARD} space-y-2`} aria-labelledby={`${uid}-papers`}>
-        <h2 id={`${uid}-papers`} className="font-display text-base font-bold text-foreground">
-          Question papers
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Papers come from Google Drive and are refreshed every night. To refresh now, open GitHub →
-          Actions → Build and deploy → Run workflow.
-        </p>
-        <button type="button" className={BTN} disabled aria-describedby={`${uid}-papers-note`}>
-          Refresh papers now
-        </button>
-        <p id={`${uid}-papers-note`} className="text-[11px] text-muted-foreground">
-          Not available yet: this button will be added in a later update.
-        </p>
-      </section>
+      <RefreshCard me={me} />
+      {me.role === "admin" && <CleanupCard me={me} />}
 
       <form onSubmit={submit} className={`${CARD} space-y-4`} noValidate>
         <h2 className="font-display text-base font-bold text-foreground">Site settings</h2>

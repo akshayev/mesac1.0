@@ -168,3 +168,20 @@ export const SUBMISSION_SQL = {
   strip:
     "UPDATE alumni_submissions SET status = ?, name = '', batch = '', department = '', current_role = '', company = '', location = '', photo = '', linkedin = '', email = '', phone = '', help_with = '', ip_hash = NULL, reviewed_by = ?, reviewed_at = ?, alumni_id = ? WHERE id = ? AND status = 'pending'",
 };
+
+/**
+ * Papers refresh button: when the deploy workflow was last started, kept in `settings` under an internal key
+ * that the public settings reader ignores (only SETTING_KEYS are read). The claim succeeds (changes = 1) only
+ * if the stored time is older than the threshold, so two clicks cannot both start a run.
+ */
+export const REFRESH_SQL = {
+  claim:
+    "INSERT INTO settings (key, value, updated_at, updated_by) VALUES (?, ?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at, updated_by = excluded.updated_by WHERE settings.value <= ?",
+  get: "SELECT value FROM settings WHERE key = ?",
+  restore: "UPDATE settings SET value = ? WHERE key = ? AND value = ?",
+  release: "DELETE FROM settings WHERE key = ? AND value = ?",
+};
+
+/** Every photo path still used anywhere (unused-photo cleanup). */
+export const MEDIA_REFERENCED_SQL =
+  "SELECT photo AS path FROM team_members UNION SELECT image FROM achievements UNION SELECT photo FROM placements UNION SELECT photo FROM alumni UNION SELECT photo FROM alumni_submissions";

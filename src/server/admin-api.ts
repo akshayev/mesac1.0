@@ -16,6 +16,9 @@
 import { ENTITIES, isEntityName, type EntityName } from "../shared/entities.ts";
 import { authenticate, hasRole, type AdminUser, type VerifyDeps } from "./auth.ts";
 import type { SubmitDeps } from "./submissions.ts";
+import { devCleanupMinAgeMs } from "./dev-bypass.ts";
+import { deleteUnused, findUnused, MIN_AGE_MS } from "./media-cleanup.ts";
+import { refreshConfig, refreshPapers, type RefreshDeps } from "./refresh.ts";
 import * as db from "./db.ts";
 import type { AdminEnv, D1Database } from "./env.ts";
 import { csrfProblem, HttpError, json, notFound, readJson, readLimited } from "./http.ts";
@@ -48,7 +51,7 @@ const forbidden = () => json({ error: "Your role cannot do this." }, 403);
 export async function handleAdminApi(
   request: Request,
   env: Env,
-  deps: VerifyDeps & SubmitDeps = {},
+  deps: VerifyDeps & SubmitDeps & RefreshDeps = {},
 ): Promise<Response> {
   const auth = await authenticate(request, env, deps);
   if (!auth.ok) return auth.status === 404 ? notFound() : json({ error: auth.reason }, auth.status);
@@ -82,7 +85,7 @@ async function route(
   method: string,
   parts: string[],
   url: URL,
-  deps: SubmitDeps = {},
+  deps: SubmitDeps & RefreshDeps = {},
 ): Promise<Response | null> {
   const [section, a, b, c] = parts;
   const audit = (entry: Omit<Parameters<typeof db.writeAudit>[1], "actor">) =>
@@ -94,6 +97,7 @@ async function route(
       role: user.role,
       uploads: hasMedia(env),
       submissions: submissionsEnabled(env),
+      refresh: refreshConfig(env),
     });
   }
 
@@ -279,6 +283,43 @@ async function route(
       if (!r.ok) return errors(r.status, r.errors);
       await audit({ action: "reject", entity: "submissions", entityId: a, fields: [] });
       return json({ rejected: true });
+    }
+    return null;
+  }
+
+  // "Refresh papers now": starts the deploy workflow on GitHub (editors and admins).
+  if (section === "refresh-papers" && !a && method === "POST") {
+    if (!refreshConfig(env).enabled) return null;
+    const r = await refreshPapers(env, user.email, deps);
+    if (!r.ok) return json({ error: r.error }, r.status);
+    await audit({ action: "refresh_papers", entity: "papers", fields: [] });
+    return json({ ok: true, message: "Started. The site updates in a few minutes." });
+  }
+
+  // Unused photos in R2 (admin only): count first, then delete on confirmation.
+  if (section === "media" && (a === "unused" || a === "cleanup") && !b) {
+    if (!hasRole(user, "admin")) return forbidden();
+    if (!hasMedia(env))
+      return json(
+        { error: "Photo storage (R2) is not set up on this site, so there is nothing to clean." },
+        503,
+      );
+    // Local development builds may shorten the 24-hour margin (removed from production builds).
+    const minAge = (__MESAC_DEV_ADMIN__ ? devCleanupMinAgeMs(env) : null) ?? MIN_AGE_MS;
+    const now = deps.nowMs?.() ?? Date.now();
+    if (a === "unused" && method === "GET") {
+      const { keys: _keys, ...counts } = await findUnused(env, now, minAge);
+      return json(counts);
+    }
+    if (a === "cleanup" && method === "POST") {
+      const r = await deleteUnused(env, now, minAge);
+      await audit({
+        action: "cleanup",
+        entity: "media",
+        label: `${r.deleted} deleted`,
+        fields: [],
+      });
+      return json(r);
     }
     return null;
   }

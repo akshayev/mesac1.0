@@ -29,7 +29,7 @@ function AdminSection() {
   let body;
   if (isEntityName(section))
     body = <ContentSection key={section} def={ENTITIES[section]} me={me} />;
-  else if (section === "settings") body = <SettingsSection />;
+  else if (section === "settings") body = <SettingsSection me={me} />;
   else if (section === "submissions")
     body = me.submissions ? (
       <SubmissionsSection me={me} />

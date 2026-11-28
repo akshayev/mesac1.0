@@ -16,6 +16,8 @@ export interface Me {
   uploads: boolean;
   /** The public alumni form is switched on. */
   submissions: boolean;
+  /** "Refresh papers now": on when the Worker has the GitHub token; otherwise a link to GitHub Actions. */
+  refresh: { enabled: boolean; actionsUrl: string | null };
 }
 
 export async function api<T>(method: string, path: string, body?: unknown): Promise<T> {

@@ -423,10 +423,11 @@ export async function deleteAdmin(
 // Activity log
 // ---------------------------------------------------------------------------------------------------------
 
-export type AuditEntity = EntityName | "settings" | "admins" | "media" | "submissions";
+export type AuditEntity = EntityName | "settings" | "admins" | "media" | "submissions" | "papers";
 
 /** Entities whose content is public anyway, so a name/title/key is a harmless label. */
-const LABELLED = new Set<AuditEntity>(["team", "achievements", "placements", "settings"]);
+// "media": cleanup counts only ("3 deleted"); "papers": never labelled.
+const LABELLED = new Set<AuditEntity>(["team", "achievements", "placements", "settings", "media"]);
 
 export async function writeAudit(
   db: D1Database,
