@@ -8,7 +8,7 @@
     "prebuild": "npm run data:all && npm run seo",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview",
+    "preview": "npx --yes wrangler@4.166.0 dev --config .output/server/wrangler.json --port 8787",
     "lint": "eslint .",
     "format": "prettier --write .",
     "data:archive": "node scripts/drive-index.mjs",

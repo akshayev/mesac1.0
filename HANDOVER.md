@@ -166,6 +166,7 @@ npm ci
 cp .env.example .env     # fill in what you have; everything is optional
 npm run dev              # http://localhost:3000
 npm run build            # full production build (also runs the data steps)
+npm run preview          # serve that build like Cloudflare does: http://localhost:8787
 npm run test:data        # parser, Sheet reader, workflow checks, and the Drive/Sheet code against a mock Google
 ```
 
@@ -177,7 +178,7 @@ Without any keys the site builds with **sample data** (names like "SAMPLE Studen
 
 The site is rebuilt:
 
-- **every night at 02:00 IST** (20:30 UTC);
+- **every night at 02:00 IST** (20:30 UTC). GitHub always runs scheduled workflows from the repository's default branch, so keep `main` as the default branch;
 - **whenever code is pushed to `main`**;
 - **on demand**: GitHub → **Actions** → **Build and deploy** → **Run workflow** (choose branch `main`) → **Run workflow**. This is the "Refresh now" button.
 
