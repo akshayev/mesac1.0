@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -17,7 +17,7 @@ interface RollupWarningLike {
 
 type RollupWarnHandler = (warning: RollupWarningLike) => void;
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => ({
   plugins: [
     tailwindcss(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
@@ -62,8 +62,12 @@ export default defineConfig(({ command }) => ({
       : null,
     viteReact(),
   ].filter(Boolean) as Plugin[],
-  // Expose SITE_URL (public address, used for canonical links) to the app next to the default VITE_* variables.
-  envPrefix: ["VITE_", "SITE_URL"],
+  // Expose exactly SITE_URL (public address, used for canonical links) to the app, from the environment or
+  // .env. A define, not an envPrefix: a "SITE_URL" prefix would also expose any variable whose name starts
+  // with SITE_URL. Other variables reach the browser only with the default VITE_ prefix.
+  define: {
+    "import.meta.env.SITE_URL": JSON.stringify(loadEnv(mode, __dirname, "").SITE_URL ?? ""),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
