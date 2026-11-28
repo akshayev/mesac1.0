@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
+  linkedinUrl,
   normalizeAchievements,
   normalizeAlumni,
   normalizePhone,
@@ -248,4 +249,49 @@ test("alumni: without a consent column nobody is published", () => {
   const { items, issues } = normalizeAlumni("name,email_public\nA,a@example.com\n");
   assert.equal(items.length, 0);
   assert.ok(issues.some((i) => /missing column "consent"/.test(i.message)));
+});
+
+const GOOD_LINKEDIN = [
+  "https://linkedin.com/in/a",
+  "https://www.linkedin.com/in/a",
+  "https://in.linkedin.com/in/a",
+  "HTTPS://WWW.LinkedIn.COM/in/a",
+];
+const BAD_LINKEDIN = [
+  "http://www.linkedin.com/in/a",
+  "https://linkedin.com.evil.com/in/a",
+  "https://evil.com/linkedin.com",
+  "https://evil.com/?u=https://linkedin.com",
+  "https://evil.com#.linkedin.com",
+  "https://notlinkedin.com/in/a",
+  "https://linkedin.co/in/a",
+  "https://linkedin.com@evil.com/in/a",
+  "https://user@linkedin.com/in/a",
+  "https://user:pass@www.linkedin.com/in/a",
+  "https://evil.com\\@linkedin.com/in/a",
+  "https://link\u0435din.com/in/a",
+  "https:linkedin.com/in/a",
+  "www.linkedin.com/in/a",
+  "javascript:alert(1)",
+  "",
+];
+
+test("alumni: linkedin accepts only https links on linkedin.com", () => {
+  for (const raw of GOOD_LINKEDIN) assert.equal(linkedinUrl(raw), new URL(raw).toString(), raw);
+  for (const raw of BAD_LINKEDIN) assert.equal(linkedinUrl(raw), "", raw);
+});
+
+test("alumni: a rejected linkedin link keeps the person and reports the row only", () => {
+  const { items, issues } = normalizeAlumni(
+    "name,linkedin,consent\nA,https://linkedin.com.evil.com/in/a,TRUE\n",
+  );
+  assert.deepEqual([items.length, items[0].name, items[0].linkedin], [1, "A", ""]);
+  assert.deepEqual(issues, [
+    {
+      tab: "alumni",
+      line: 2,
+      level: "warn",
+      message: "linkedin is not a linkedin.com https link; ignored",
+    },
+  ]);
 });

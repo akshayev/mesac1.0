@@ -126,7 +126,7 @@ There is deliberately **no salary/package column**. Rows without a `company` are
 A person appears on the **Alumni Connect** page (`/alumni`) only if `consent` is `TRUE` (or `yes` / `1`), `visible` is not `FALSE` and `name` is filled. An empty `consent` means **no**.
 
 - **help_with**: a list separated by semicolons, e.g. `Career advice; Referrals; Higher studies`. Shown as chips and as a filter.
-- **linkedin**: a full `https://...` address. **email_public**: one email address.
+- **linkedin**: a full `https://` address on `linkedin.com` (such as `https://www.linkedin.com/in/...`); other links are dropped and the person is still listed. **email_public**: one email address.
 - **phone_public**: leave empty unless the person clearly agreed to show their number. Digits, spaces, dashes and a leading `+` only; a 10-digit Indian number becomes `+91...`. Format the column as **Plain text** (Format → Number), or Sheets may read `+91...` as a calculation.
 - **photo**: as for the other tabs (see Photos below).
 - `data/sheet-report.md` shows how many rows were skipped for missing consent, and row numbers only.

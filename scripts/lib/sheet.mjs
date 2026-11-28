@@ -73,6 +73,24 @@ export function safeUrl(v) {
   }
 }
 
+/**
+ * https links on linkedin.com or a subdomain of it, without a user name or password; otherwise "".
+ * The hostname is compared after parsing, so linkedin.com.evil.com and evil.com/linkedin.com fail.
+ */
+export function linkedinUrl(v) {
+  const s = String(v ?? "").trim();
+  if (!/^https:\/\//i.test(s)) return "";
+  let url;
+  try {
+    url = new URL(s);
+  } catch {
+    return "";
+  }
+  if (url.username || url.password) return "";
+  const { hostname } = url;
+  return hostname === "linkedin.com" || hostname.endsWith(".linkedin.com") ? url.toString() : "";
+}
+
 export function safeEmail(v) {
   const s = String(v ?? "").trim();
   return /^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(s) ? s : "";
@@ -311,11 +329,7 @@ export function normalizeAlumni(text) {
         company: row.company ?? "",
         location: row.location ?? "",
         photo: cleanPhoto(row, "photo", note, { redact: true }),
-        linkedin: checked(
-          "linkedin",
-          (v) => (safeUrl(v).startsWith("https://") ? safeUrl(v) : ""),
-          "is not an https link",
-        ),
+        linkedin: checked("linkedin", linkedinUrl, "is not a linkedin.com https link"),
         // ? & # % would let a cell add hidden fields (bcc, body) to the mailto link.
         email: checked(
           "email_public",
