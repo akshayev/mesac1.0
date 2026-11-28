@@ -291,7 +291,7 @@ export function GpaCalculator() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-gold">
               <GraduationCap className="h-4 w-4" />
-              <span>CUSAT Academic Assessment Standard</span>
+              <span>Based on the CUSAT 10-point grade scale</span>
             </div>
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground">
               Semester GPA & <span className="italic text-gold">CGPA Calculator</span>
