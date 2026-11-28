@@ -142,6 +142,45 @@ Running this twice creates duplicates. It needs a computer with this repository 
 
 ---
 
+## 11. Optional: the public alumni form
+
+Alumni can then add themselves at `/alumni/join`. Nothing they send is public until an editor or admin approves it in
+the dashboard's **Submissions** screen. Turnstile (Cloudflare's free spam check, no puzzles for most people) keeps bots
+out. Do this after the dashboard works.
+
+1. Cloudflare dashboard → **Turnstile → Add widget**.
+   - Widget name: `MESAC alumni form`.
+   - Hostname: your custom domain (add the `…workers.dev` address too if people use it).
+   - Widget mode: **Managed**. Pre-clearance: **No**.
+   - Create, then copy the **Site Key** and the **Secret Key**.
+2. Make a random salt (at least 32 characters): on any computer, `openssl rand -hex 32`, or a 40-character password from
+   a password manager. Keep it private.
+3. GitHub → **Settings → Secrets and variables → Actions**:
+   - **Variables** tab → `TURNSTILE_SITE_KEY` = the Site Key (it is public, it appears in the page);
+   - **Secrets** tab → `TURNSTILE_SECRET_KEY` = the Secret Key, and `SUBMISSION_SALT` = the salt.
+4. Run the workflow. A step "Check which optional features are configured" fails with a clear message if one of the
+   three is missing or looks wrong (it never prints the values). The last step, "Give the Worker the alumni-form
+   secrets", stores the two secrets on the Worker (encrypted, not in any file).
+5. Check: `/alumni` now shows "Join Alumni Connect"; send yourself a test entry at `/alumni/join`; it appears under
+   **Submissions**; reject it (the details are erased at once).
+
+**What happens to entries**
+
+- **Approve** copies the entry to Alumni (you can untick "Show on the site" first, fix typos, or add a photo) and
+  erases the personal details from the submission. A small record stays as proof of consent: when they agreed, to
+  which wording, who approved it.
+- **Reject** erases the details at once; the empty record is deleted the next time someone opens Submissions.
+- Entries nobody reviews are deleted after **30 days**.
+- Limits against floods: a few entries per visitor per day, and at most 50 waiting at once (people then see "try again
+  tomorrow").
+
+**Switching the form off:** delete the `TURNSTILE_SITE_KEY` variable and run the workflow; `/alumni/join` becomes "page
+not found". Approved alumni stay. To remove the Worker secrets too: Cloudflare → Workers & Pages → `mesac-cusat` →
+Settings → Variables and Secrets → delete `TURNSTILE_SECRET_KEY` and `SUBMISSION_SALT`.
+
+**Removal requests** are by email only: `/alumni/remove` explains how. Hide or delete the person in the dashboard within
+48 hours.
+
 ## Adding or removing an admin
 
 An email needs **both**:

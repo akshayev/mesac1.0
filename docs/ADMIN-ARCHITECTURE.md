@@ -76,6 +76,32 @@ The MESAC site can run in two modes. The switch is one GitHub secret, `D1_DATABA
 - **Secrets** live only in GitHub secrets. The workflow passes them as environment variables, never inside shell
   commands, and the bootstrap script validates every email and prints counts only.
 
+## The public alumni form (optional)
+
+```
+ Alumnus ──► /alumni/join (exists only when D1 + TURNSTILE_SITE_KEY + TURNSTILE_SECRET_KEY + SUBMISSION_SALT)
+               │ Turnstile widget (site key from the server)
+               ▼
+             POST /api/alumni-submission
+               1. same-site Origin + X-MESAC-Form header, JSON only, max 8 KB
+               2. hidden honeypot field filled -> "thank you", nothing stored
+               3. consent box ticked, for the current wording (src/shared/consent.ts, versioned)
+               4. same validators as everywhere (linkedin.com, phone, email); no photo accepted
+               5. at most 3 per visitor per day (SHA-256 of salt + IP, never the IP) and 50 waiting overall
+               6. Turnstile token checked with Cloudflare (5 s timeout; anything but success = refused)
+               ▼
+             alumni_submissions (status pending) ── never read by public pages
+               ▼  editor/admin in Submissions: edit, add photo, approve (shown or hidden) or reject
+             approve: one atomic step creates the alumni row (consent_source 'form', consent time from the form)
+                      and empties the submission's personal fields -> PII-free consent record remains
+             reject:  personal fields emptied at once; row deleted at the next queue load
+             pending > 30 days: deleted at the next queue load
+```
+
+The database refuses a reviewed submission that still holds personal fields (CHECK). Errors and logs name fields only.
+The two secrets are Worker secrets uploaded by the workflow (`wrangler secret bulk`), never in `wrangler.json`;
+the site key is public. Turnstile has a free plan.
+
 ## When the database has a problem
 
 Pages keep showing the last data they read (cached per Worker for 60 seconds). If there is none, the visitor sees the
