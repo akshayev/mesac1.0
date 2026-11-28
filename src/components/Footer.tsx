@@ -93,6 +93,13 @@ export function Footer() {
               </Link>
               <span>·</span>
               <Link
+                to="/alumni"
+                className="inline-flex min-h-[24px] items-center px-1 hover:text-amber-400 transition"
+              >
+                Alumni
+              </Link>
+              <span>·</span>
+              <Link
                 to="/privacy"
                 className="inline-flex min-h-[24px] items-center px-1 hover:text-amber-400 transition"
               >
