@@ -117,3 +117,12 @@ test("guards compare against the last good run, restored before the build", opts
 test("the job only deploys from main", opts, () => {
   assert.match(doc.jobs.deploy.if, /refs\/heads\/main/);
 });
+
+test("HANDOVER lists exactly the secrets the workflow reads", () => {
+  const handover = readFileSync(new URL("../../HANDOVER.md", import.meta.url), "utf8");
+  const table = handover.split("## 6. Secrets")[1].split("### Address of the site")[0];
+  const listed = [...table.matchAll(/^\| `([A-Z0-9_]+)`/gm)].map((m) => m[1]);
+  const used = new Set([...text.matchAll(/secrets\.([A-Z0-9_]+)/g)].map((m) => m[1]));
+  assert.deepEqual(listed.sort(), [...used].sort());
+  assert.match(handover, new RegExp(`All ${used.size} secrets`));
+});
