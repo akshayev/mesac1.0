@@ -16,3 +16,13 @@ export function devBypassEmail(request: Request, env: AdminEnv): string | null {
   if (!LOCAL_HOSTS.has(new URL(request.url).hostname)) return null;
   return strictEmail(env.ADMIN_DEV_EMAIL) || null;
 }
+
+/**
+ * Local development only (same build flag): MEDIA_CLEANUP_MIN_AGE_HOURS lowers the 24-hour safety margin of
+ * the unused-photo cleanup so it can be tried at once. Removed from production builds with the rest of this file.
+ */
+export function devCleanupMinAgeMs(env: AdminEnv): number | null {
+  const raw = String(env.MEDIA_CLEANUP_MIN_AGE_HOURS ?? "").trim();
+  if (!/^\d{1,3}$/.test(raw)) return null;
+  return Number(raw) * 60 * 60 * 1000;
+}

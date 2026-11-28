@@ -28,14 +28,25 @@ export interface R2ObjectBody {
   arrayBuffer(): Promise<ArrayBuffer>;
 }
 
+export interface R2ListedObject {
+  key: string;
+  uploaded: Date;
+  size: number;
+}
+
 export interface R2Bucket {
+  list(options?: { cursor?: string; limit?: number; prefix?: string }): Promise<{
+    objects: R2ListedObject[];
+    truncated: boolean;
+    cursor?: string;
+  }>;
   put(
     key: string,
     value: ArrayBuffer | Uint8Array,
     options?: { httpMetadata?: { contentType?: string } },
   ): Promise<unknown>;
   get(key: string): Promise<R2ObjectBody | null>;
-  delete(key: string): Promise<void>;
+  delete(keys: string | string[]): Promise<void>;
 }
 
 export interface AdminEnv {
