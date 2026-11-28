@@ -87,9 +87,11 @@ test("the workflow only reads the documented secrets", opts, () => {
     "CF_ACCESS_TEAM_DOMAIN",
     "CF_ACCESS_AUD",
     "ADMIN_BOOTSTRAP_EMAILS",
+    "TURNSTILE_SECRET_KEY",
+    "SUBMISSION_SALT",
   ]);
   for (const name of used) assert.ok(allowed.has(name), `unexpected secret ${name}`);
-  assert.equal(new Set(used).size >= 17, true);
+  assert.equal(new Set(used).size >= 19, true);
 });
 
 test("no risky triggers, no secret echo, no untrusted input in run scripts", opts, () => {
@@ -123,10 +125,12 @@ test("the job only deploys from main", opts, () => {
   assert.match(doc.jobs.deploy.if, /refs\/heads\/main/);
 });
 
-test("HANDOVER lists exactly the secrets the workflow reads", () => {
+test("HANDOVER lists exactly the secrets and variables the workflow reads", () => {
   const handover = readFileSync(new URL("../../HANDOVER.md", import.meta.url), "utf8");
-  const table = handover.split("## 6. Secrets")[1].split("### Address of the site")[0];
-  const rows = [...table.matchAll(/^\| `([A-Z0-9_]+)`(.*)$/gm)];
+  const section = handover.split("## 6. Secrets")[1];
+  const secretsTable = section.split("### Variables")[0];
+  const varsTable = section.split("### Variables")[1].split("### Address of the site")[0];
+  const rows = [...secretsTable.matchAll(/^\| `([A-Z0-9_]+)`(.*)$/gm)];
   const listed = rows.map((m) => m[1]);
   const used = new Set([...text.matchAll(/secrets\.([A-Z0-9_]+)/g)].map((m) => m[1]));
   assert.deepEqual(listed.sort(), [...used].sort());
@@ -137,41 +141,60 @@ test("HANDOVER lists exactly the secrets the workflow reads", () => {
     "CF_ACCESS_TEAM_DOMAIN",
     "D1_DATABASE_ID",
     "R2_BUCKET_NAME",
+    "SUBMISSION_SALT",
+    "TURNSTILE_SECRET_KEY",
   ]);
   assert.match(handover, new RegExp(`All ${used.size - dashboardOnly.length} required secrets`));
+  const vars = [...varsTable.matchAll(/^\| `([A-Z0-9_]+)`/gm)].map((m) => m[1]);
+  const usedVars = new Set([...text.matchAll(/vars\.([A-Z0-9_]+)/g)].map((m) => m[1]));
+  assert.deepEqual(vars.sort(), [...usedVars].sort());
+  assert.deepEqual([...usedVars], ["TURNSTILE_SITE_KEY"]);
 });
 
 test(
-  "admin database steps: only with D1, after check:deploy, before deploy, no secrets in scripts",
+  "optional features: checked first; database and alumni-form steps gated, ordered, secret-safe",
   opts,
   () => {
     const steps = doc.jobs.deploy.steps;
     const find = (pred) => steps.findIndex(pred);
+    const tests = find((s) => String(s.run ?? "").includes("npm run test:data"));
+    const features = find((s) => s.id === "features");
+    const build = find((s) => String(s.run ?? "").includes("npm run build"));
     const check = find((s) => String(s.run ?? "").includes("npm run check:deploy"));
-    const flag = find((s) => s.id === "d1");
     const migrate = find((s) =>
       /d1 migrations apply DB --remote/.test(String(s.with?.command ?? "")),
     );
     const bootstrap = find((s) => String(s.run ?? "").includes("scripts/bootstrap-admins.mjs"));
     const deploy = find((s) => s.with?.command === "deploy");
-    assert.ok([check, flag, migrate, bootstrap, deploy].every((i) => i >= 0));
-    assert.deepEqual(
-      [check, flag, migrate, bootstrap, deploy],
-      [check, flag, migrate, bootstrap, deploy].sort((a, b) => a - b),
+    const secrets = find((s) => String(s.run ?? "").includes("scripts/upload-worker-secrets.mjs"));
+    const order = [tests, features, build, check, migrate, bootstrap, deploy, secrets];
+    assert.ok(
+      order.every((i) => i >= 0),
+      String(order),
     );
+    assert.deepEqual(
+      order,
+      [...order].sort((a, b) => a - b),
+    );
+    assert.equal(steps[features].run.trim(), "node scripts/check-features.mjs");
     for (const i of [migrate, bootstrap])
-      assert.equal(steps[i].if, "steps.d1.outputs.enabled == 'true'");
+      assert.equal(steps[i].if, "steps.features.outputs.d1 == 'true'");
+    assert.equal(steps[secrets].if, "steps.features.outputs.submissions == 'true'");
     assert.match(steps[migrate].uses, /^cloudflare\/wrangler-action@v\d+$/);
     assert.equal(steps[migrate].with.wranglerVersion, steps[deploy].with.wranglerVersion);
     assert.match(steps[migrate].with.command, /--config \.output\/server\/wrangler\.json/);
-    // The emails reach the script only through env, never pasted into the shell command.
+    // Secret values reach scripts only through env, never pasted into a shell command.
     assert.equal(steps[bootstrap].run.trim(), "node scripts/bootstrap-admins.mjs");
+    assert.equal(steps[secrets].run.trim(), "node scripts/upload-worker-secrets.mjs");
     assert.match(steps[bootstrap].env.ADMIN_BOOTSTRAP_EMAILS, /secrets\.ADMIN_BOOTSTRAP_EMAILS/);
-    assert.doesNotMatch(steps[flag].run, /\$\{\{/);
-    assert.doesNotMatch(steps[flag].run, /echo[^>]*\$D1_DATABASE_ID/);
-    const build = steps[find((s) => String(s.run ?? "").includes("npm run build"))];
+    for (const k of ["TURNSTILE_SECRET_KEY", "SUBMISSION_SALT"]) {
+      assert.match(steps[secrets].env[k], new RegExp(`secrets\\.${k}`));
+      assert.match(steps[features].env[k], new RegExp(`secrets\\.${k}`));
+      assert.ok(!(k in steps[build].env), `${k} must not reach the build`);
+    }
+    assert.match(steps[build].env.TURNSTILE_SITE_KEY, /vars\.TURNSTILE_SITE_KEY/);
     for (const k of ["D1_DATABASE_ID", "R2_BUCKET_NAME", "CF_ACCESS_TEAM_DOMAIN", "CF_ACCESS_AUD"])
-      assert.ok(k in build.env, k);
+      assert.ok(k in steps[build].env, k);
     assert.ok("D1_DATABASE_ID" in steps[check].env);
     assert.deepEqual(doc.permissions, { contents: "read" });
   },

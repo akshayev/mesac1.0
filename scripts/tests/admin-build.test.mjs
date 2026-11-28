@@ -135,3 +135,20 @@ test("check:deploy: admin mode accepts a sample Sheet report but needs the match
   );
   rmSync(site.root, { recursive: true, force: true });
 });
+
+test("check:deploy: a Turnstile test site key in the built Worker is refused", () => {
+  const site = fakeSite({
+    sheet: "fixture",
+    config: { ...D1, vars: { TURNSTILE_SITE_KEY: "1x00000000000000000000AA" } },
+  });
+  const r = checkDeploy({ ...site.env, D1_DATABASE_ID: ID });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /Turnstile test site key/);
+  rmSync(site.root, { recursive: true, force: true });
+  const real = fakeSite({
+    sheet: "fixture",
+    config: { ...D1, vars: { TURNSTILE_SITE_KEY: "0x4AAAAAAAsampleSITEkey" } },
+  });
+  assert.equal(checkDeploy({ ...real.env, D1_DATABASE_ID: ID }).status, 0);
+  rmSync(real.root, { recursive: true, force: true });
+});

@@ -45,6 +45,7 @@ test("static paths come from the real route tree, minus dynamic routes, aliases 
     "/about-mesac/team",
     "/placements",
     "/alumni",
+    "/alumni/remove",
     "/contact",
   ]) {
     assert.ok(paths.includes(p), `missing ${p}`);
