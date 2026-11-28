@@ -24,7 +24,7 @@ import { IDS, RESOURCE_KEYS, startMockGoogle } from "./mock-google.mjs";
 
 const REPO = fileURLToPath(new URL("../..", import.meta.url));
 const KEY = `test-key-${randomBytes(6).toString("hex")}`;
-const TABS = ["team", "achievements", "placements", "settings"];
+const TABS = ["team", "achievements", "placements", "alumni", "settings"];
 
 function makeRoot() {
   const root = mkdtempSync(join(tmpdir(), "mesac-realpath-"));
@@ -376,6 +376,7 @@ function sheetEnv(mock, extra = {}) {
     SHEET_TEAM_CSV: mock.sheetUrl("team"),
     SHEET_ACHIEVEMENTS_CSV: mock.sheetUrl("achievements"),
     SHEET_PLACEMENTS_CSV: mock.sheetUrl("placements"),
+    SHEET_ALUMNI_CSV: mock.sheetUrl("alumni"),
     SHEET_SETTINGS_CSV: mock.sheetUrl("settings"),
     ...extra,
   };
@@ -491,6 +492,101 @@ test("sheets: DEPLOY=1 with a missing SHEET_*_CSV fails", async () => {
     const r = await run("sheet-sync.mjs", root, env);
     assert.equal(r.code, 1);
     assert.match(r.out, /SHEET_SETTINGS_CSV is not set/);
+  } finally {
+    await mock.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("sheets: alumni report has counts and row numbers, never contact details", async () => {
+  const mock = await startMockGoogle();
+  const root = makeRoot();
+  try {
+    serveFixtureSheets(mock);
+    const r = await run("sheet-sync.mjs", root, sheetEnv(mock, { DEPLOY: "1" }));
+    assert.equal(r.code, 0, r.out);
+    const report = read(root, "data/sheet-report.md");
+    assert.match(report, /"skippedWithoutConsent": \{\s*"alumni": 2/);
+    assert.match(report, /\| alumni \| 6 \| warn \| skipped: no consent \|/);
+    const snapshot = read(root, "src/data/generated/alumni.json");
+    assert.equal(JSON.parse(snapshot).skippedNoConsent, 2);
+    assert.doesNotMatch(snapshot, /noconsent|Unconsented|00000009[789]/);
+    // (The team tab does quote its own bad cells, so only the alumni lines are checked.)
+    const alumniLines = [report, r.out]
+      .join("\n")
+      .split("\n")
+      .filter((l) => /alumni/i.test(l));
+    assert.ok(alumniLines.length >= 7);
+    assert.doesNotMatch(alumniLines.join("\n"), /@|not-an-email|call me|00000/);
+    assert.doesNotMatch(report + r.out, /sample\.\w+@|00000 ?000/);
+  } finally {
+    await mock.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("sheets: alumni losing more than half its rows keeps the old snapshot under DEPLOY=1", async () => {
+  const mock = await startMockGoogle();
+  const root = makeRoot();
+  try {
+    serveFixtureSheets(mock);
+    assert.equal((await run("sheet-sync.mjs", root, sheetEnv(mock))).code, 0);
+    const before = read(root, "src/data/generated/alumni.json");
+    // Consent withdrawn from every row but one.
+    mock.state.sheets.alumni = {
+      status: 200,
+      body: "name,consent\nSAMPLE One,TRUE\nSAMPLE Two,FALSE\n",
+    };
+    const strict = await run("sheet-sync.mjs", root, sheetEnv(mock, { DEPLOY: "1" }));
+    assert.equal(strict.code, 1, strict.out);
+    assert.match(strict.out, /alumni: only 1 entries, less than half/);
+    assert.equal(read(root, "src/data/generated/alumni.json"), before);
+    const allowed = await run(
+      "sheet-sync.mjs",
+      root,
+      sheetEnv(mock, { DEPLOY: "1", SHEET_ALLOW_SHRINK: "1" }),
+    );
+    assert.equal(allowed.code, 0, allowed.out);
+    assert.equal(readJson(root, "src/data/generated/alumni.json").items.length, 1);
+  } finally {
+    await mock.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("sheets: a header-only alumni tab is a valid, empty, real source", async () => {
+  const mock = await startMockGoogle();
+  const root = makeRoot();
+  try {
+    serveFixtureSheets(mock);
+    mock.state.sheets.alumni = { status: 200, body: "name,consent,visible\n" };
+    const r = await run("sheet-sync.mjs", root, sheetEnv(mock, { DEPLOY: "1" }));
+    assert.equal(r.code, 0, r.out);
+    const snapshot = readJson(root, "src/data/generated/alumni.json");
+    assert.deepEqual([snapshot.source, snapshot.items], ["sheet", []]);
+  } finally {
+    await mock.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("sheets: only alumni on sample data still blocks the deploy check", async () => {
+  const mock = await startMockGoogle();
+  const root = makeRoot();
+  try {
+    serveFixtureSheets(mock);
+    const env = sheetEnv(mock);
+    delete env.SHEET_ALUMNI_CSV;
+    assert.equal((await run("sheet-sync.mjs", root, env)).code, 0);
+    writeFileSync(join(root, "data/drive-report.md"), '{ "source": "drive" }');
+    const r = await run("check-deploy.mjs", root, {
+      DEPLOY: "1",
+      SITE_URL: "https://real.example.org",
+      CHECK_DEPLOY_DATA_DIR: join(root, "data"),
+    });
+    assert.equal(r.code, 1, r.out);
+    assert.match(r.out, /sheet-report\.md says "source": "fixture"/);
+    assert.match(r.out, /SHEET_\*_CSV/);
   } finally {
     await mock.close();
     rmSync(root, { recursive: true, force: true });

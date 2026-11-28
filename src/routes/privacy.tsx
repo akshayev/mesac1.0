@@ -10,7 +10,7 @@ export const Route = createFileRoute("/privacy")({
     pageHead({
       title: "Privacy — MESAC CUSAT",
       description:
-        "What the MESAC website does and does not collect: no accounts, no sign-up, no stored personal data.",
+        "What the MESAC website collects and publishes: no accounts or sign-up, and alumni details only with consent.",
       path: "/privacy",
     }),
   component: PrivacyPage,
@@ -21,7 +21,11 @@ export function PrivacyPage() {
   const items: Array<{ title: string; body: string }> = [
     {
       title: "What we collect",
-      body: "Nothing. The site has no accounts, no sign-up and no forms of its own, and we store no personal data. There are no analytics or advertising scripts.",
+      body: "We collect nothing from visitors. The site has no accounts, no sign-up and no forms of its own, and no analytics or advertising scripts. Some pages show details about members and alumni.",
+    },
+    {
+      title: "Alumni details",
+      body: `Alumni details are published only with the person's written consent, through the Google Sheet that builds this site. To ask for removal, email ${contactEmail}. We then set visible=FALSE in the Sheet and re-run the publishing workflow within 48 hours.`,
     },
     {
       title: "Question papers",

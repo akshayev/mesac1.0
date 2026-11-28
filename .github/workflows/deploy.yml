@@ -75,6 +75,7 @@ jobs:
             src/data/generated/team.json
             src/data/generated/achievements.json
             src/data/generated/placements.json
+            src/data/generated/alumni.json
             src/data/generated/settings.json
           key: last-good-data-${{ github.run_id }}
           restore-keys: |
@@ -97,6 +98,7 @@ jobs:
           SHEET_TEAM_CSV: ${{ secrets.SHEET_TEAM_CSV }}
           SHEET_ACHIEVEMENTS_CSV: ${{ secrets.SHEET_ACHIEVEMENTS_CSV }}
           SHEET_PLACEMENTS_CSV: ${{ secrets.SHEET_PLACEMENTS_CSV }}
+          SHEET_ALUMNI_CSV: ${{ secrets.SHEET_ALUMNI_CSV }}
           SHEET_SETTINGS_CSV: ${{ secrets.SHEET_SETTINGS_CSV }}
           VITE_REPORT_FORM_URL: ${{ secrets.VITE_REPORT_FORM_URL }}
           VITE_REPORT_FORM_FILE_ENTRY: ${{ secrets.VITE_REPORT_FORM_FILE_ENTRY }}

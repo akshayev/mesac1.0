@@ -75,6 +75,7 @@ test("the workflow only reads the documented secrets", opts, () => {
     "SHEET_TEAM_CSV",
     "SHEET_ACHIEVEMENTS_CSV",
     "SHEET_PLACEMENTS_CSV",
+    "SHEET_ALUMNI_CSV",
     "SHEET_SETTINGS_CSV",
     "VITE_REPORT_FORM_URL",
     "VITE_REPORT_FORM_FILE_ENTRY",
@@ -83,7 +84,7 @@ test("the workflow only reads the documented secrets", opts, () => {
     "CLOUDFLARE_ACCOUNT_ID",
   ]);
   for (const name of used) assert.ok(allowed.has(name), `unexpected secret ${name}`);
-  assert.equal(new Set(used).size >= 11, true);
+  assert.equal(new Set(used).size >= 12, true);
 });
 
 test("no risky triggers, no secret echo, no untrusted input in run scripts", opts, () => {
@@ -105,6 +106,10 @@ test("guards compare against the last good run, restored before the build", opts
   const build = steps.findIndex((s) => String(s.run ?? "").includes("npm run build"));
   assert.ok(restore >= 0 && restore < build, "snapshot must be restored before the build");
   assert.match(steps[restore].with.path, /data\/drive-files\.json/);
+  for (const tab of ["team", "achievements", "placements", "alumni", "settings"]) {
+    assert.ok(steps[restore].with.path.includes(`src/data/generated/${tab}.json`), tab);
+    assert.ok(`SHEET_${tab.toUpperCase()}_CSV` in steps[build].env, tab);
+  }
   assert.ok("allow_shrink" in doc.on.workflow_dispatch.inputs);
   assert.match(String(steps[build].env.ARCHIVE_ALLOW_SHRINK), /inputs\.allow_shrink/);
 });

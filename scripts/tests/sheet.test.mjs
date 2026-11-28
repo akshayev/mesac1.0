@@ -1,8 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import {
   normalizeAchievements,
+  normalizeAlumni,
+  normalizePhone,
+  parseConsent,
+  parseList,
   normalizePlacements,
   normalizeSettings,
   normalizeTeam,
@@ -136,4 +141,122 @@ test("settings: known keys kept, blanks dropped, bad values reported", () => {
   const bad = normalizeSettings("key,value\ncontact_email,nope\ninstagram_url,javascript:x\n");
   assert.deepEqual(bad.items, {});
   assert.equal(bad.issues.length, 2);
+});
+
+test("alumni: consent is only true / yes / 1", () => {
+  for (const v of ["TRUE", "true", " Yes ", "1"]) assert.equal(parseConsent(v), true, v);
+  for (const v of ["", "FALSE", "no", "0", "y", "ok", "consented", undefined])
+    assert.equal(parseConsent(v), false, String(v));
+});
+
+test("alumni: phone numbers are normalised, junk is rejected", () => {
+  const ok = {
+    9000000000: "+919000000000",
+    "90000 00000": "+919000000000",
+    "900-000-0000": "+919000000000",
+    "09000000000": "+919000000000",
+    919000000000: "+919000000000",
+    "+91 90000-00000": "+919000000000",
+    "+1 202 555 0100": "+12025550100",
+  };
+  for (const [raw, want] of Object.entries(ok)) assert.equal(normalizePhone(raw), want, raw);
+  for (const raw of [
+    "",
+    "call me",
+    "12345",
+    "900000000",
+    "90000000000",
+    "+91 12345",
+    "+91 90000 000000",
+    "9000000000 / 9000000001",
+    "9000000000, 9000000001",
+    "(0484) 000000",
+    "90000.00000",
+    "++919000000000",
+    "91+9000000000",
+    "+0 000 000 000",
+    "9000000000;ext=1",
+  ])
+    assert.equal(normalizePhone(raw), "", raw);
+});
+
+test("alumni: help_with is a trimmed, de-duplicated semicolon list", () => {
+  assert.deepEqual(parseList(" career  advice ;; Referrals;referrals; Higher studies; "), [
+    "Career advice",
+    "Referrals",
+    "Higher studies",
+  ]);
+  assert.deepEqual(parseList(""), []);
+  assert.deepEqual(parseList(undefined), []);
+});
+
+test("alumni: only consented, visible, named rows are published", () => {
+  const { items, issues, skippedNoConsent } = normalizeAlumni(fixture("alumni"));
+  assert.deepEqual(
+    items.map((a) => a.name.replace(/ With A.*/, "")),
+    ["SAMPLE Alumni A", "SAMPLE Alumni B", "SAMPLE Alumni C", "SAMPLE Alumni D"],
+  );
+  assert.equal(skippedNoConsent, 2);
+  assert.deepEqual(
+    issues.filter((i) => /no consent/.test(i.message)).map((i) => i.line),
+    [6, 7],
+  );
+  assert.doesNotMatch(JSON.stringify(items), /noconsent|Unconsented|00000009[789]|blank@/);
+});
+
+test("alumni: fields are normalised and bad contacts are blanked", () => {
+  const { items } = normalizeAlumni(fixture("alumni"));
+  assert.deepEqual(items[0], {
+    name: "SAMPLE Alumni A",
+    batch: "2020",
+    department: "Mechanical Engineering",
+    currentRole: "SAMPLE Design Engineer",
+    company: "SAMPLE Company One",
+    location: "SAMPLE City",
+    photo: "",
+    linkedin: "https://www.linkedin.com/in/sample-alumni-a",
+    email: "sample.a@example.com",
+    phone: "+910000000001",
+    helpWith: ["Career advice", "Referrals", "Higher studies"],
+    order: 1,
+  });
+  // Same spelling as the first row, so a filter never lists one topic twice.
+  assert.deepEqual(items[1].helpWith, ["Referrals", "Career advice"]);
+  assert.equal(items[1].phone, "");
+  const bad = items[3];
+  assert.deepEqual([bad.photo, bad.linkedin, bad.email, bad.phone], ["", "", "", ""]);
+});
+
+test("alumni: report messages never quote a cell value", () => {
+  const csv =
+    "name,batch,photo,linkedin,email_public,phone_public,consent,order\n" +
+    "A,2020,secret-photo,http://secret.example,secret@@x,98x,TRUE,9000000000\n" +
+    "B,2020,,,b@example.com,9000000001,no,9000000001\n";
+  const { items, issues } = normalizeAlumni(csv);
+  assert.equal(items.length, 1);
+  assert.ok(issues.length >= 5);
+  assert.doesNotMatch(JSON.stringify(issues), /secret|98x|900000000|example/);
+});
+
+test("alumni: email cannot smuggle mailto parameters", () => {
+  for (const email of ["a@b.com?bcc=x", "a@b.com&cc=x", "a%40@b.com", "a@b.com#x"]) {
+    const { items } = normalizeAlumni(`name,email_public,consent\nA,${email},TRUE\n`);
+    assert.equal(items[0].email, "", email);
+  }
+});
+
+test("alumni: without a consent column nobody is published", () => {
+  const { items, issues } = normalizeAlumni("name,email_public\nA,a@example.com\n");
+  assert.equal(items.length, 0);
+  assert.ok(issues.some((i) => /missing column "consent"/.test(i.message)));
+});
+
+// The repository is public: a real alumni snapshot (names, phones, emails) must never be committed.
+test("alumni: the committed snapshot is sample data", (t) => {
+  const out = spawnSync("git", ["show", "HEAD:src/data/generated/alumni.json"], {
+    cwd: new URL("../..", import.meta.url),
+    encoding: "utf8",
+  });
+  if (out.status !== 0) return t.skip("no committed snapshot to check");
+  assert.equal(JSON.parse(out.stdout).source, "fixture");
 });

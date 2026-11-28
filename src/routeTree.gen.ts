@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutMesacRouteImport } from './routes/about-mesac'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AchievementsRouteImport } from './routes/achievements'
+import { Route as AlumniRouteImport } from './routes/alumni'
 import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DownloadsRouteImport } from './routes/downloads'
@@ -47,6 +48,11 @@ const AcademyRoute = AcademyRouteImport.update({
 const AchievementsRoute = AchievementsRouteImport.update({
   id: '/achievements',
   path: '/achievements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlumniRoute = AlumniRouteImport.update({
+  id: '/alumni',
+  path: '/alumni',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArchiveRoute = ArchiveRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
+  '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
+  '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
+  '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
   '/downloads': typeof DownloadsRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
+    | '/alumni'
     | '/archive'
     | '/contact'
     | '/downloads'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
+    | '/alumni'
     | '/archive'
     | '/contact'
     | '/downloads'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
+    | '/alumni'
     | '/archive'
     | '/contact'
     | '/downloads'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   AboutMesacRoute: typeof AboutMesacRoute
   AcademyRoute: typeof AcademyRoute
   AchievementsRoute: typeof AchievementsRoute
+  AlumniRoute: typeof AlumniRoute
   ArchiveRoute: typeof ArchiveRoute
   ContactRoute: typeof ContactRoute
   DownloadsRoute: typeof DownloadsRoute
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/achievements'
       fullPath: '/achievements'
       preLoaderRoute: typeof AchievementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alumni': {
+      id: '/alumni'
+      path: '/alumni'
+      fullPath: '/alumni'
+      preLoaderRoute: typeof AlumniRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/archive': {
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutMesacRoute: AboutMesacRoute,
   AcademyRoute: AcademyRoute,
   AchievementsRoute: AchievementsRoute,
+  AlumniRoute: AlumniRoute,
   ArchiveRoute: ArchiveRoute,
   ContactRoute: ContactRoute,
   DownloadsRoute: DownloadsRoute,

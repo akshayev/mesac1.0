@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronDown, Users, Info } from "lucide-react";
 
-// Gallery is now placed where Team was; Team is nested inside About MESAC
+// Team is nested inside About MESAC
 const links = [
   { to: "/", label: "HOME" },
   { to: "/academy", label: "GPA CALCULATOR" },
@@ -10,6 +10,7 @@ const links = [
   { to: "/mechanical-dept", label: "MECHANICAL DEPT." },
   { to: "/placements", label: "PLACEMENTS" },
   { to: "/achievements", label: "ACHIEVEMENTS" },
+  { to: "/alumni", label: "ALUMNI" },
   { to: "/about-mesac", label: "ABOUT MESAC" },
 ] as const;
 

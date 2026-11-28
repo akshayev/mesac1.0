@@ -1,0 +1,9 @@
+name,batch,department,current_role,company,location,photo,linkedin,email_public,phone_public,help_with,consent,order,visible
+SAMPLE Alumni A,2020,Mechanical Engineering,SAMPLE Design Engineer,SAMPLE Company One,SAMPLE City,,https://www.linkedin.com/in/sample-alumni-a,sample.a@example.com,00000 00001,Career advice; Referrals; Higher studies,TRUE,1,TRUE
+SAMPLE Alumni B,2018,Mechanical Engineering,SAMPLE Analyst,SAMPLE Company Two,SAMPLE Town,,https://www.linkedin.com/in/sample-alumni-b,,,referrals ;career  advice;;,yes,2,
+SAMPLE Alumni C With A Deliberately Long Name To Test Wrapping,2018,SAMPLE Other Department,,SAMPLE Company With A Very Long Name Private Limited,,,,,,Higher studies,1,3,TRUE
+SAMPLE Alumni D,2016,Mechanical Engineering,SAMPLE Manager,,,not a photo,http://www.linkedin.com/in/sample-alumni-d,not-an-email,call me maybe,,TRUE,4,TRUE
+SAMPLE Alumni Without Consent,2019,SAMPLE Unconsented Department,SAMPLE Engineer,SAMPLE Unconsented Company,SAMPLE City,,https://www.linkedin.com/in/sample-unconsented,sample.noconsent@example.com,00000 00099,SAMPLE Unconsented Topic,FALSE,5,TRUE
+SAMPLE Alumni Blank Consent,2019,Mechanical Engineering,,,,,,sample.blank@example.com,00000 00098,,,6,TRUE
+SAMPLE Alumni Hidden,2017,Mechanical Engineering,,,,,,sample.hidden@example.com,00000 00097,,TRUE,7,FALSE
+,2017,Mechanical Engineering,,,,,,,,,TRUE,8,TRUE

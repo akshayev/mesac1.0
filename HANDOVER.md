@@ -1,6 +1,6 @@
 # MESAC website: handover guide
 
-For next year's committee. You do not need to be a programmer for most of this. Day-to-day work happens in **Google Drive** (question papers) and **one Google Sheet** (team, achievements, placements, settings). The website rebuilds itself from them every night.
+For next year's committee. You do not need to be a programmer for most of this. Day-to-day work happens in **Google Drive** (question papers) and **one Google Sheet** (team, achievements, placements, alumni, settings). The website rebuilds itself from them every night.
 
 ---
 
@@ -8,19 +8,19 @@ For next year's committee. You do not need to be a programmer for most of this. 
 
 - A public website for the Mechanical Engineering Students' Association (MESAC), CUSAT.
 - The main feature is the **question paper archive** (`/archive`). The files live in a Google Drive folder; the site lists them, lets people preview and download them.
-- Team, achievements, placements, contact details and the home-page numbers come from a **Google Sheet**.
+- Team, achievements, placements, alumni, contact details and the home-page numbers come from a **Google Sheet**.
 - There are **no accounts, no forms and no database**. Nothing is stored about visitors (see `/privacy`).
 - It is built with React + TanStack Start and runs on **Cloudflare Workers** (free plan). A **GitHub Action** rebuilds and publishes it.
 
 Where things are:
 
-| What                                     | Where                                 |
-| ---------------------------------------- | ------------------------------------- |
-| Question papers                          | Google Drive folder "Mesac-Academics" |
-| Team, achievements, placements, settings | The MESAC Google Sheet (4 tabs)       |
-| Code                                     | This GitHub repository                |
-| Publishing                               | GitHub → Actions → "Build and deploy" |
-| Hosting                                  | Cloudflare → Workers → `mesac-cusat`  |
+| What                                    | Where                                 |
+| --------------------------------------- | ------------------------------------- |
+| Question papers                         | Google Drive folder "Mesac-Academics" |
+| Team, achievements, alumni and the rest | The MESAC Google Sheet (5 tabs)       |
+| Code                                    | This GitHub repository                |
+| Publishing                              | GitHub → Actions → "Build and deploy" |
+| Hosting                                 | Cloudflare → Workers → `mesac-cusat`  |
 
 ---
 
@@ -88,9 +88,9 @@ Google limits how often one file can be downloaded. If a visitor sees "too many 
 
 ---
 
-## 3. Editing team, achievements, placements and settings (Google Sheet)
+## 3. Editing team, achievements, placements, alumni and settings (Google Sheet)
 
-The Sheet has **four tabs**. The first row of each tab holds the column names (keep them exactly, in lowercase with underscores).
+The Sheet has **five tabs**. The first row of each tab holds the column names (keep them exactly, in lowercase with underscores).
 
 ### Common columns
 
@@ -118,6 +118,39 @@ The Sheet has **four tabs**. The first row of each tab holds the column names (k
 `name, company, role, batch, photo, linkedin, order, visible`
 
 There is deliberately **no salary/package column**. Rows without a `company` are skipped.
+
+### `alumni`
+
+`name, batch, department, current_role, company, location, photo, linkedin, email_public, phone_public, help_with, consent, order, visible`
+
+A person appears on the **Alumni Connect** page (`/alumni`) only if `consent` is `TRUE` (or `yes` / `1`), `visible` is not `FALSE` and `name` is filled. An empty `consent` means **no**.
+
+- **help_with**: a list separated by semicolons, e.g. `Career advice; Referrals; Higher studies`. Shown as chips and as a filter.
+- **linkedin**: a full `https://...` address. **email_public**: one email address.
+- **phone_public**: leave empty unless the person clearly agreed to show their number. Digits, spaces, dashes and a leading `+` only; a 10-digit Indian number becomes `+91...`. Format the column as **Plain text** (Format → Number), or Sheets may read `+91...` as a calculation.
+- **photo**: as for the other tabs (see Photos below).
+- `data/sheet-report.md` shows how many rows were skipped for missing consent, and row numbers only.
+
+> **Warning: a published CSV contains every row and every column of the tab**, including rows without consent and hidden rows. Anyone who has the link can read them. So type contact details **only after** the person has agreed, never collect phone numbers without clear consent, and keep consent records and waiting lists somewhere else (not in this tab).
+
+**Adding an alumnus**
+
+1. Ask first. Get written consent (an email or message is enough) that says which details may be public.
+2. Keep that record **outside this repository** and outside the published tab, for example in the committee's private Drive folder.
+3. Add the row with only the agreed details and set `consent` to `TRUE`.
+4. Refresh the site (section 5) and check `/alumni`.
+
+**Removing or correcting an alumnus (within 48 hours of the request)**
+
+1. Set `visible` to `FALSE`, and delete their email, phone and other details they want gone (the published CSV still shows hidden rows).
+2. Wait about 5 minutes, then run the workflow (section 5). To correct a detail, edit the cell and run it too.
+3. If the run fails with **"alumni: only N entries, less than half"** (likely while the list is small), run it again with **allow_shrink** ticked. If it fails for any other reason (even in another tab), fix that now: the old page, with the person on it, stays live until a run succeeds.
+4. If you added their photo to `public/people/`, delete that file and merge the change into `main`.
+5. Open `/alumni` on the live site, confirm the change, and reply to the person.
+
+Never commit a real `src/data/generated/alumni.json` (what `npm run data:sheet` writes on your computer when the real link is in `.env`): this repository is public and Git keeps old versions. Undo it with `git checkout src/data/generated/alumni.json data/sheet-report.md`.
+
+Create this tab with its header row even before anyone has agreed: the `SHEET_ALUMNI_CSV` secret is required to deploy, and the page then says "coming soon".
 
 ### `settings`
 
@@ -155,7 +188,7 @@ It writes small WebP files (max 600 px) to `public/people/` and a list to `data/
 
 ### Publishing each tab (once)
 
-For each of the four tabs: **File → Share → Publish to web → choose that tab → "Comma-separated values (.csv)" → Publish**. Copy the address into the matching GitHub secret (section 6).
+For each of the five tabs: **File → Share → Publish to web → choose that tab → "Comma-separated values (.csv)" → Publish**. Copy the address into the matching GitHub secret (section 6).
 
 ---
 
@@ -231,6 +264,7 @@ Create each in GitHub → **Settings → Secrets and variables → Actions → N
 | `SHEET_TEAM_CSV`              | Published CSV address of the `team` tab                                                                 | Sheet → Publish to web (section 3)                                                                                                                                                                                                                            |
 | `SHEET_ACHIEVEMENTS_CSV`      | same, `achievements` tab                                                                                | same                                                                                                                                                                                                                                                          |
 | `SHEET_PLACEMENTS_CSV`        | same, `placements` tab                                                                                  | same                                                                                                                                                                                                                                                          |
+| `SHEET_ALUMNI_CSV`            | same, `alumni` tab                                                                                      | same                                                                                                                                                                                                                                                          |
 | `SHEET_SETTINGS_CSV`          | same, `settings` tab                                                                                    | same                                                                                                                                                                                                                                                          |
 | `VITE_REPORT_FORM_URL`        | Google Form for "report a problem" (the `report_form_url` key in the Sheet's settings tab overrides it) | Google Forms → Send → link (`.../viewform`). Leave empty to use an email instead                                                                                                                                                                              |
 | `VITE_REPORT_FORM_FILE_ENTRY` | The form field that gets the file name                                                                  | In the form: ⋮ → **Get pre-filled link** → fill that field with `abc` → open the link; the part like `entry.123456789=abc` gives `entry.123456789`                                                                                                            |
@@ -267,12 +301,13 @@ Until you have a custom domain, `SITE_URL` is the Worker's **workers.dev address
 
 ## 8. Before the first public launch
 
-- [ ] All 11 secrets exist and a run on `main` is green (no "fixture" message).
+- [ ] All 12 secrets exist and a run on `main` is green (no "fixture" message).
 - [ ] The team Sheet has real rows; **delete every `SAMPLE` row**.
 - [ ] Confirm with the department office: **Head of Division**, the "Patron" named on the About page, and the programs/labs text on the Mechanical Dept. page (those texts were carried over from the first prototype and were never verified).
 - [ ] Confirm the **grade scale** used by the GPA calculator (`src/data/grades.ts`) against the current university rules.
 - [ ] Subject names still marked to confirm (`confirm: true` in `src/data/subjects.json`).
-- [ ] Photo consent for everyone shown; no private phone numbers or emails in the Sheet.
+- [ ] Photo consent for everyone shown; no phone numbers or emails in the Sheet without the person's clear consent.
+- [ ] Written consent on file for every `alumni` row.
 - [ ] Open the live site on a phone; try one preview, one download and the "report a problem" link.
 
 ---
@@ -281,7 +316,7 @@ Until you have a custom domain, `SITE_URL` is the Worker's **workers.dev address
 
 - The site never shows files from `Data Book` or `GATE/Study Material`.
 - The font (Plus Jakarta Sans, SIL Open Font License) is stored in `public/fonts`; nothing is loaded from Google Fonts.
-- Deleted content (old events, gallery, alumni, admin pages and the unverified faculty list) is still in the Git history if anyone needs it back.
+- Deleted content (old events, gallery, the old alumni registration form, admin pages and the unverified faculty list) is still in the Git history if anyone needs it back.
 - The 3D gear on page transitions loads only when someone clicks to another page; that keeps the first load fast.
 
 ---
@@ -292,8 +327,8 @@ Do these in order. Each step is explained above; nothing here needs code changes
 
 1. **Drive key** (section 6): in Google Cloud, under the MESAC account, enable the Drive API and create an API key
    restricted to it. Check the "Mesac-Academics" folder is shared "Anyone with the link: Viewer".
-2. **Publish the Sheet tabs** (section 3): publish each of `team`, `achievements`, `placements`, `settings` as CSV and copy
-   the four links. Delete every `SAMPLE` row and fill in real rows first.
+2. **Publish the Sheet tabs** (section 3): publish each of `team`, `achievements`, `placements`, `alumni`, `settings` as CSV and copy
+   the five links. Delete every `SAMPLE` row and fill in real rows first.
 3. **Report form** (optional): create the Google Form, copy its link and the pre-filled field id (`entry.…`).
 4. **Cloudflare**: create the API token ("Edit Cloudflare Workers" template) and note the Account ID.
 5. **Set the secrets** in GitHub (section 6). For the first run set `SITE_URL` to a temporary value such as
