@@ -100,6 +100,7 @@ jobs:
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           SUBMISSION_SALT: ${{ secrets.SUBMISSION_SALT }}
+          PAPERS_REFRESH_TOKEN: ${{ secrets.PAPERS_REFRESH_TOKEN }}
 
       # `npm run build` first runs the "prebuild" step: it crawls Drive, fetches the Sheet tabs and writes
       # the sitemap, then builds the site. DEPLOY=1 turns on the data guards: the run fails if a secret is
@@ -127,6 +128,9 @@ jobs:
           CF_ACCESS_AUD: ${{ secrets.CF_ACCESS_AUD }}
           # Public alumni form (public value, a GitHub variable): added to the Worker's vars, and to the sitemap
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          # Papers refresh button: which repository/workflow the dashboard starts (not secret)
+          REFRESH_REPO: ${{ github.repository }}
+          REFRESH_WORKFLOW_FILE: deploy.yml
 
       # Keep the reports (what was indexed, which rows/files were skipped) so a failed run can be diagnosed.
       - name: Save data reports
@@ -177,13 +181,16 @@ jobs:
           wranglerVersion: "4.166.0"
           command: deploy
 
-      # Public alumni form only: the Worker's two secrets, as encrypted Worker secrets (never in wrangler.json).
-      - name: Give the Worker the alumni-form secrets
-        if: steps.features.outputs.submissions == 'true'
+      # Optional features' Worker secrets (alumni form, papers refresh button), stored encrypted by Cloudflare,
+      # never in wrangler.json.
+      - name: Give the Worker its optional secrets
+        if: steps.features.outputs.submissions == 'true' || steps.features.outputs.refresh == 'true'
         run: node scripts/upload-worker-secrets.mjs
         env:
+          UPLOAD_SUBMISSIONS: ${{ steps.features.outputs.submissions }}
+          UPLOAD_REFRESH: ${{ steps.features.outputs.refresh }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
           SUBMISSION_SALT: ${{ secrets.SUBMISSION_SALT }}
+          PAPERS_REFRESH_TOKEN: ${{ secrets.PAPERS_REFRESH_TOKEN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-

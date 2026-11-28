@@ -52,7 +52,7 @@ if (isPlaceholderSiteUrl(process.env.SITE_URL)) {
 }
 
 // Markers that only a development build or the local config contain.
-const DEV_MARKERS = ["ADMIN_DEV_EMAIL", LOCAL_DB_ID];
+const DEV_MARKERS = ["ADMIN_DEV_EMAIL", "MEDIA_CLEANUP_MIN_AGE_HOURS", LOCAL_DB_ID];
 function* files(dir) {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);

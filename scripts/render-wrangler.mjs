@@ -14,21 +14,14 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDevAdminBuild } from "./lib/build-flags.mjs";
-import { renderDeployConfig, renderLocalConfig } from "./lib/wrangler-config.mjs";
+import { parseJsonc, renderDeployConfig, renderLocalConfig } from "./lib/wrangler-config.mjs";
 
 const ROOT = process.env.MESAC_PROJECT_ROOT || join(dirname(fileURLToPath(import.meta.url)), "..");
 const DEPLOYING = ["1", "true"].includes(String(process.env.DEPLOY ?? "").toLowerCase());
 const rel = (from, to) => relative(from, to).split("\\").join("/");
 const readJson = (p) => JSON.parse(readFileSync(p, "utf8"));
 
-/** wrangler.jsonc without its whole-line // comments. */
-const readJsonc = (p) =>
-  JSON.parse(
-    readFileSync(p, "utf8")
-      .split("\n")
-      .filter((l) => !/^\s*\/\//.test(l))
-      .join("\n"),
-  );
+const readJsonc = (p) => parseJsonc(readFileSync(p, "utf8"));
 
 function local() {
   const outDir = join(ROOT, ".wrangler/local");

@@ -60,5 +60,42 @@ export function checkFeatures(env) {
     if (parts.SUBMISSION_SALT.length < SALT_MIN)
       errors.push(`SUBMISSION_SALT must be at least ${SALT_MIN} characters (use a random value).`);
   }
-  return { d1, submissions: set.length === 3 && errors.length === 0, errors };
+  const submissionErrors = errors.length;
+
+  // Papers refresh button: one fine-grained GitHub token (one repository, Actions read and write).
+  const token = get("PAPERS_REFRESH_TOKEN");
+  const tokenErrors = [];
+  if (token) {
+    if (!d1) tokenErrors.push("PAPERS_REFRESH_TOKEN needs the admin database (D1_DATABASE_ID).");
+    if (!refreshTokenFormat(token))
+      tokenErrors.push(
+        "PAPERS_REFRESH_TOKEN must be a fine-grained GitHub token (starts with github_pat_), limited to this repository.",
+      );
+  }
+  errors.push(...tokenErrors);
+  return {
+    d1,
+    submissions: set.length === 3 && submissionErrors === 0,
+    refresh: token !== "" && tokenErrors.length === 0,
+    errors,
+  };
+}
+
+/** Fine-grained personal access tokens only (classic ghp_ tokens can reach every repository). */
+export function refreshTokenFormat(raw) {
+  return /^github_pat_[A-Za-z0-9_]{30,}$/.test(String(raw ?? "").trim());
+}
+
+/** "owner/repo" as GitHub allows it, or "". */
+export function githubRepo(raw) {
+  const s = String(raw ?? "").trim();
+  return /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/[A-Za-z0-9._-]{1,100}$/.test(s) && !s.endsWith(".git")
+    ? s
+    : "";
+}
+
+/** A workflow file name such as deploy.yml, or "". */
+export function workflowFile(raw) {
+  const s = String(raw ?? "").trim();
+  return /^[A-Za-z0-9._-]+\.ya?ml$/.test(s) ? s : "";
 }

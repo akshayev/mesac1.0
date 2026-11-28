@@ -2,7 +2,7 @@
 // Pure functions; the CLI is scripts/render-wrangler.mjs. Tested in scripts/tests/render-wrangler.test.mjs.
 
 import { accessAud, normalizeTeamDomain } from "./validate.mjs";
-import { turnstileSiteKey } from "./features.mjs";
+import { githubRepo, turnstileSiteKey, workflowFile } from "./features.mjs";
 
 export const DB_NAME = "mesac-admin";
 /** The only id ever written to the local (development) config. check:deploy refuses it in .output. */
@@ -77,6 +77,13 @@ export function renderDeployConfig(base, env, { migrationsDir }) {
   if (team && aud) Object.assign(vars, { CF_ACCESS_TEAM_DOMAIN: team, CF_ACCESS_AUD: aud });
   // Public by design (the browser needs it). The two alumni-form secrets are Worker secrets, never here.
   if (siteKey) vars.TURNSTILE_SITE_KEY = siteKey;
+  // Papers refresh button: which repository and workflow to start (not secret; the token is a Worker secret).
+  // GitHub does not allow secrets or variables named GITHUB_*, so the workflow passes them as REFRESH_*.
+  delete vars.GITHUB_REPO;
+  delete vars.GITHUB_WORKFLOW_FILE;
+  const repo = githubRepo(raw("REFRESH_REPO"));
+  const file = workflowFile(raw("REFRESH_WORKFLOW_FILE"));
+  if (repo && file) Object.assign(vars, { GITHUB_REPO: repo, GITHUB_WORKFLOW_FILE: file });
   if (Object.keys(vars).length) config.vars = vars;
   else delete config.vars;
   return { config, changed: true, errors, warnings, accessProblem };
@@ -104,4 +111,24 @@ export function renderLocalConfig(devBase, { main, assetsDir, migrationsDir }) {
   config.r2_buckets = [{ binding: "MEDIA", bucket_name: LOCAL_BUCKET }];
   delete config.vars;
   return config;
+}
+
+/** JSON with whole-line // comments (wrangler.jsonc). */
+export function parseJsonc(text) {
+  return JSON.parse(
+    String(text)
+      .split("\n")
+      .filter((l) => !/^\s*\/\//.test(l))
+      .join("\n"),
+  );
+}
+
+/** Just enough config for `wrangler d1 export DB` in the backup workflow (no Worker code, no other bindings). */
+export function renderBackupConfig(base, id) {
+  if (!d1Id(id)) throw new Error("not a D1 database id");
+  return {
+    name: base.name,
+    compatibility_date: base.compatibility_date,
+    d1_databases: [{ binding: "DB", database_name: DB_NAME, database_id: d1Id(id) }],
+  };
 }

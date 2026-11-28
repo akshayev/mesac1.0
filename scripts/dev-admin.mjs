@@ -43,8 +43,17 @@ run("npx", [
   PORT,
   "--var",
   `ADMIN_DEV_EMAIL:${email}`,
-  // Optional: the public alumni form, with Cloudflare's Turnstile TEST keys locally (see HANDOVER.md).
-  ...["TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY", "SUBMISSION_SALT"]
+  // Optional, when set in the environment: the public alumni form (Cloudflare's Turnstile TEST keys), the
+  // papers refresh button, and a shorter safety margin for the unused-photo cleanup (dev builds only).
+  ...[
+    "TURNSTILE_SITE_KEY",
+    "TURNSTILE_SECRET_KEY",
+    "SUBMISSION_SALT",
+    "GITHUB_REPO",
+    "GITHUB_WORKFLOW_FILE",
+    "GITHUB_DISPATCH_TOKEN",
+    "MEDIA_CLEANUP_MIN_AGE_HOURS",
+  ]
     .filter((k) => process.env[k])
     .flatMap((k) => ["--var", `${k}:${process.env[k]}`]),
 ]);
