@@ -9,7 +9,8 @@ For next year's committee. You do not need to be a programmer for most of this. 
 - A public website for the Mechanical Engineering Students' Association (MESAC), CUSAT.
 - The main feature is the **question paper archive** (`/archive`). The files live in a Google Drive folder; the site lists them, lets people preview and download them.
 - Team, achievements, placements, alumni, contact details and the home-page numbers come from a **Google Sheet**.
-- There are **no accounts, no forms and no database**. Nothing is stored about visitors (see `/privacy`).
+- There are **no visitor accounts and no forms**. Nothing is stored about visitors (see `/privacy`).
+- Optional: an **admin dashboard** (`/admin`) can replace the Sheet for team, achievements, placements, alumni and settings. It is off until the owners set it up on Cloudflare (section 11).
 - It is built with React + TanStack Start and runs on **Cloudflare Workers** (free plan). A **GitHub Action** rebuilds and publishes it.
 
 Where things are:
@@ -200,8 +201,18 @@ cp .env.example .env     # fill in what you have; everything is optional
 npm run dev              # http://localhost:3000
 npm run build            # full production build (also runs the data steps)
 npm run preview          # serve that build like Cloudflare does: http://localhost:8787
-npm run test:data        # parser, Sheet reader, workflow checks, and the Drive/Sheet code against a mock Google
+npm run test:data        # parser, Sheet reader, workflow checks, admin server, and the Drive/Sheet code against mocks
 ```
+
+The admin dashboard runs locally without any Cloudflare account (data is kept in `.wrangler/state`):
+
+```
+npm run db:seed:local                              # local database with the SAMPLE rows
+npm run db:admin:local -- you@example.com admin    # make yourself an admin (local only)
+ADMIN_DEV_EMAIL=you@example.com npm run dev:admin  # http://localhost:8787/admin
+```
+
+`dev:admin` builds into `.output-dev` with a sign-in shortcut that works only on `localhost`; the real build (`.output`) never contains it, and the deploy check refuses it.
 
 Without any keys the site builds with **sample data** (names like "SAMPLE Student A"). That is fine for development but must never be published; the deploy check (below) refuses it.
 
@@ -257,20 +268,25 @@ warnings instead, and a failed download never overwrites the previous data.
 
 Create each in GitHub → **Settings → Secrets and variables → Actions → New repository secret**. Never put these in the code or in chat.
 
-| Secret                        | What it is                                                                                              | Where to get it                                                                                                                                                                                                                                               |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GOOGLE_API_KEY`              | Lets the build read the public Drive folder                                                             | Google Cloud Console (log in with the MESAC Google account) → create a project → **APIs & Services → Library → Google Drive API → Enable** → **Credentials → Create credentials → API key**. Then **Restrict key → API restrictions → Google Drive API only** |
-| `DRIVE_ROOT_ID`               | Which folder to index                                                                                   | Open the "Mesac-Academics" folder in Drive; the id is the last part of the address (`.../folders/<this part>`)                                                                                                                                                |
-| `SHEET_TEAM_CSV`              | Published CSV address of the `team` tab                                                                 | Sheet → Publish to web (section 3)                                                                                                                                                                                                                            |
-| `SHEET_ACHIEVEMENTS_CSV`      | same, `achievements` tab                                                                                | same                                                                                                                                                                                                                                                          |
-| `SHEET_PLACEMENTS_CSV`        | same, `placements` tab                                                                                  | same                                                                                                                                                                                                                                                          |
-| `SHEET_ALUMNI_CSV`            | same, `alumni` tab                                                                                      | same                                                                                                                                                                                                                                                          |
-| `SHEET_SETTINGS_CSV`          | same, `settings` tab                                                                                    | same                                                                                                                                                                                                                                                          |
-| `VITE_REPORT_FORM_URL`        | Google Form for "report a problem" (the `report_form_url` key in the Sheet's settings tab overrides it) | Google Forms → Send → link (`.../viewform`). Leave empty to use an email instead                                                                                                                                                                              |
-| `VITE_REPORT_FORM_FILE_ENTRY` | The form field that gets the file name                                                                  | In the form: ⋮ → **Get pre-filled link** → fill that field with `abc` → open the link; the part like `entry.123456789=abc` gives `entry.123456789`                                                                                                            |
-| `SITE_URL`                    | The website's public address, no trailing slash                                                         | See "Address of the site" below                                                                                                                                                                                                                               |
-| `CLOUDFLARE_API_TOKEN`        | Lets GitHub publish to Cloudflare                                                                       | Cloudflare dashboard → **My Profile → API Tokens → Create Token → "Edit Cloudflare Workers" template**                                                                                                                                                        |
-| `CLOUDFLARE_ACCOUNT_ID`       | Your Cloudflare account                                                                                 | Cloudflare dashboard → **Workers & Pages** → Account ID on the right                                                                                                                                                                                          |
+| Secret                        | What it is                                                                                                                        | Where to get it                                                                                                                                                                                                                                               |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GOOGLE_API_KEY`              | Lets the build read the public Drive folder                                                                                       | Google Cloud Console (log in with the MESAC Google account) → create a project → **APIs & Services → Library → Google Drive API → Enable** → **Credentials → Create credentials → API key**. Then **Restrict key → API restrictions → Google Drive API only** |
+| `DRIVE_ROOT_ID`               | Which folder to index                                                                                                             | Open the "Mesac-Academics" folder in Drive; the id is the last part of the address (`.../folders/<this part>`)                                                                                                                                                |
+| `SHEET_TEAM_CSV`              | Published CSV address of the `team` tab                                                                                           | Sheet → Publish to web (section 3)                                                                                                                                                                                                                            |
+| `SHEET_ACHIEVEMENTS_CSV`      | same, `achievements` tab                                                                                                          | same                                                                                                                                                                                                                                                          |
+| `SHEET_PLACEMENTS_CSV`        | same, `placements` tab                                                                                                            | same                                                                                                                                                                                                                                                          |
+| `SHEET_ALUMNI_CSV`            | same, `alumni` tab                                                                                                                | same                                                                                                                                                                                                                                                          |
+| `SHEET_SETTINGS_CSV`          | same, `settings` tab                                                                                                              | same                                                                                                                                                                                                                                                          |
+| `VITE_REPORT_FORM_URL`        | Google Form for "report a problem" (the `report_form_url` key in the Sheet's settings tab overrides it)                           | Google Forms → Send → link (`.../viewform`). Leave empty to use an email instead                                                                                                                                                                              |
+| `VITE_REPORT_FORM_FILE_ENTRY` | The form field that gets the file name                                                                                            | In the form: ⋮ → **Get pre-filled link** → fill that field with `abc` → open the link; the part like `entry.123456789=abc` gives `entry.123456789`                                                                                                            |
+| `SITE_URL`                    | The website's public address, no trailing slash                                                                                   | See "Address of the site" below                                                                                                                                                                                                                               |
+| `CLOUDFLARE_API_TOKEN`        | Lets GitHub publish to Cloudflare                                                                                                 | Cloudflare dashboard → **My Profile → API Tokens → Create Token → "Edit Cloudflare Workers" template**                                                                                                                                                        |
+| `CLOUDFLARE_ACCOUNT_ID`       | Your Cloudflare account                                                                                                           | Cloudflare dashboard → **Workers & Pages** → Account ID on the right                                                                                                                                                                                          |
+| `D1_DATABASE_ID`              | **Dashboard only.** The admin database's id. Setting it switches the dashboard on                                                 | Cloudflare → Storage & Databases → D1 → `mesac-admin` → Database ID (docs/OWNER-DEPLOYMENT-GUIDE.md)                                                                                                                                                          |
+| `R2_BUCKET_NAME`              | **Dashboard only.** Photo storage bucket; leave empty to keep photo upload off                                                    | `mesac-media` (the bucket you created in R2)                                                                                                                                                                                                                  |
+| `CF_ACCESS_TEAM_DOMAIN`       | **Dashboard only.** Your Cloudflare Access team domain                                                                            | Zero Trust → Settings → team domain, e.g. `mesac.cloudflareaccess.com`                                                                                                                                                                                        |
+| `CF_ACCESS_AUD`               | **Dashboard only.** The Access application's Audience (AUD) tag                                                                   | Zero Trust → Access → Applications → `MESAC admin` → AUD tag                                                                                                                                                                                                  |
+| `ADMIN_BOOTSTRAP_EMAILS`      | **Dashboard only.** First admin email(s), comma-separated; used only while the admin list is empty. Delete after the first deploy | Your own email(s)                                                                                                                                                                                                                                             |
 
 ### Address of the site (`SITE_URL`)
 
@@ -301,7 +317,7 @@ Until you have a custom domain, `SITE_URL` is the Worker's **workers.dev address
 
 ## 8. Before the first public launch
 
-- [ ] All 12 secrets exist and a run on `main` is green (no "fixture" message).
+- [ ] All 12 required secrets exist and a run on `main` is green (no "fixture" message). The five marked **Dashboard only** are needed only if you switch on the admin dashboard (section 11).
 - [ ] The team Sheet has real rows; **delete every `SAMPLE` row**.
 - [ ] Confirm with the department office: **Head of Division**, the "Patron" named on the About page, and the programs/labs text on the Mechanical Dept. page (those texts were carried over from the first prototype and were never verified).
 - [ ] Confirm the **grade scale** used by the GPA calculator (`src/data/grades.ts`) against the current university rules.
@@ -316,7 +332,7 @@ Until you have a custom domain, `SITE_URL` is the Worker's **workers.dev address
 
 - The site never shows files from `Data Book` or `GATE/Study Material`.
 - The font (Plus Jakarta Sans, SIL Open Font License) is stored in `public/fonts`; nothing is loaded from Google Fonts.
-- Deleted content (old events, gallery, the old alumni registration form, admin pages and the unverified faculty list) is still in the Git history if anyone needs it back.
+- Deleted content (old events, gallery, the old alumni registration form, the old fake admin pages and the unverified faculty list) is still in the Git history if anyone needs it back. The new admin dashboard (section 11) was built from scratch.
 - The 3D gear on page transitions loads only when someone clicks to another page; that keeps the first load fast.
 
 ---
@@ -341,3 +357,21 @@ Do these in order. Each step is explained above; nothing here needs code changes
 9. **Verify** on a phone: home, team, a question paper preview and download, the "report a problem" link, the contact
    page. Open `/sitemap.xml` and check the addresses. Download the `data-reports` artifact and read both reports.
 10. Tick off the checklist in section 8 (names to confirm, photo consent).
+
+---
+
+## 11. Admin dashboard (optional)
+
+Instead of the Google Sheet, committee members can edit team, achievements, placements, alumni and settings at
+`/admin`: a mobile-friendly dashboard with search, show/hide, ordering, photo upload and an activity log.
+Question papers stay in Google Drive.
+
+- **Off by default.** Until the owners create the Cloudflare database (D1), photo store (R2) and login (Access) and set
+  the five **Dashboard only** secrets, the site works exactly as described above, and `/admin` is a normal "page not
+  found".
+- **Setting it up:** [docs/OWNER-DEPLOYMENT-GUIDE.md](docs/OWNER-DEPLOYMENT-GUIDE.md) (step by step, for non-developers,
+  including the one-time copy of the Sheet data, backups and how to switch back to the Sheet).
+- **How it works and why it is safe:** [docs/ADMIN-ARCHITECTURE.md](docs/ADMIN-ARCHITECTURE.md).
+- **Once it is on, edit in the dashboard, not the Sheet**: the public pages read the database, and Sheet edits no longer
+  appear.
+- Alumni: the dashboard will not show anyone without the consent box ticked. The same consent rules as section 3 apply.

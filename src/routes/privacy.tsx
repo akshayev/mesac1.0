@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
-import { getSettings } from "@/data/site";
+import { useSettings } from "@/data/site";
 import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/privacy")({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/privacy")({
 });
 
 export function PrivacyPage() {
-  const { contactEmail } = getSettings();
+  const { contactEmail } = useSettings();
   const items: Array<{ title: string; body: string }> = [
     {
       title: "What we collect",
@@ -25,7 +25,11 @@ export function PrivacyPage() {
     },
     {
       title: "Alumni details",
-      body: `Alumni details are published only with the person's written consent, through the Google Sheet that builds this site. To ask for removal, email ${contactEmail}. We then set visible=FALSE in the Sheet and re-run the publishing workflow within 48 hours.`,
+      body: `Alumni details are published only with the person's written consent, recorded by the MESAC committee. To ask for removal or a correction, email ${contactEmail}. We hide or delete the entry within 48 hours.`,
+    },
+    {
+      title: "Committee sign-in",
+      body: "Only committee members sign in, to edit the site, through Cloudflare Access with an emailed one-time code. We record which account made each change, never the contact details changed.",
     },
     {
       title: "Question papers",
