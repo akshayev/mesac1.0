@@ -3,7 +3,8 @@
 > **Current state (MVP):** the live site is the question-paper archive (Google Drive), team, achievements,
 > placements, alumni and contact details (Google Sheet), a GPA calculator and static About/Department pages. Events,
 > gallery, the alumni registration form and the admin area described below were **removed** before launch, and there is no
-> backend or login. For how to run, update and deploy the site, read **[HANDOVER.md](HANDOVER.md)**. The sections
+> backend or login. Owners: start with **[docs/OWNERS-START-HERE.md](docs/OWNERS-START-HERE.md)**; day-to-day content editing is in
+> **[HANDOVER.md](HANDOVER.md)**. The sections
 > below are the original project proposal and are kept for reference only.
 
 **Mechanical Engineering Students' Association (MESAC)**  

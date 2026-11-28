@@ -1,5 +1,7 @@
 # Admin dashboard: how it works
 
+Technical reference. For setting things up, see [OWNERS-START-HERE.md](OWNERS-START-HERE.md).
+
 The MESAC site can run in two modes. The switch is one GitHub secret, `D1_DATABASE_ID`.
 
 |                                                  | **Sheet mode** (default)                         | **Dashboard mode**                         |
@@ -102,6 +104,25 @@ The database refuses a reviewed submission that still holds personal fields (CHE
 The two secrets are Worker secrets uploaded by the workflow (`wrangler secret bulk`), never in `wrangler.json`;
 the site key is public. Turnstile has a free plan.
 
+## Backups, papers refresh, unused photos
+
+- **Backups** (`.github/workflows/backup.yml`, `scripts/backup-d1.mjs`): weekly and on demand, only when
+  `D1_DATABASE_ID` is set. `wrangler d1 export` → gzip → `openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -md sha256`
+  with the passphrase read from `BACKUP_PASSPHRASE` in the environment (never on a command line) → private artifact,
+  30 days. The plaintext files are deleted in the same step; the log shows only size and rows per table.
+  CBC has no built-in tamper detection; the artifact is private to the repository's readers and only an owner restores
+  it. Restore with `scripts/decrypt-backup.mjs` into a new database first. R2 photos are not included.
+- **Refresh papers now** (`src/server/refresh.ts`): `POST /admin/api/refresh-papers` (editor or admin) calls GitHub's
+  `workflow_dispatch` for `GITHUB_WORKFLOW_FILE` in `GITHUB_REPO` on `main`, with the fine-grained
+  `GITHUB_DISPATCH_TOKEN`. That token goes only to api.github.com, never to the browser or a log. A 5-minute slot is
+  claimed atomically in `settings` under an internal key the public reader ignores; it is released if GitHub refuses.
+  GitHub does not allow secret names starting with `GITHUB_`, so the owner's secret is `PAPERS_REFRESH_TOKEN`, and the
+  workflow fills the repository and file names.
+- **Unused photos** (`src/server/media-cleanup.ts`, admin only): lists the bucket (1000 per page, 5 pages per run),
+  considers only names the upload code creates, keeps anything referenced by team, achievements, placements, alumni or
+  a pending submission, and anything younger than 24 hours; deletes at most 1000 per run after confirmation. The
+  activity log records counts only.
+
 ## When the database has a problem
 
 Pages keep showing the last data they read (cached per Worker for 60 seconds). If there is none, the visitor sees the
@@ -115,6 +136,6 @@ error page. The site never falls back to the sample data. The archive is unaffec
 | D1                  | 5 GB storage, 5 million rows read/day, 100,000 rows written/day                  | A few thousand rows; reads are cached for 60 s |
 | R2                  | 10 GB storage, 1 million writes and 10 million reads per month, no download fees | Photos are ~20–60 KB each                      |
 | Access (Zero Trust) | Up to 50 users                                                                   | A handful of committee members                 |
-| D1 Time Travel      | Restore to any minute in the last 7 days (free plan)                             | Backups (see the owner guide)                  |
+| D1 Time Travel      | Restore to any minute in the last 7 days (free plan)                             | Backups (see OWNERS-START-HERE.md Part D)      |
 
 Cloudflare may ask for a payment method before switching on R2 or Zero Trust, even on the free allowance.

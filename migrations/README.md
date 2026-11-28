@@ -20,4 +20,4 @@ Each `.sql` file here changes the admin database once. Wrangler records which fi
 6. Try it locally: `npm run db:migrate:local`, then `npm run dev:admin`.
 
 Removing a column or table cannot be undone except by restoring a backup (D1 Time Travel, see
-`docs/OWNER-DEPLOYMENT-GUIDE.md`), so take care with destructive changes.
+`docs/OWNERS-START-HERE.md` Part D), so take care with destructive changes.
