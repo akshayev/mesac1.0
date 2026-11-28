@@ -15,20 +15,20 @@ const dataDir = process.env.CHECK_DEPLOY_DATA_DIR || join(ROOT, "data");
 const deploying = ["1", "true"].includes(String(process.env.DEPLOY ?? "").toLowerCase());
 
 const REPORTS = [
-  ["data/drive-report.md", "npm run data:archive (needs GOOGLE_API_KEY)"],
-  ["data/sheet-report.md", "npm run data:sheet (needs SHEET_*_CSV)"],
+  ["data/drive-report.md", "the GOOGLE_API_KEY and DRIVE_ROOT_ID secrets"],
+  ["data/sheet-report.md", "the four SHEET_*_CSV secrets"],
 ];
 
 const problems = [];
 for (const [rel, fix] of REPORTS) {
   const file = join(dataDir, rel.replace(/^data\//, ""));
   if (!existsSync(file)) {
-    problems.push(`${rel} is missing. Run ${fix}.`);
+    problems.push(`${rel} is missing. Check ${fix}, then run the build again.`);
     continue;
   }
   if (/"source":\s*"fixture"/.test(readFileSync(file, "utf8"))) {
     problems.push(
-      `${rel} says "source": "fixture" (sample data). Run ${fix}, then commit the result.`,
+      `${rel} says "source": "fixture" (sample data). Check ${fix} (HANDOVER.md section 6), then run the build again. Do not commit real reports.`,
     );
   }
 }
