@@ -51,7 +51,7 @@ export function AboutPage() {
     {
       title: "Academic Resource Hub & Question Banks",
       description:
-        "Comprehensive curation of CUSAT B.Tech & M.Tech syllabus schemes, previous semester question papers, and lab manuals.",
+        "Previous question papers for CUSAT B.Tech Mechanical Engineering, sorted by semester and subject in the archive on this site.",
       icon: BookOpen,
     },
     {

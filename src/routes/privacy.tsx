@@ -10,7 +10,7 @@ export const Route = createFileRoute("/privacy")({
     pageHead({
       title: "Privacy — MESAC CUSAT",
       description:
-        "What the MESAC website does and does not collect: no accounts, no forms, no stored personal data.",
+        "What the MESAC website does and does not collect: no accounts, no sign-up, no stored personal data.",
       path: "/privacy",
     }),
   component: PrivacyPage,
@@ -21,11 +21,11 @@ export function PrivacyPage() {
   const items: Array<{ title: string; body: string }> = [
     {
       title: "What we collect",
-      body: "Nothing. The site has no accounts, no sign-up and no forms, and we store no personal data. There are no analytics or advertising scripts.",
+      body: "Nothing. The site has no accounts, no sign-up and no forms of its own, and we store no personal data. There are no analytics or advertising scripts.",
     },
     {
       title: "Question papers",
-      body: "Papers are viewed through an embedded Google Drive viewer and downloaded from Google Drive. Google handles those requests under its own privacy policy.",
+      body: "Papers are viewed through an embedded Google Drive viewer. Downloads come from this site or from Google Drive. Google handles its requests under its own privacy policy.",
     },
     {
       title: "Hosting",
@@ -41,7 +41,7 @@ export function PrivacyPage() {
     },
     {
       title: "Contact",
-      body: "Contact is by email only. We use your address solely to reply.",
+      body: 'Contact is by email. The archive\'s "Report a problem" link opens a Google Form (or an email) that you fill in yourself; Google handles form answers under its own privacy policy. We use what you send solely to fix the problem or reply.',
     },
   ];
 
