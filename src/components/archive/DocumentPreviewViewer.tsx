@@ -9,6 +9,7 @@ import {
   getPreviewUrl,
   getReportUrl,
 } from "@/lib/archive";
+import { useSettings } from "@/data/site";
 
 export interface DocumentPreviewViewerProps {
   document: ArchiveDocument;
@@ -21,6 +22,7 @@ export interface DocumentPreviewViewerProps {
  * "Expand" opens a full-screen overlay; Esc closes it.
  */
 export function DocumentPreviewViewer({ document, className = "" }: DocumentPreviewViewerProps) {
+  const settings = useSettings();
   const [isLoaded, setIsLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -99,7 +101,7 @@ export function DocumentPreviewViewer({ document, className = "" }: DocumentPrev
             <span>Download</span>
           </a>
           <a
-            href={getReportUrl(document)}
+            href={getReportUrl(document, settings)}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1 rounded-xl border border-border bg-secondary/60 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors min-h-[36px]"

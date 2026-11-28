@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import type { PlacementEntry } from "@/types";
 import { PersonAvatar } from "@/components/PersonAvatar";
-import { getPlacements, getSettings } from "@/data/site";
+import { loadPlacements, useSettings } from "@/data/site";
 import {
   Building2,
   Users,
@@ -31,14 +31,15 @@ export const Route = createFileRoute("/placements")({
         "Campus placements of CUSAT Mechanical Engineering students: recruiting companies and batchwise hires, collected by MESAC.",
       path: "/placements",
     }),
+  loader: () => loadPlacements(),
   component: PlacementsPage,
 });
 
 type ViewMode = "students" | "companies";
 
 function PlacementsPage() {
-  const placements = getPlacements();
-  const { placementBrochureUrl } = getSettings();
+  const placements = Route.useLoaderData();
+  const { placementBrochureUrl } = useSettings();
   const [selectedBatch, setSelectedBatch] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<ViewMode>("students");

@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Linkedin } from "lucide-react";
 import { InstagramIcon } from "@/components/InstagramIcon";
-import { getSettings } from "@/data/site";
+import { useSettings } from "@/data/site";
 
 export function Footer() {
-  const settings = getSettings();
+  const settings = useSettings();
   return (
     <footer className="relative overflow-hidden bg-black text-white/80 border-t border-white/10 transition-colors">
       {/* BACKGROUND ACCENTS — FULL BLACK WITH AMBER ACCENT */}

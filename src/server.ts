@@ -2,6 +2,9 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { getEnv } from "./server/env";
+import { isAdminPath, withAdminHeaders } from "./server/http";
+import { handleServerRoute } from "./server/routes";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -67,9 +70,17 @@ function withSecurityHeaders(response: Response): Response {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // /admin/api/* and /media/* are answered here, before the React app (src/server/routes.ts).
+      const own = await handleServerRoute(request, getEnv(request));
+      if (own) return withSecurityHeaders(own);
+
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
-      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
+      const response = await normalizeCatastrophicSsrResponse(
+        await handler.fetch(request, env, ctx),
+      );
+      // Dashboard pages (and their 404 when the dashboard is off): never cached, indexed or framed.
+      const isAdmin = isAdminPath(new URL(request.url).pathname);
+      return withSecurityHeaders(isAdmin ? withAdminHeaders(response) : response);
     } catch (error) {
       console.error(error);
       return withSecurityHeaders(

@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { AchievementCard } from "@/components/AchievementCard";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import { Trophy, Sparkles, ChevronRight, Search, X, Filter, Calendar, Layers } from "lucide-react";
-import { getAchievements } from "@/data/site";
+import { loadAchievements } from "@/data/site";
 import { pageHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/achievements")({
@@ -18,11 +18,12 @@ export const Route = createFileRoute("/achievements")({
         "Competition results, awards and projects by CUSAT Mechanical Engineering students, collected by MESAC.",
       path: "/achievements",
     }),
+  loader: () => loadAchievements(),
   component: AchievementsPage,
 });
 
 export function AchievementsPage() {
-  const achievements = getAchievements();
+  const achievements = Route.useLoaderData();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedYear, setSelectedYear] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");

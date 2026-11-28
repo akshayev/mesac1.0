@@ -5,7 +5,7 @@ import { Reveal } from "@/components/Reveal";
 import { EmptyState } from "@/components/EmptyState";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import { PersonAvatar } from "@/components/PersonAvatar";
-import { getTeamGroups } from "@/data/site";
+import { groupTeam, loadTeam } from "@/data/site";
 import type { TeamPerson } from "@/types";
 import { Users, Info, Mail, ExternalLink } from "lucide-react";
 import { pageHead } from "@/lib/seo";
@@ -18,7 +18,10 @@ export const Route = createFileRoute("/team")({
         "Meet the MESAC committee — the student leaders and faculty advisors running the Mechanical Engineering Students Association at CUSAT.",
       path: "/team",
     }),
-  component: TeamPage,
+  loader: () => loadTeam(),
+  component: function TeamRoute() {
+    return <TeamPage team={Route.useLoaderData()} />;
+  },
 });
 
 function MemberPhotoCard({
@@ -87,8 +90,8 @@ function MemberPhotoCard({
   );
 }
 
-export function TeamPage() {
-  const groups = getTeamGroups();
+export function TeamPage({ team }: { team: TeamPerson[] }) {
+  const groups = groupTeam(team);
 
   return (
     <Layout>

@@ -1,5 +1,5 @@
 import type { ArchiveDocument, ArchiveDocumentType } from "@/types";
-import { getSettings } from "@/data/site";
+import type { SiteConfig } from "@/data/site";
 
 export const DOCUMENT_TYPE_LABELS: Record<ArchiveDocumentType, string> = {
   question_paper: "Question Paper",
@@ -68,9 +68,8 @@ export function getDriveViewUrl(doc: ArchiveDocument): string {
 }
 
 /** Google Form (VITE_REPORT_FORM_URL) with the doc prefilled, or a prefilled email. */
-export function getReportUrl(doc: ArchiveDocument): string {
+export function getReportUrl(doc: ArchiveDocument, settings: SiteConfig): string {
   const label = `${doc.title} [${doc.id}]`;
-  const settings = getSettings();
   const formUrl =
     settings.reportFormUrl || (import.meta.env.VITE_REPORT_FORM_URL as string | undefined);
   const entry =

@@ -6,13 +6,14 @@ import { Reveal } from "@/components/Reveal";
 import { NotificationBanner } from "@/components/NotificationBanner";
 import { PageGearBackground } from "@/components/PageGearBackground";
 import { PersonAvatar } from "@/components/PersonAvatar";
-import { getSettings, getTeam } from "@/data/site";
+import { loadTeam, useSettings } from "@/data/site";
 import { FileText, Download, ArrowRight, Sparkles, BookOpen, Layers } from "lucide-react";
 import { pageHead } from "@/lib/seo";
 
 const hero = "/images/home/hero.webp";
 
 export const Route = createFileRoute("/")({
+  loader: () => loadTeam(),
   head: () =>
     pageHead({
       title: "MESAC CUSAT — Mechanical Engineering Students Association",
@@ -85,9 +86,9 @@ function Index() {
     return () => ctx.revert();
   }, []);
 
-  const settings = getSettings();
+  const settings = useSettings();
   // First three people in the sheet's order (the sheet's `order` column decides who is shown).
-  const previewTeamMembers = getTeam().slice(0, 3);
+  const previewTeamMembers = Route.useLoaderData().slice(0, 3);
 
   return (
     <Layout>

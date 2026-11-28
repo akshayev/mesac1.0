@@ -8,7 +8,7 @@ import { Reveal } from "@/components/Reveal";
 import { EmptyState } from "@/components/EmptyState";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import { PersonAvatar } from "@/components/PersonAvatar";
-import { getAlumni, getSettings } from "@/data/site";
+import { loadAlumni, useSettings } from "@/data/site";
 import { pageHead } from "@/lib/seo";
 import type { AlumniEntry } from "@/types";
 
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/alumni")({
         "Connect with MESAC alumni of CUSAT Mechanical Engineering for guidance, referrals and career advice.",
       path: "/alumni",
     }),
+  loader: () => loadAlumni(),
   component: AlumniPage,
 });
 
@@ -32,8 +33,8 @@ const BUTTON =
   "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-secondary/60 px-3 text-xs font-semibold text-foreground transition hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold";
 
 function AlumniPage() {
-  const alumni = getAlumni();
-  const { contactEmail } = getSettings();
+  const alumni = Route.useLoaderData();
+  const { contactEmail } = useSettings();
   const [batch, setBatch] = useState(ALL);
   const [department, setDepartment] = useState(ALL);
   const [help, setHelp] = useState(ALL);

@@ -13,6 +13,7 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { AppLoaderProvider } from "../context/AppLoaderContext";
+import { loadSettings } from "../data/site";
 
 function NotFoundComponent() {
   return (
@@ -96,6 +97,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
+  // Settings (footer, contact details) are needed on every page.
+  loader: () => loadSettings(),
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

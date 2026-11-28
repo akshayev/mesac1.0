@@ -27,6 +27,7 @@ import {
   Info,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useSettings } from "@/data/site";
 import { pageHead } from "@/lib/seo";
 
 /** e.g. "Thermal Engineering, Nov 2021, 2019 scheme | CUSAT ME S5 question paper | MESAC" */
@@ -66,6 +67,7 @@ export const Route = createFileRoute("/archive_/$documentId")({
 });
 
 function DocumentDetailPage() {
+  const settings = useSettings();
   const { documentId } = Route.useParams();
   const router = useRouter();
   const documentItem = getDocumentById(documentId);
@@ -90,7 +92,7 @@ function DocumentDetailPage() {
   const typeStyle = DOCUMENT_TYPE_STYLES[documentItem.type] || DOCUMENT_TYPE_STYLES.question_paper;
   const typeLabel = DOCUMENT_TYPE_LABELS[documentItem.type] || documentItem.type.replace("_", " ");
   const session = formatExamSession(documentItem);
-  const reportUrl = getReportUrl(documentItem);
+  const reportUrl = getReportUrl(documentItem, settings);
 
   const handleShare = async () => {
     if (typeof window === "undefined") return;

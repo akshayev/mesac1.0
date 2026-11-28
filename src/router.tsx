@@ -9,7 +9,9 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
-    defaultPreloadStaleTime: 0,
+    // Page data (team, settings, ...) is reused for 60 s while navigating, like the server's cache.
+    defaultStaleTime: 60_000,
+    defaultPreloadStaleTime: 60_000,
   });
 
   return router;

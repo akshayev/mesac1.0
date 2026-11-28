@@ -6,6 +6,8 @@ import tsConfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+// Shared with the tests that check production builds (scripts/lib/build-flags.mjs).
+import { buildDefines, isDevAdminBuild, outputDir } from "./scripts/lib/build-flags.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,13 +30,14 @@ export default defineConfig(({ command, mode }) => ({
       ? (nitro({
           preset: "cloudflare-module",
           output: {
-            dir: ".output",
-            serverDir: ".output/server",
-            publicDir: ".output/public",
+            dir: outputDir(),
+            serverDir: `${outputDir()}/server`,
+            publicDir: `${outputDir()}/public`,
           },
           cloudflare: {
             nodeCompat: true,
-            deployConfig: true,
+            // A dev:admin build must never become what `wrangler deploy` picks up.
+            deployConfig: !isDevAdminBuild(),
           },
           hooks: {
             "rollup:before"(
@@ -67,6 +70,8 @@ export default defineConfig(({ command, mode }) => ({
   // with SITE_URL. Other variables reach the browser only with the default VITE_ prefix.
   define: {
     "import.meta.env.SITE_URL": JSON.stringify(loadEnv(mode, __dirname, "").SITE_URL ?? ""),
+    // __MESAC_DEV_ADMIN__: false in every normal build, so the local login shortcut is removed.
+    ...buildDefines(),
   },
   resolve: {
     alias: {

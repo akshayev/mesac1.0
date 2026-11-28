@@ -5,7 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import { Layout } from "@/components/Layout";
 import { Reveal } from "@/components/Reveal";
 import { InstagramIcon } from "@/components/InstagramIcon";
-import { getSettings } from "@/data/site";
+import { useSettings } from "@/data/site";
 import {
   Mail,
   Phone,
@@ -35,7 +35,7 @@ const linkCard =
   "inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:border-gold hover:text-gold shadow-sm transition min-h-[44px]";
 
 function ContactPage() {
-  const settings = getSettings();
+  const settings = useSettings();
   const [copiedEmail, setCopiedEmail] = useState(false);
   const email = settings.contactEmail;
   const phoneHref = settings.contactPhone?.replace(/[^\d+]/g, "");
