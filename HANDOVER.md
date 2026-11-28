@@ -63,7 +63,7 @@ The list of subjects is `src/data/subjects.json` (semester, name, alternative sp
 
 ### Hidden on purpose
 
-Files under `Data Book` and `GATE/Study Material` are **never shown** (copyright is unclear: they are published books). Do not change that unless you have permission. To show or hide a single file, use the overrides file below.
+Files under `Data Book` and `GATE/Study Material` are **never shown** (copyright is unclear: they are published books). Do not change that unless you have permission. They are kept out of `archive.json`, the sitemap and `public/files`, and the build report only counts them (no names or ids, because the report is uploaded from a public repository). To show one anyway, find its id in Drive and give it `"hide": false` in the overrides file below.
 
 ### Fixing one file without renaming it: `src/data/archive-overrides.json`
 
@@ -197,7 +197,7 @@ GitHub **pauses scheduled workflows after 60 days with no activity** in the repo
 
 1. **Actions → the failed run → the red step.** The message says what is wrong.
 2. Download the **data-reports** artifact at the bottom of the run page (kept 14 days):
-   - `drive-report.md`: what was found in Drive: counts, unparsed file names, unknown subjects, hidden files, files owned by other accounts.
+   - `drive-report.md`: what was found in Drive: counts, unparsed file names, unknown subjects, how many files are hidden (counts only), files owned by other accounts (emails masked).
    - `sheet-report.md`: which Sheet rows were skipped and why (empty name, bad link, bad date...).
    - `unsorted.csv`: files that could not be placed.
 3. Common causes:

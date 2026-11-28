@@ -68,14 +68,12 @@ _None._
 | --- | --- |
 | `S1-8/S3/PYQ/2025 scheme S3 First internal.pdf` | o***@gmail.com |
 
-## Hidden files (enable with archive-overrides.json `hide: false`)
+## Hidden files per kind (Data Book, GATE study material; enable one with archive-overrides.json `hide: false`)
 
-| Path | Kind | Drive id |
-| --- | --- | --- |
-| `S1-8/S7/Data Book/Refrigeration Data Book.pdf` | reference | 1JZqKFVYpCOSFONI5gLtGMu7vSEaLNEKz |
-| `S1-8/S7/Data Book/Psychrometric Chart_Colour.pdf` | reference | 1YY8lX5YIf_fc55YNQ4Om4bbJKbr6-6cB |
-| `GATE/Study Material/GATE 2019 Mechanical Engineering Pearson.pdf` | gate_material | 1QVvndhrNu4X3-G3cJyGJYUOPduNApZvt |
-| `GATE/Study Material/Heat Transfer.pdf` | gate_material | 19WQ2c94n1a9qsLvmb6t--gmLc4FqDDol |
+| Kind | Count |
+| --- | --- |
+| reference | 2 |
+| gate_material | 2 |
 
 ## Skipped Google Docs / shortcuts
 

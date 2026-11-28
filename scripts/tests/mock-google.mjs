@@ -24,6 +24,7 @@ export const IDS = {
   googleDoc: "DOCfile00000001",
   shortcut: "SHORTCUT0000001",
   dataBook: "DBFILE000000001", // hidden kind (reference), must never be downloaded
+  gateBook: "GATEbook0000001", // hidden kind (gate_material), must never be downloaded
   thermalFolder: "FOLDERthermal01", // needs its resource key header to list
 };
 
@@ -44,7 +45,9 @@ function defaultTree() {
   });
   const dir = (id, name, extra = {}) => ({ id, name, mimeType: FOLDER, ...extra });
   return {
-    [IDS.root]: [dir("FOLDERs1to8x01", "S1-8")],
+    [IDS.root]: [dir("FOLDERs1to8x01", "S1-8"), dir("FOLDERgate00001", "GATE")],
+    FOLDERgate00001: [dir("FOLDERgatesm001", "Study Material")],
+    FOLDERgatesm001: [f(IDS.gateBook, "Heat Transfer.pdf", { size: "1000" })],
     FOLDERs1to8x01: [dir("FOLDERsem5xx01", "S5"), dir("FOLDERsem7xx01", "S7")],
     FOLDERsem5xx01: [dir("FOLDERpyq5xx01", "PYQ")],
     FOLDERpyq5xx01: [

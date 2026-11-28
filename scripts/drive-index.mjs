@@ -415,15 +415,6 @@ function buildArchive(snapshot) {
       unsorted.push({ reason: "unknown folder layout", file, doc });
       continue;
     }
-    if (meta.unparsed) {
-      unparsed.push(doc.sourcePath);
-      unsorted.push({ reason: "file name not parsed", file, doc });
-    }
-    if (meta.unmatchedSubject) {
-      unmatched.set(meta.unmatchedSubject, (unmatched.get(meta.unmatchedSubject) ?? 0) + 1);
-      unsorted.push({ reason: "subject not in subjects.json", file, doc });
-    }
-
     const o = overrides[file.id];
     let isHidden = meta.hidden;
     if (o) {
@@ -431,9 +422,18 @@ function buildArchive(snapshot) {
       Object.assign(doc, fields);
       if (typeof hide === "boolean") isHidden = hide;
     }
+    // Decided before any other bookkeeping so a hidden file's path and id never reach unsorted.csv.
     if (isHidden) {
       hidden.push(doc);
       continue;
+    }
+    if (meta.unparsed) {
+      unparsed.push(doc.sourcePath);
+      unsorted.push({ reason: "file name not parsed", file, doc });
+    }
+    if (meta.unmatchedSubject) {
+      unmatched.set(meta.unmatchedSubject, (unmatched.get(meta.unmatchedSubject) ?? 0) + 1);
+      unsorted.push({ reason: "subject not in subjects.json", file, doc });
     }
 
     let id = doc.id;
@@ -545,10 +545,11 @@ function writeReport(snapshot, r) {
       "",
     );
   }
+  // Counts only: the report is uploaded from CI (public repo), so hidden files' names and Drive ids stay out of it.
   table(
-    "Hidden files (enable with archive-overrides.json `hide: false`)",
-    r.hidden.map((d) => [`\`${d.sourcePath}\``, d.type, d.driveFileId]),
-    ["Path", "Kind", "Drive id"],
+    "Hidden files per kind (Data Book, GATE study material; enable one with archive-overrides.json `hide: false`)",
+    countBy(r.hidden, (d) => d.type),
+    ["Kind", "Count"],
   );
   table(
     "Skipped Google Docs / shortcuts",

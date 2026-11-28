@@ -126,12 +126,29 @@ test("drive: full crawl, retries, resource keys, skipped types, mirror and no ke
     const ids = snap.files.map((f) => f.id).sort();
     assert.deepEqual(
       ids,
-      [IDS.dataBook, IDS.keyed, IDS.quota, IDS.thermalNov2021, IDS.thermalJan2023].sort(),
+      [
+        IDS.dataBook,
+        IDS.gateBook,
+        IDS.keyed,
+        IDS.quota,
+        IDS.thermalNov2021,
+        IDS.thermalJan2023,
+      ].sort(),
     );
     const pages = mock.requests.filter(
       (q) => q.path === "/drive/v3/files" && q.query.q?.includes("FOLDERscheme201"),
     );
     assert.equal(pages.length, 4, "expected 4 pages for the 7-item folder");
+    for (const q of mock.requests.filter((x) => x.path === "/drive/v3/files")) {
+      assert.match(q.query.q, /^'[A-Za-z0-9_-]+' in parents and trashed = false$/);
+      assert.equal(q.query.pageSize, "1000");
+      assert.match(q.query.fields, /^nextPageToken,files\(.*\bresourceKey\b.*\)$/);
+    }
+    assert.equal(pages[0].query.pageToken, undefined);
+    assert.deepEqual(
+      pages.slice(1).map((q) => q.query.pageToken),
+      ["2", "4", "6"],
+    );
 
     // Retries: the 403 rateLimitExceeded and the 500 were both retried until they succeeded.
     const listed = (id) =>
@@ -178,9 +195,19 @@ test("drive: full crawl, retries, resource keys, skipped types, mirror and no ke
     assert.ok(!mock.state.downloads.has(IDS.thermalJan2023), "25 MB file must not be downloaded");
     assert.match(r.out, /downloadQuotaExceeded/);
 
-    // Hidden kind (Data Book) is not published, not downloaded, not in public/files.
-    assert.equal(byId[IDS.dataBook], undefined);
-    assert.ok(!mock.state.downloads.has(IDS.dataBook));
+    // Hidden kinds (Data Book, GATE study material) are not published, not downloaded, not in
+    // public/files, and their names/ids are not in the reports (which CI uploads publicly).
+    for (const id of [IDS.dataBook, IDS.gateBook]) {
+      assert.equal(byId[id], undefined);
+      assert.ok(!mock.state.downloads.has(id));
+      for (const rel of ["data/drive-report.md", "data/unsorted.csv"]) {
+        assert.ok(!read(root, rel).includes(id), `${id} in ${rel}`);
+      }
+    }
+    assert.ok(!docs.some((d) => d.type === "reference" || d.type === "gate_material"));
+    assert.ok(!/Data Book\.pdf|Heat Transfer\.pdf/.test(report), "hidden file name in report");
+    assert.match(report, /\| reference \| 1 \|/);
+    assert.match(report, /\| gate_material \| 1 \|/);
     const published = readdirSync(join(root, "public/files")).sort();
     assert.deepEqual(published, [`${IDS.keyed}.pdf`, `${IDS.thermalNov2021}.pdf`].sort());
     assert.ok(!published.includes("STALEfile000001.pdf"), "stale mirrored copies are removed");
@@ -246,6 +273,30 @@ test("drive: a crawled document matches the fixture-mode document for the same f
   }
 });
 
+test("drive: a hidden file is published only when an override sets hide: false", async () => {
+  const mock = await startMockGoogle({ apiKey: KEY });
+  const root = makeRoot();
+  try {
+    writeFileSync(
+      join(root, "src/data/archive-overrides.json"),
+      JSON.stringify({ [IDS.dataBook]: { hide: false } }),
+    );
+    const r = await run("drive-index.mjs", root, driveEnv(mock));
+    assert.equal(r.code, 0, r.out);
+    const docs = readJson(root, "src/data/generated/archive.json");
+    assert.ok(
+      docs.some((d) => d.driveFileId === IDS.dataBook),
+      "override did not publish it",
+    );
+    assert.ok(!docs.some((d) => d.driveFileId === IDS.gateBook));
+    assert.ok(existsSync(join(root, `public/files/${IDS.dataBook}.pdf`)));
+    assert.ok(!mock.state.downloads.has(IDS.gateBook));
+  } finally {
+    await mock.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Drive guards
 // ---------------------------------------------------------------------------
@@ -270,7 +321,7 @@ test("drive guard: shrinking below half of the previous crawl fails unless allow
   const mock = await startMockGoogle({ apiKey: KEY });
   const root = makeRoot();
   try {
-    const before = seedDriveSnapshot(root, 20); // the mock has 5 files
+    const before = seedDriveSnapshot(root, 20); // the mock has 6 files
     const r = await run("drive-index.mjs", root, driveEnv(mock));
     assert.equal(r.code, 1);
     assert.match(r.out, /less than half/);
@@ -278,7 +329,7 @@ test("drive guard: shrinking below half of the previous crawl fails unless allow
 
     const ok = await run("drive-index.mjs", root, driveEnv(mock, { ARCHIVE_ALLOW_SHRINK: "1" }));
     assert.equal(ok.code, 0, ok.out);
-    assert.equal(readJson(root, "data/drive-files.json").files.length, 5);
+    assert.equal(readJson(root, "data/drive-files.json").files.length, 6);
   } finally {
     await mock.close();
     rmSync(root, { recursive: true, force: true });
