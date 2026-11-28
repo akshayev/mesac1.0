@@ -4,13 +4,14 @@ import { PageHero } from "@/components/PageHero";
 import { Reveal } from "@/components/Reveal";
 import { useSettings } from "@/data/site";
 import { pageHead } from "@/lib/seo";
+import { CONSENT_TEXT } from "@/shared/consent";
 
 export const Route = createFileRoute("/privacy")({
   head: () =>
     pageHead({
       title: "Privacy — MESAC CUSAT",
       description:
-        "What the MESAC website collects and publishes: no accounts or sign-up, and alumni details only with consent.",
+        "What the MESAC website collects and publishes: nothing from ordinary visitors, and alumni details only with consent.",
       path: "/privacy",
     }),
   component: PrivacyPage,
@@ -21,35 +22,31 @@ export function PrivacyPage() {
   const items: Array<{ title: string; body: string }> = [
     {
       title: "What we collect",
-      body: "We collect nothing from visitors. The site has no accounts, no sign-up and no forms of its own, and no analytics or advertising scripts. Some pages show details about members and alumni.",
+      body: "Nothing from ordinary visitors: no accounts, no analytics or advertising scripts. The only form is the optional Alumni Connect form.",
     },
     {
       title: "Alumni details",
-      body: `Alumni details are published only with the person's written consent, recorded by the MESAC committee. To ask for removal or a correction, email ${contactEmail}. We hide or delete the entry within 48 hours.`,
+      body: `Alumni appear only with their written consent, given to the committee or on the Alumni Connect form (when open), where they tick: “${CONSENT_TEXT}” We record which wording and when. A form entry stays private until a committee member approves it; rejected entries are erased at once, unreviewed ones after 30 days. Against spam the form uses Cloudflare Turnstile and keeps a salted hash of your IP address until review.`,
+    },
+    {
+      title: "Removal",
+      body: `To be removed or corrected, see /alumni/remove or email ${contactEmail}. We act within 48 hours.`,
     },
     {
       title: "Committee sign-in",
-      body: "Only committee members sign in, to edit the site, through Cloudflare Access with an emailed one-time code. We record which account made each change, never the contact details changed.",
+      body: "Committee members sign in through Cloudflare Access with an emailed code. We log which account changed what, never the values.",
     },
     {
-      title: "Question papers",
-      body: "Papers are viewed through an embedded Google Drive viewer. Downloads come from this site or from Google Drive. Google handles its requests under its own privacy policy.",
-    },
-    {
-      title: "Hosting",
-      body: "The site is served by Cloudflare, which keeps standard server logs such as IP address, requested page and time.",
-    },
-    {
-      title: "Map",
-      body: "Fonts are served from this site. The contact page embeds a Google Map, so Google sees your IP address and browser details.",
+      title: "Hosting and Google",
+      body: "Cloudflare serves the site and keeps standard logs (IP address, page, time). Papers open in Google Drive's viewer, and the contact page embeds a Google Map; Google's privacy policy applies to those.",
     },
     {
       title: "On your device",
-      body: "Your browser may keep a display preference (theme). The GPA calculator runs entirely in your browser; nothing you enter is sent or saved.",
+      body: "Your browser may keep a theme preference. The GPA calculator runs only in your browser.",
     },
     {
       title: "Contact",
-      body: 'Contact is by email. The archive\'s "Report a problem" link opens a Google Form (or an email) that you fill in yourself; Google handles form answers under its own privacy policy. We use what you send solely to fix the problem or reply.',
+      body: 'The archive\'s "Report a problem" link opens a Google Form or an email; we use what you send only to fix the problem or reply.',
     },
   ];
 

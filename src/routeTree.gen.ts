@@ -26,6 +26,8 @@ import { Route as TeamRouteImport } from './routes/team'
 import { Route as AboutMesacTeamRouteImport } from './routes/about-mesac_.team'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminSectionRouteImport } from './routes/admin.$section'
+import { Route as AlumniJoinRouteImport } from './routes/alumni_.join'
+import { Route as AlumniRemoveRouteImport } from './routes/alumni_.remove'
 import { Route as ArchiveDocumentIdRouteImport } from './routes/archive_.$documentId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -113,6 +115,16 @@ const AdminSectionRoute = AdminSectionRouteImport.update({
   path: '/$section',
   getParentRoute: () => AdminRoute,
 } as any)
+const AlumniJoinRoute = AlumniJoinRouteImport.update({
+  id: '/alumni_/join',
+  path: '/alumni/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlumniRemoveRoute = AlumniRemoveRouteImport.update({
+  id: '/alumni_/remove',
+  path: '/alumni/remove',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArchiveDocumentIdRoute = ArchiveDocumentIdRouteImport.update({
   id: '/archive_/$documentId',
   path: '/archive/$documentId',
@@ -136,6 +148,8 @@ export interface FileRoutesByFullPath {
   '/team': typeof TeamRoute
   '/about-mesac/team': typeof AboutMesacTeamRoute
   '/admin/$section': typeof AdminSectionRoute
+  '/alumni/join': typeof AlumniJoinRoute
+  '/alumni/remove': typeof AlumniRemoveRoute
   '/archive/$documentId': typeof ArchiveDocumentIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -155,6 +169,8 @@ export interface FileRoutesByTo {
   '/team': typeof TeamRoute
   '/about-mesac/team': typeof AboutMesacTeamRoute
   '/admin/$section': typeof AdminSectionRoute
+  '/alumni/join': typeof AlumniJoinRoute
+  '/alumni/remove': typeof AlumniRemoveRoute
   '/archive/$documentId': typeof ArchiveDocumentIdRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -176,6 +192,8 @@ export interface FileRoutesById {
   '/team': typeof TeamRoute
   '/about-mesac_/team': typeof AboutMesacTeamRoute
   '/admin/$section': typeof AdminSectionRoute
+  '/alumni_/join': typeof AlumniJoinRoute
+  '/alumni_/remove': typeof AlumniRemoveRoute
   '/archive_/$documentId': typeof ArchiveDocumentIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -198,6 +216,8 @@ export interface FileRouteTypes {
     | '/team'
     | '/about-mesac/team'
     | '/admin/$section'
+    | '/alumni/join'
+    | '/alumni/remove'
     | '/archive/$documentId'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -217,6 +237,8 @@ export interface FileRouteTypes {
     | '/team'
     | '/about-mesac/team'
     | '/admin/$section'
+    | '/alumni/join'
+    | '/alumni/remove'
     | '/archive/$documentId'
     | '/admin'
   id:
@@ -237,6 +259,8 @@ export interface FileRouteTypes {
     | '/team'
     | '/about-mesac_/team'
     | '/admin/$section'
+    | '/alumni_/join'
+    | '/alumni_/remove'
     | '/archive_/$documentId'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -257,6 +281,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TeamRoute: typeof TeamRoute
   AboutMesacTeamRoute: typeof AboutMesacTeamRoute
+  AlumniJoinRoute: typeof AlumniJoinRoute
+  AlumniRemoveRoute: typeof AlumniRemoveRoute
   ArchiveDocumentIdRoute: typeof ArchiveDocumentIdRoute
 }
 
@@ -381,6 +407,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSectionRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/alumni_/join': {
+      id: '/alumni_/join'
+      path: '/alumni/join'
+      fullPath: '/alumni/join'
+      preLoaderRoute: typeof AlumniJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alumni_/remove': {
+      id: '/alumni_/remove'
+      path: '/alumni/remove'
+      fullPath: '/alumni/remove'
+      preLoaderRoute: typeof AlumniRemoveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/archive_/$documentId': {
       id: '/archive_/$documentId'
       path: '/archive/$documentId'
@@ -419,6 +459,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TeamRoute: TeamRoute,
   AboutMesacTeamRoute: AboutMesacTeamRoute,
+  AlumniJoinRoute: AlumniJoinRoute,
+  AlumniRemoveRoute: AlumniRemoveRoute,
   ArchiveDocumentIdRoute: ArchiveDocumentIdRoute,
 }
 export const routeTree = rootRouteImport

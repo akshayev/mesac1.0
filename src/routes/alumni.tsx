@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useId, useMemo, useState, type ReactNode } from "react";
 import { Linkedin, Mail, MapPin, Phone, Search } from "lucide-react";
 import { Layout } from "@/components/Layout";
@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { StickyFilterBar } from "@/components/StickyFilterBar";
 import { PersonAvatar } from "@/components/PersonAvatar";
 import { loadAlumni, useSettings } from "@/data/site";
+import { fetchSubmissionConfig } from "@/data/content";
 import { pageHead } from "@/lib/seo";
 import type { AlumniEntry } from "@/types";
 
@@ -20,7 +21,11 @@ export const Route = createFileRoute("/alumni")({
         "Connect with MESAC alumni of CUSAT Mechanical Engineering for guidance, referrals and career advice.",
       path: "/alumni",
     }),
-  loader: () => loadAlumni(),
+  // The "Join" link appears only when the public alumni form is switched on.
+  loader: async () => {
+    const [alumni, join] = await Promise.all([loadAlumni(), fetchSubmissionConfig()]);
+    return { alumni, joinEnabled: join.enabled };
+  },
   component: AlumniPage,
 });
 
@@ -33,7 +38,7 @@ const BUTTON =
   "inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-secondary/60 px-3 text-xs font-semibold text-foreground transition hover:border-gold/60 hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold";
 
 function AlumniPage() {
-  const alumni = Route.useLoaderData();
+  const { alumni, joinEnabled } = Route.useLoaderData();
   const { contactEmail } = useSettings();
   const [batch, setBatch] = useState(ALL);
   const [department, setDepartment] = useState(ALL);
@@ -191,6 +196,18 @@ function AlumniPage() {
               actionText="Reset All Filters"
               onAction={reset}
             />
+          )}
+
+          {joinEnabled && (
+            <div className="mx-auto max-w-2xl rounded-2xl border border-gold/40 bg-gold/5 p-5 text-center text-sm text-foreground shadow-sm">
+              <p>Are you a MESAC alumnus? Add yourself so students can reach you.</p>
+              <Link
+                to="/alumni/join"
+                className="mt-3 inline-flex min-h-[44px] items-center rounded-xl gradient-gold px-4 font-bold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                Join Alumni Connect
+              </Link>
+            </div>
           )}
 
           <div className="mx-auto max-w-2xl rounded-2xl border border-border/80 bg-card p-5 text-center text-sm text-muted-foreground shadow-sm">
