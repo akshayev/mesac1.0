@@ -49,7 +49,15 @@ test("static paths come from the real route tree, minus dynamic routes, aliases 
   ]) {
     assert.ok(paths.includes(p), `missing ${p}`);
   }
-  for (const p of ["/about", "/team", "/downloads", "/archive/$documentId"]) {
+  for (const p of [
+    "/about",
+    "/team",
+    "/downloads",
+    "/archive/$documentId",
+    "/admin",
+    "/admin/",
+    "/admin/$section",
+  ]) {
     assert.ok(!paths.includes(p), `should not include ${p}`);
   }
   assert.ok(
@@ -76,6 +84,7 @@ test("sitemap lists pages and every document, with lastmod when known", () => {
 
 test("robots.txt points at the sitemap", () => {
   assert.match(buildRobots("https://example.org"), /Sitemap: https:\/\/example\.org\/sitemap\.xml/);
+  assert.match(buildRobots("https://example.org"), /^Disallow: \/admin$/m);
 });
 
 test("every archive document id in the committed data is URL-safe", () => {

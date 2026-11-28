@@ -593,6 +593,27 @@ test("sheets: only alumni on sample data still blocks the deploy check", async (
   }
 });
 
+test("sheets: in admin dashboard mode (D1_DATABASE_ID set) Sheet problems do not stop the deploy", async () => {
+  const mock = await startMockGoogle();
+  const root = makeRoot();
+  try {
+    serveFixtureSheets(mock);
+    const env = sheetEnv(mock, {
+      DEPLOY: "1",
+      D1_DATABASE_ID: "3f2b8c1e-4d5a-4b6c-8d7e-9f0a1b2c3d4e",
+    });
+    delete env.SHEET_SETTINGS_CSV;
+    mock.state.sheets.team = { status: 500, body: "oops" };
+    const r = await run("sheet-sync.mjs", root, env);
+    assert.equal(r.code, 0, r.out);
+    assert.match(r.out, /admin dashboard mode/);
+    assert.match(r.out, /SHEET_SETTINGS_CSV is not set/);
+  } finally {
+    await mock.close();
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("mock server is test-only: nothing in src imports it", () => {
   const hits = allFiles(join(REPO, "src")).filter(
     (f) => /\.(ts|tsx)$/.test(f) && readFileSync(f, "utf8").includes("mock-google"),
