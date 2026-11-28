@@ -5,6 +5,7 @@ import { ContentSection } from "@/components/admin/ContentSection";
 import { SettingsSection } from "@/components/admin/SettingsSection";
 import { AdminsSection } from "@/components/admin/AdminsSection";
 import { ActivitySection } from "@/components/admin/ActivitySection";
+import { SubmissionsSection } from "@/components/admin/SubmissionsSection";
 import { Notice } from "@/components/admin/ui";
 
 export const Route = createFileRoute("/admin/$section")({
@@ -29,6 +30,12 @@ function AdminSection() {
   if (isEntityName(section))
     body = <ContentSection key={section} def={ENTITIES[section]} me={me} />;
   else if (section === "settings") body = <SettingsSection />;
+  else if (section === "submissions")
+    body = me.submissions ? (
+      <SubmissionsSection me={me} />
+    ) : (
+      <Notice>The public alumni form is not switched on for this site.</Notice>
+    );
   else if (section === "admins")
     body =
       me.role === "admin" ? (

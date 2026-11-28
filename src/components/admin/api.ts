@@ -14,6 +14,8 @@ export interface Me {
   email: string;
   role: "admin" | "editor";
   uploads: boolean;
+  /** The public alumni form is switched on. */
+  submissions: boolean;
 }
 
 export async function api<T>(method: string, path: string, body?: unknown): Promise<T> {

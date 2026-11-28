@@ -7,6 +7,7 @@ export const SECTIONS = [
   { id: "achievements", label: "Achievements" },
   { id: "placements", label: "Placements" },
   { id: "alumni", label: "Alumni" },
+  { id: "submissions", label: "Submissions", needsSubmissions: true },
   { id: "settings", label: "Settings" },
   { id: "admins", label: "Admins", adminOnly: true },
   { id: "activity", label: "Activity" },

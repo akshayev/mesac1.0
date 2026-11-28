@@ -54,7 +54,11 @@ export function AdminApp() {
             className="mx-auto max-w-5xl overflow-x-auto px-4 pb-3"
           >
             <ul className="flex gap-1.5">
-              {SECTIONS.filter((s) => !("adminOnly" in s) || me.role === "admin").map((s) => (
+              {SECTIONS.filter(
+                (s) =>
+                  (!("adminOnly" in s) || me.role === "admin") &&
+                  (!("needsSubmissions" in s) || me.submissions),
+              ).map((s) => (
                 <li key={s.id}>
                   <Link
                     to="/admin/$section"
