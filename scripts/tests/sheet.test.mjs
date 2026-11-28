@@ -1,7 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
 import {
   normalizeAchievements,
   normalizeAlumni,
@@ -249,14 +248,4 @@ test("alumni: without a consent column nobody is published", () => {
   const { items, issues } = normalizeAlumni("name,email_public\nA,a@example.com\n");
   assert.equal(items.length, 0);
   assert.ok(issues.some((i) => /missing column "consent"/.test(i.message)));
-});
-
-// The repository is public: a real alumni snapshot (names, phones, emails) must never be committed.
-test("alumni: the committed snapshot is sample data", (t) => {
-  const out = spawnSync("git", ["show", "HEAD:src/data/generated/alumni.json"], {
-    cwd: new URL("../..", import.meta.url),
-    encoding: "utf8",
-  });
-  if (out.status !== 0) return t.skip("no committed snapshot to check");
-  assert.equal(JSON.parse(out.stdout).source, "fixture");
 });

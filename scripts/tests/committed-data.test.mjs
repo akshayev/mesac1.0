@@ -24,6 +24,7 @@ for (const path of [
   "src/data/generated/team.json",
   "src/data/generated/achievements.json",
   "src/data/generated/placements.json",
+  "src/data/generated/alumni.json",
   "src/data/generated/settings.json",
   "data/drive-files.json",
 ]) {
