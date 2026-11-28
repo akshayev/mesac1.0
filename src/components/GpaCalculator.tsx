@@ -481,7 +481,7 @@ export function GpaCalculator() {
                         >
                           Credits
                         </label>
-                        <div className="flex items-center rounded-xl border border-border bg-card px-2.5 py-1.5 focus-within:border-gold transition">
+                        <div className="flex items-center rounded-xl border border-border bg-card px-2.5 py-0.5 focus-within:border-gold transition">
                           <span className="text-[11px] font-mono text-muted-foreground mr-1.5">
                             Cr:
                           </span>
@@ -495,7 +495,7 @@ export function GpaCalculator() {
                             onChange={(e) =>
                               updateSubjectField(sub.id, "credits", parseFloat(e.target.value) || 0)
                             }
-                            className="w-full bg-transparent text-xs sm:text-sm font-bold text-foreground text-center outline-none"
+                            className="w-full bg-transparent py-1 text-xs sm:text-sm font-bold text-foreground text-center outline-none"
                           />
                         </div>
                       </div>
@@ -538,7 +538,7 @@ export function GpaCalculator() {
                             >
                               Marks
                             </label>
-                            <div className="flex items-center rounded-xl border border-border bg-card px-2.5 py-1.5 focus-within:border-gold transition">
+                            <div className="flex items-center rounded-xl border border-border bg-card px-2.5 py-0.5 focus-within:border-gold transition">
                               <input
                                 id={`sub-marks-${sub.id}`}
                                 type="number"
@@ -549,7 +549,7 @@ export function GpaCalculator() {
                                 onChange={(e) =>
                                   updateSubjectField(sub.id, "marks", e.target.value)
                                 }
-                                className="w-full bg-transparent text-xs sm:text-sm font-bold text-foreground text-center outline-none"
+                                className="w-full bg-transparent py-1 text-xs sm:text-sm font-bold text-foreground text-center outline-none"
                               />
                             </div>
                           </div>
@@ -744,7 +744,7 @@ export function GpaCalculator() {
                                 parseFloat(e.target.value) || 0,
                               )
                             }
-                            className="w-10 text-center rounded border border-border bg-card px-1 py-0.5 font-bold text-foreground text-[11px] outline-none"
+                            className="min-h-6 w-10 text-center rounded border border-border bg-card px-1 py-0.5 font-bold text-foreground text-[11px] outline-none"
                           />
                         </div>
                       </div>
