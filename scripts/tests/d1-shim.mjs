@@ -89,6 +89,7 @@ export class R2Shim {
     this.objects.set(key, {
       bytes: new Uint8Array(bytes),
       contentType: options.httpMetadata?.contentType,
+      uploaded: options.uploaded ?? new Date(),
     });
   }
   async get(key) {
@@ -100,7 +101,23 @@ export class R2Shim {
       arrayBuffer: async () => o.bytes.buffer.slice(0),
     };
   }
-  async delete(key) {
-    this.objects.delete(key);
+  async delete(keys) {
+    for (const key of Array.isArray(keys) ? keys : [keys]) this.objects.delete(key);
+  }
+  /** Like R2: keys in order, `limit` per page, an opaque cursor. */
+  async list({ cursor, limit = 1000 } = {}) {
+    const keys = [...this.objects.keys()].sort();
+    const start = cursor ? Number(cursor) : 0;
+    const page = keys.slice(start, start + limit);
+    const truncated = start + limit < keys.length;
+    return {
+      objects: page.map((key) => ({
+        key,
+        uploaded: this.objects.get(key).uploaded,
+        size: this.objects.get(key).bytes.length,
+      })),
+      truncated,
+      cursor: truncated ? String(start + limit) : undefined,
+    };
   }
 }

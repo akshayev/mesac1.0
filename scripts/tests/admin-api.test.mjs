@@ -89,6 +89,7 @@ test("me: who is signed in", async () => {
     role: "editor",
     uploads: true,
     submissions: false,
+    refresh: { enabled: false, actionsUrl: null },
   });
   assert.equal((await call("GET", "/admin/api/me", { as: "nobody" })).status, 401);
 });

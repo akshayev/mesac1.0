@@ -89,9 +89,10 @@ test("the workflow only reads the documented secrets", opts, () => {
     "ADMIN_BOOTSTRAP_EMAILS",
     "TURNSTILE_SECRET_KEY",
     "SUBMISSION_SALT",
+    "PAPERS_REFRESH_TOKEN",
   ]);
   for (const name of used) assert.ok(allowed.has(name), `unexpected secret ${name}`);
-  assert.equal(new Set(used).size >= 19, true);
+  assert.equal(new Set(used).size >= 20, true);
 });
 
 test("no risky triggers, no secret echo, no untrusted input in run scripts", opts, () => {
@@ -132,18 +133,29 @@ test("HANDOVER lists exactly the secrets and variables the workflow reads", () =
   const varsTable = section.split("### Variables")[1].split("### Address of the site")[0];
   const rows = [...secretsTable.matchAll(/^\| `([A-Z0-9_]+)`(.*)$/gm)];
   const listed = rows.map((m) => m[1]);
-  const used = new Set([...text.matchAll(/secrets\.([A-Z0-9_]+)/g)].map((m) => m[1]));
+  const backupText = readFileSync(
+    new URL("../../.github/workflows/backup.yml", import.meta.url),
+    "utf8",
+  );
+  const used = new Set(
+    [...(text + backupText).matchAll(/secrets\.([A-Z0-9_]+)/g)].map((m) => m[1]),
+  );
   assert.deepEqual(listed.sort(), [...used].sort());
   const dashboardOnly = rows.filter((m) => /Dashboard only/.test(m[2])).map((m) => m[1]);
-  assert.deepEqual(dashboardOnly.sort(), [
-    "ADMIN_BOOTSTRAP_EMAILS",
-    "CF_ACCESS_AUD",
-    "CF_ACCESS_TEAM_DOMAIN",
-    "D1_DATABASE_ID",
-    "R2_BUCKET_NAME",
-    "SUBMISSION_SALT",
-    "TURNSTILE_SECRET_KEY",
-  ]);
+  assert.deepEqual(
+    dashboardOnly.sort(),
+    [
+      "ADMIN_BOOTSTRAP_EMAILS",
+      "CF_ACCESS_AUD",
+      "CF_ACCESS_TEAM_DOMAIN",
+      "D1_DATABASE_ID",
+      "R2_BUCKET_NAME",
+      "BACKUP_PASSPHRASE",
+      "PAPERS_REFRESH_TOKEN",
+      "SUBMISSION_SALT",
+      "TURNSTILE_SECRET_KEY",
+    ].sort(),
+  );
   assert.match(handover, new RegExp(`All ${used.size - dashboardOnly.length} required secrets`));
   const vars = [...varsTable.matchAll(/^\| `([A-Z0-9_]+)`/gm)].map((m) => m[1]);
   const usedVars = new Set([...text.matchAll(/vars\.([A-Z0-9_]+)/g)].map((m) => m[1]));
@@ -167,6 +179,7 @@ test(
     const bootstrap = find((s) => String(s.run ?? "").includes("scripts/bootstrap-admins.mjs"));
     const deploy = find((s) => s.with?.command === "deploy");
     const secrets = find((s) => String(s.run ?? "").includes("scripts/upload-worker-secrets.mjs"));
+    const upload = steps[secrets];
     const order = [tests, features, build, check, migrate, bootstrap, deploy, secrets];
     assert.ok(
       order.every((i) => i >= 0),
@@ -179,7 +192,17 @@ test(
     assert.equal(steps[features].run.trim(), "node scripts/check-features.mjs");
     for (const i of [migrate, bootstrap])
       assert.equal(steps[i].if, "steps.features.outputs.d1 == 'true'");
-    assert.equal(steps[secrets].if, "steps.features.outputs.submissions == 'true'");
+    assert.equal(
+      upload.if,
+      "steps.features.outputs.submissions == 'true' || steps.features.outputs.refresh == 'true'",
+    );
+    assert.equal(upload.env.UPLOAD_SUBMISSIONS, "${{ steps.features.outputs.submissions }}");
+    assert.equal(upload.env.UPLOAD_REFRESH, "${{ steps.features.outputs.refresh }}");
+    assert.match(upload.env.PAPERS_REFRESH_TOKEN, /secrets\.PAPERS_REFRESH_TOKEN/);
+    assert.match(steps[features].env.PAPERS_REFRESH_TOKEN, /secrets\.PAPERS_REFRESH_TOKEN/);
+    assert.ok(!("PAPERS_REFRESH_TOKEN" in steps[build].env), "the token must not reach the build");
+    assert.equal(steps[build].env.REFRESH_REPO, "${{ github.repository }}");
+    assert.equal(steps[build].env.REFRESH_WORKFLOW_FILE, "deploy.yml");
     assert.match(steps[migrate].uses, /^cloudflare\/wrangler-action@v\d+$/);
     assert.equal(steps[migrate].with.wranglerVersion, steps[deploy].with.wranglerVersion);
     assert.match(steps[migrate].with.command, /--config \.output\/server\/wrangler\.json/);

@@ -33,10 +33,16 @@ test("Turnstile test keys are recognised", () => {
 });
 
 test("checkFeatures: off, dashboard only, dashboard + form", () => {
-  assert.deepEqual(checkFeatures({}), { d1: false, submissions: false, errors: [] });
+  assert.deepEqual(checkFeatures({}), {
+    d1: false,
+    submissions: false,
+    refresh: false,
+    errors: [],
+  });
   assert.deepEqual(checkFeatures({ D1_DATABASE_ID: ID }), {
     d1: true,
     submissions: false,
+    refresh: false,
     errors: [],
   });
   assert.deepEqual(
@@ -46,7 +52,7 @@ test("checkFeatures: off, dashboard only, dashboard + form", () => {
       TURNSTILE_SECRET_KEY: SECRET,
       SUBMISSION_SALT: SALT,
     }),
-    { d1: true, submissions: true, errors: [] },
+    { d1: true, submissions: true, refresh: false, errors: [] },
   );
 });
 
@@ -124,8 +130,8 @@ test("check-features CLI writes the outputs and never prints values", () => {
     };
     const ok = node([join(REPO, "scripts/check-features.mjs")], env);
     assert.equal(ok.status, 0, ok.stderr);
-    assert.equal(readFileSync(out, "utf8"), "d1=true\nsubmissions=true\n");
-    assert.match(ok.stdout, /admin dashboard on, alumni form on/);
+    assert.equal(readFileSync(out, "utf8"), "d1=true\nsubmissions=true\nrefresh=false\n");
+    assert.match(ok.stdout, /admin dashboard on, alumni form on, papers refresh button off/);
     const bad = node([join(REPO, "scripts/check-features.mjs")], {
       ...env,
       SUBMISSION_SALT: "",
@@ -211,11 +217,58 @@ test("sitemap lists /alumni/join only when the build has the database and a site
   }
 });
 
-test("upload-worker-secrets refuses to run without both secrets and prints no values", () => {
-  const r = node([join(REPO, "scripts/upload-worker-secrets.mjs")], {
-    TURNSTILE_SECRET_KEY: SECRET,
-  });
+test("upload-worker-secrets: uploads only what the enabled features need, never prints values", () => {
+  const script = join(REPO, "scripts/upload-worker-secrets.mjs");
+  const nothing = node([script], { TURNSTILE_SECRET_KEY: SECRET });
+  assert.equal(nothing.status, 0);
+  assert.match(nothing.stdout, /nothing to do/);
+  const r = node([script], { UPLOAD_SUBMISSIONS: "true", TURNSTILE_SECRET_KEY: SECRET });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /SUBMISSION_SALT not set/);
-  assert.doesNotMatch(r.stdout + r.stderr, /sampleSECRET/);
+  const t = node([script], { UPLOAD_REFRESH: "true" });
+  assert.equal(t.status, 1);
+  assert.match(t.stderr, /PAPERS_REFRESH_TOKEN not set/);
+  for (const out of [r, t, nothing]) assert.doesNotMatch(out.stdout + out.stderr, /sampleSECRET/);
+});
+
+const PAT = "github_pat_SAMPLEtokenForTestsOnly_abcdefghijklmnopqrstuvwxyz";
+
+test("checkFeatures: papers refresh token must be fine-grained and needs the database", () => {
+  assert.equal(checkFeatures({ D1_DATABASE_ID: ID, PAPERS_REFRESH_TOKEN: PAT }).refresh, true);
+  const classic = checkFeatures({
+    D1_DATABASE_ID: ID,
+    PAPERS_REFRESH_TOKEN: "ghp_" + "a".repeat(36),
+  });
+  assert.equal(classic.refresh, false);
+  assert.match(classic.errors.join(), /fine-grained/);
+  const noDb = checkFeatures({ PAPERS_REFRESH_TOKEN: PAT });
+  assert.match(noDb.errors.join(), /needs the admin database/);
+  for (const r of [classic, noDb]) assert.doesNotMatch(r.errors.join(), /SAMPLEtoken|aaaa/);
+});
+
+test("rendered Worker config: GITHUB_REPO / GITHUB_WORKFLOW_FILE vars only in D1 mode, never the token", () => {
+  const env = {
+    D1_DATABASE_ID: ID,
+    REFRESH_REPO: "sample-org/sample-site",
+    REFRESH_WORKFLOW_FILE: "deploy.yml",
+    PAPERS_REFRESH_TOKEN: PAT,
+  };
+  const r = renderDeployConfig({ name: "x" }, env, { migrationsDir: "m" });
+  assert.equal(r.config.vars.GITHUB_REPO, "sample-org/sample-site");
+  assert.equal(r.config.vars.GITHUB_WORKFLOW_FILE, "deploy.yml");
+  assert.doesNotMatch(JSON.stringify(r.config), /github_pat_|GITHUB_DISPATCH_TOKEN/);
+  assert.equal(
+    renderDeployConfig(
+      { name: "x" },
+      { REFRESH_REPO: "a/b", REFRESH_WORKFLOW_FILE: "deploy.yml" },
+      { migrationsDir: "m" },
+    ).changed,
+    false,
+  );
+  const bad = renderDeployConfig(
+    { name: "x" },
+    { ...env, REFRESH_REPO: "evil.com/a/b" },
+    { migrationsDir: "m" },
+  );
+  assert.equal(bad.config.vars?.GITHUB_REPO, undefined);
 });
