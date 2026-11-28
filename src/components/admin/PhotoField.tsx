@@ -93,9 +93,10 @@ export function PhotoField({
               </label>
             </>
           ) : (
-            <span className="text-[11px] text-muted-foreground">
-              Photo upload is off (R2 not set up). Paste a link instead.
-            </span>
+            <p id={`${id}-no-upload`} role="note" className="text-[11px] text-muted-foreground">
+              Photo upload needs R2 photo storage, which is not set up on this site. Paste an
+              https:// image link or a Google Drive share link below instead.
+            </p>
           )}
           {value && (
             <button type="button" className={BTN} onClick={() => onChange("")}>
@@ -110,7 +111,9 @@ export function PhotoField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="or paste a link: https://…, a Google Drive link, people/name.webp"
-        aria-describedby={describedBy}
+        aria-describedby={
+          [describedBy, uploads ? "" : `${id}-no-upload`].filter(Boolean).join(" ") || undefined
+        }
       />
       {error && <p className="text-[11px] font-semibold text-red-300">{error}</p>}
     </div>

@@ -395,6 +395,33 @@ test("upload without R2 explains itself", async () => {
   assert.match(r.data.error, /R2/);
 });
 
+test("without R2, pasted https and Drive image links still work (shared photo validator)", async () => {
+  const { call } = await site({ media: false });
+  assert.equal((await call("GET", "/admin/api/me")).data.uploads, false);
+  const id = "1AbCdEfGhIjKlMnOpQrStUvWxYz012345";
+  const drive = await call("POST", "/admin/api/content/team", {
+    body: { name: "SAMPLE Drive", photo: `https://drive.google.com/file/d/${id}/view?usp=sharing` },
+  });
+  assert.equal(drive.status, 201);
+  assert.equal(drive.data.item.photo, `https://drive.google.com/thumbnail?id=${id}&sz=w600`);
+  const https = await call("POST", "/admin/api/content/alumni", {
+    body: { name: "SAMPLE Https", photo: "https://example.org/sample.jpg" },
+  });
+  assert.equal(https.data.item.photo, "https://example.org/sample.jpg");
+  for (const photo of ["javascript:alert(1)", "not a photo", "ftp://example.org/x.jpg"]) {
+    const bad = await call("POST", "/admin/api/content/team", {
+      body: { name: "SAMPLE Bad", photo },
+    });
+    assert.equal(bad.status, 400, photo);
+    assert.match(bad.data.errors.photo, /not a usable image link/);
+  }
+  const upload = await call("POST", "/admin/api/upload", {
+    raw: webp(),
+    headers: { "content-type": "image/webp" },
+  });
+  assert.equal(upload.status, 503);
+});
+
 test("public data: snapshots without a database, D1 (visible, consented, cached 60 s) with one", async () => {
   for (const kind of ["team", "achievements", "placements", "alumni", "settings"])
     assert.deepEqual(await getPublicContent(kind, {}), SNAPSHOTS[kind], kind);

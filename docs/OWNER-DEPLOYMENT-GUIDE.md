@@ -41,6 +41,8 @@ You do not create tables: the deploy does that (it applies the files in `migrati
 
 ## 2. Create the photo bucket (R2), optional
 
+R2 is optional and Cloudflare may ask for a payment method to enable it; without it the dashboard still works, and photos are added by pasting an https:// or Google Drive image link.
+
 1. Cloudflare dashboard → **R2 Object Storage**. Cloudflare may ask you to add a payment method before R2 can be
    switched on, even though MESAC stays inside the free allowance. If the committee cannot do that, **skip this step**:
    photo upload stays off, and photos can still be links.
