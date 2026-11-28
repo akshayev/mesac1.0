@@ -1,0 +1,116 @@
+{
+  "source": "fixture",
+  "generatedAt": null,
+  "issues": [
+    {
+      "tab": "alumni",
+      "line": 5,
+      "level": "warn",
+      "message": "photo is not a usable image; initials will be shown"
+    },
+    {
+      "tab": "alumni",
+      "line": 5,
+      "level": "warn",
+      "message": "linkedin is not an https link; ignored"
+    },
+    {
+      "tab": "alumni",
+      "line": 5,
+      "level": "warn",
+      "message": "email_public is not an email; ignored"
+    },
+    {
+      "tab": "alumni",
+      "line": 5,
+      "level": "warn",
+      "message": "phone_public is not a phone number; ignored"
+    },
+    {
+      "tab": "alumni",
+      "line": 6,
+      "level": "warn",
+      "message": "skipped: no consent"
+    },
+    {
+      "tab": "alumni",
+      "line": 7,
+      "level": "warn",
+      "message": "skipped: no consent"
+    },
+    {
+      "tab": "alumni",
+      "line": 9,
+      "level": "warn",
+      "message": "skipped: empty name"
+    }
+  ],
+  "skippedNoConsent": 2,
+  "items": [
+    {
+      "name": "SAMPLE Alumni A",
+      "batch": "2020",
+      "department": "Mechanical Engineering",
+      "currentRole": "SAMPLE Design Engineer",
+      "company": "SAMPLE Company One",
+      "location": "SAMPLE City",
+      "photo": "",
+      "linkedin": "https://www.linkedin.com/in/sample-alumni-a",
+      "email": "sample.a@example.com",
+      "phone": "+910000000001",
+      "helpWith": [
+        "Career advice",
+        "Referrals",
+        "Higher studies"
+      ],
+      "order": 1
+    },
+    {
+      "name": "SAMPLE Alumni B",
+      "batch": "2018",
+      "department": "Mechanical Engineering",
+      "currentRole": "SAMPLE Analyst",
+      "company": "SAMPLE Company Two",
+      "location": "SAMPLE Town",
+      "photo": "",
+      "linkedin": "https://www.linkedin.com/in/sample-alumni-b",
+      "email": "",
+      "phone": "",
+      "helpWith": [
+        "Referrals",
+        "Career advice"
+      ],
+      "order": 2
+    },
+    {
+      "name": "SAMPLE Alumni C With A Deliberately Long Name To Test Wrapping",
+      "batch": "2018",
+      "department": "SAMPLE Other Department",
+      "currentRole": "",
+      "company": "SAMPLE Company With A Very Long Name Private Limited",
+      "location": "",
+      "photo": "",
+      "linkedin": "",
+      "email": "",
+      "phone": "",
+      "helpWith": [
+        "Higher studies"
+      ],
+      "order": 3
+    },
+    {
+      "name": "SAMPLE Alumni D",
+      "batch": "2016",
+      "department": "Mechanical Engineering",
+      "currentRole": "SAMPLE Manager",
+      "company": "",
+      "location": "",
+      "photo": "",
+      "linkedin": "",
+      "email": "",
+      "phone": "",
+      "helpWith": [],
+      "order": 4
+    }
+  ]
+}

@@ -30,5 +30,21 @@ export interface PlacementEntry {
   order: number | null;
 }
 
+/** Only people who gave consent are in the snapshot. Empty string -> not shown. */
+export interface AlumniEntry {
+  name: string;
+  batch: string;
+  department: string;
+  currentRole: string;
+  company: string;
+  location: string;
+  photo: string; // "" -> show initials
+  linkedin: string; // https only
+  email: string;
+  phone: string; // "+<country code><number>"
+  helpWith: string[];
+  order: number | null;
+}
+
 /** Raw key/value pairs from the settings tab (only known keys, non-empty). */
 export type SettingsValues = Partial<Record<string, string>>;

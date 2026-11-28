@@ -16,7 +16,7 @@ const deploying = ["1", "true"].includes(String(process.env.DEPLOY ?? "").toLowe
 
 const REPORTS = [
   ["data/drive-report.md", "the GOOGLE_API_KEY and DRIVE_ROOT_ID secrets"],
-  ["data/sheet-report.md", "the four SHEET_*_CSV secrets"],
+  ["data/sheet-report.md", "the SHEET_*_CSV secrets"],
 ];
 
 const problems = [];

@@ -6,8 +6,9 @@
 import { items as teamItems } from "./generated/team.json";
 import { items as achievementItems } from "./generated/achievements.json";
 import { items as placementItems } from "./generated/placements.json";
+import { items as alumniItems } from "./generated/alumni.json";
 import { items as settingsItems } from "./generated/settings.json";
-import type { AchievementEntry, PlacementEntry, SettingsValues, TeamPerson } from "@/types";
+import type { AchievementEntry, AlumniEntry, PlacementEntry, SettingsValues, TeamPerson } from "@/types";
 
 /** Used when the settings tab has no contact_email. */
 export const FALLBACK_CONTACT_EMAIL = "mesacusatacademy@gmail.com";
@@ -15,6 +16,7 @@ export const FALLBACK_CONTACT_EMAIL = "mesacusatacademy@gmail.com";
 const team = teamItems as TeamPerson[];
 const achievements = achievementItems as AchievementEntry[];
 const placements = placementItems as PlacementEntry[];
+const alumni = alumniItems as AlumniEntry[];
 const settings = settingsItems as SettingsValues;
 
 export function getTeam(): TeamPerson[] {
@@ -47,6 +49,10 @@ export function getAchievements(): AchievementEntry[] {
 
 export function getPlacements(): PlacementEntry[] {
   return placements;
+}
+
+export function getAlumni(): AlumniEntry[] {
+  return alumni;
 }
 
 export interface HomeStat {

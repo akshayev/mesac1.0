@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-// Builds src/data/generated/{team,achievements,placements,settings}.json from a Google Sheet.
+// Builds src/data/generated/{team,achievements,placements,alumni,settings}.json from a Google Sheet.
 //
 // Each tab is "published to the web" as CSV (File > Share > Publish to web > pick the tab > CSV), and its URL
-// goes in an env var: SHEET_TEAM_CSV, SHEET_ACHIEVEMENTS_CSV, SHEET_PLACEMENTS_CSV, SHEET_SETTINGS_CSV.
+// goes in an env var: SHEET_TEAM_CSV, SHEET_ACHIEVEMENTS_CSV, SHEET_PLACEMENTS_CSV, SHEET_ALUMNI_CSV,
+// SHEET_SETTINGS_CSV.
 // No API key.
 //
 // Per tab:  env URL set -> fetch it (fall back to the existing snapshot if the fetch fails)
@@ -89,8 +90,9 @@ async function buildTab(tab) {
 
   if (!useFixture && url) {
     try {
-      const { items, issues } = normalize(await fetchCsv(url, tab));
-      const snapshot = { source: "sheet", generatedAt: new Date().toISOString(), issues, items };
+      const { items, issues, ...extra } = normalize(await fetchCsv(url, tab));
+      const generatedAt = new Date().toISOString();
+      const snapshot = { source: "sheet", generatedAt, issues, ...extra, items };
       const prev = existing?.source === "sheet" ? countOf(existing.items) : 0;
       const now = countOf(items);
       console.log(`  ${tab}: fetched from sheet (${now} entries)`);
@@ -140,9 +142,11 @@ async function buildTab(tab) {
 }
 
 function fixtureTab(tab, normalize) {
-  const { items, issues } = normalize(readFileSync(join(FIXTURE_DIR, `${tab}.csv`), "utf8"));
+  const csv = readFileSync(join(FIXTURE_DIR, `${tab}.csv`), "utf8");
+  const { items, issues, ...extra } = normalize(csv);
   console.log(`  ${tab}: using sample fixture (${countOf(items)} entries)`);
-  return { snapshot: { source: "fixture", generatedAt: null, issues, items }, write: true };
+  const snapshot = { source: "fixture", generatedAt: null, issues, ...extra, items };
+  return { snapshot, write: true };
 }
 
 function writeReport(snapshots) {
@@ -164,6 +168,11 @@ function writeReport(snapshots) {
           ? snapshots[t].items.length
           : Object.keys(snapshots[t].items).length,
       ]),
+    ),
+    skippedWithoutConsent: Object.fromEntries(
+      tabs
+        .filter((t) => snapshots[t].skippedNoConsent !== undefined)
+        .map((t) => [t, snapshots[t].skippedNoConsent]),
     ),
   };
   const lines = [
