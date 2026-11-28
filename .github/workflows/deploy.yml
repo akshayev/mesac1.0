@@ -9,7 +9,8 @@
 #
 # The admin dashboard (Cloudflare D1 + R2 + Access) is optional. Only when the D1_DATABASE_ID secret is set
 # does the build add the database bindings and this workflow apply the database migrations and add the
-# first admins before deploying. Without it the site runs from the Google Sheet as before.
+# first admins before deploying. Without it the site runs from the Google Sheet as before. The public alumni
+# form additionally needs the TURNSTILE_SITE_KEY variable and the TURNSTILE_SECRET_KEY and SUBMISSION_SALT secrets.
 # See docs/OWNER-DEPLOYMENT-GUIDE.md.
 # Secret names are listed in HANDOVER.md.
 
@@ -89,6 +90,17 @@ jobs:
       - name: Run data and parser tests
         run: npm run test:data
 
+      # Optional features: the admin dashboard (D1_DATABASE_ID) and the public alumni form (Turnstile + salt).
+      # Fails if one is only partly set up; records d1=true/false and submissions=true/false. Prints no values.
+      - name: Check which optional features are configured
+        id: features
+        run: node scripts/check-features.mjs
+        env:
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          SUBMISSION_SALT: ${{ secrets.SUBMISSION_SALT }}
+
       # `npm run build` first runs the "prebuild" step: it crawls Drive, fetches the Sheet tabs and writes
       # the sitemap, then builds the site. DEPLOY=1 turns on the data guards: the run fails if a secret is
       # missing, a Sheet tab cannot be fetched, or Drive/Sheet data shrank by more than half.
@@ -113,6 +125,8 @@ jobs:
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
           CF_ACCESS_TEAM_DOMAIN: ${{ secrets.CF_ACCESS_TEAM_DOMAIN }}
           CF_ACCESS_AUD: ${{ secrets.CF_ACCESS_AUD }}
+          # Public alumni form (public value, a GitHub variable): added to the Worker's vars, and to the sitemap
+          TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
 
       # Keep the reports (what was indexed, which rows/files were skipped) so a failed run can be diagnosed.
       - name: Save data reports
@@ -135,18 +149,9 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL }}
           D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
 
-      # The next two steps run only in admin dashboard mode (D1_DATABASE_ID secret set). The value is never
-      # printed; only "enabled=true/false" is recorded.
-      - name: Is the admin database configured?
-        id: d1
-        run: |
-          if [ -n "$D1_DATABASE_ID" ]; then echo "enabled=true" >> "$GITHUB_OUTPUT"; else echo "enabled=false" >> "$GITHUB_OUTPUT"; fi
-        env:
-          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
-
       # Applies new files from migrations/ (each runs once) before the new code goes live.
       - name: Apply database migrations
-        if: steps.d1.outputs.enabled == 'true'
+        if: steps.features.outputs.d1 == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -157,7 +162,7 @@ jobs:
       # Adds the emails in ADMIN_BOOTSTRAP_EMAILS as admins, but only while the admin list is empty (so a
       # removed admin is never re-added). The script validates every email and prints counts only.
       - name: Add the first admins (only while the admin list is empty)
-        if: steps.d1.outputs.enabled == 'true'
+        if: steps.features.outputs.d1 == 'true'
         run: node scripts/bootstrap-admins.mjs
         env:
           ADMIN_BOOTSTRAP_EMAILS: ${{ secrets.ADMIN_BOOTSTRAP_EMAILS }}
@@ -171,3 +176,14 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4.166.0"
           command: deploy
+
+      # Public alumni form only: the Worker's two secrets, as encrypted Worker secrets (never in wrangler.json).
+      - name: Give the Worker the alumni-form secrets
+        if: steps.features.outputs.submissions == 'true'
+        run: node scripts/upload-worker-secrets.mjs
+        env:
+          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          SUBMISSION_SALT: ${{ secrets.SUBMISSION_SALT }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+

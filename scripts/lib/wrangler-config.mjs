@@ -2,6 +2,7 @@
 // Pure functions; the CLI is scripts/render-wrangler.mjs. Tested in scripts/tests/render-wrangler.test.mjs.
 
 import { accessAud, normalizeTeamDomain } from "./validate.mjs";
+import { turnstileSiteKey } from "./features.mjs";
 
 export const DB_NAME = "mesac-admin";
 /** The only id ever written to the local (development) config. check:deploy refuses it in .output. */
@@ -34,7 +35,12 @@ export function renderDeployConfig(base, env, { migrationsDir }) {
   const warnings = [];
   const raw = (k) => String(env[k] ?? "").trim();
   if (!raw("D1_DATABASE_ID")) {
-    for (const k of ["R2_BUCKET_NAME", "CF_ACCESS_TEAM_DOMAIN", "CF_ACCESS_AUD"])
+    for (const k of [
+      "R2_BUCKET_NAME",
+      "CF_ACCESS_TEAM_DOMAIN",
+      "CF_ACCESS_AUD",
+      "TURNSTILE_SITE_KEY",
+    ])
       if (raw(k)) warnings.push(`${k} is ignored because D1_DATABASE_ID is not set (Sheet mode).`);
     return { config: base, changed: false, errors, warnings };
   }
@@ -53,6 +59,9 @@ export function renderDeployConfig(base, env, { migrationsDir }) {
     warnings.push(
       "CF_ACCESS_TEAM_DOMAIN / CF_ACCESS_AUD are missing or invalid: nobody can sign in to /admin.",
     );
+  const siteKey = turnstileSiteKey(raw("TURNSTILE_SITE_KEY"));
+  if (raw("TURNSTILE_SITE_KEY") && !siteKey)
+    errors.push("TURNSTILE_SITE_KEY is not a Turnstile site key.");
   if (errors.length) return { config: base, changed: false, errors, warnings, accessProblem };
 
   const config = { ...base };
@@ -64,7 +73,10 @@ export function renderDeployConfig(base, env, { migrationsDir }) {
   const vars = { ...(base.vars ?? {}) };
   delete vars.CF_ACCESS_TEAM_DOMAIN;
   delete vars.CF_ACCESS_AUD;
+  delete vars.TURNSTILE_SITE_KEY;
   if (team && aud) Object.assign(vars, { CF_ACCESS_TEAM_DOMAIN: team, CF_ACCESS_AUD: aud });
+  // Public by design (the browser needs it). The two alumni-form secrets are Worker secrets, never here.
+  if (siteKey) vars.TURNSTILE_SITE_KEY = siteKey;
   if (Object.keys(vars).length) config.vars = vars;
   else delete config.vars;
   return { config, changed: true, errors, warnings, accessProblem };

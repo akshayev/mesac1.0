@@ -43,4 +43,8 @@ run("npx", [
   PORT,
   "--var",
   `ADMIN_DEV_EMAIL:${email}`,
+  // Optional: the public alumni form, with Cloudflare's Turnstile TEST keys locally (see HANDOVER.md).
+  ...["TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY", "SUBMISSION_SALT"]
+    .filter((k) => process.env[k])
+    .flatMap((k) => ["--var", `${k}:${process.env[k]}`]),
 ]);

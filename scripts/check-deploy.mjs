@@ -13,6 +13,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { isPlaceholderSiteUrl } from "./lib/seo.mjs";
 import { d1Id, LOCAL_DB_ID } from "./lib/wrangler-config.mjs";
+import { isTurnstileTestKey } from "./lib/features.mjs";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -78,6 +79,11 @@ if (existsSync(serverDir)) {
   if (d1Mode && bound !== d1Id(process.env.D1_DATABASE_ID)) {
     problems.push(
       "D1_DATABASE_ID is set but the built Worker does not use it. Run npm run build with D1_DATABASE_ID set.",
+    );
+  }
+  if (isTurnstileTestKey(config.vars?.TURNSTILE_SITE_KEY)) {
+    problems.push(
+      "The built Worker uses a Turnstile test site key. Set the real TURNSTILE_SITE_KEY variable.",
     );
   }
   if (!d1Mode && bound) {

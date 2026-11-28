@@ -13,6 +13,7 @@ import {
   normalizeSiteUrl,
   staticPathsFromRouteTree,
 } from "./lib/seo.mjs";
+import { joinPageEnabled } from "./lib/features.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
@@ -25,6 +26,8 @@ function writeIfChanged(path, content) {
 
 const siteUrl = normalizeSiteUrl(process.env.SITE_URL);
 const seo = JSON.parse(readFileSync(join(ROOT, "src/data/seo.json"), "utf8"));
+// The public alumni form exists only when the admin database and Turnstile are configured.
+if (!joinPageEnabled(process.env)) seo.exclude = [...(seo.exclude ?? []), "/alumni/join"];
 const paths = staticPathsFromRouteTree(
   readFileSync(join(ROOT, "src/routeTree.gen.ts"), "utf8"),
   seo,
