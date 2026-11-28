@@ -15,11 +15,19 @@
  */
 import { ENTITIES, isEntityName, type EntityName } from "../shared/entities.ts";
 import { authenticate, hasRole, type AdminUser, type VerifyDeps } from "./auth.ts";
+import type { SubmitDeps } from "./submissions.ts";
 import * as db from "./db.ts";
 import type { AdminEnv, D1Database } from "./env.ts";
 import { csrfProblem, HttpError, json, notFound, readJson, readLimited } from "./http.ts";
 import { deletePhotoIfUnused, hasMedia, MAX_UPLOAD_BYTES, storeUpload } from "./media.ts";
 import { invalidatePublicCache } from "./public-data.ts";
+import {
+  approveSubmission,
+  listSubmissions,
+  rejectSubmission,
+  submissionsEnabled,
+  updateSubmission,
+} from "./submissions.ts";
 
 const JSON_LIMIT = 32 * 1024;
 const JSON_LIMIT_LONG = 64 * 1024; // achievements (long descriptions)
@@ -40,7 +48,7 @@ const forbidden = () => json({ error: "Your role cannot do this." }, 403);
 export async function handleAdminApi(
   request: Request,
   env: Env,
-  deps: VerifyDeps = {},
+  deps: VerifyDeps & SubmitDeps = {},
 ): Promise<Response> {
   const auth = await authenticate(request, env, deps);
   if (!auth.ok) return auth.status === 404 ? notFound() : json({ error: auth.reason }, auth.status);
@@ -59,7 +67,7 @@ export async function handleAdminApi(
     .split("/")
     .filter(Boolean);
   try {
-    return (await route(request, env, user, method, parts, url)) ?? notFound();
+    return (await route(request, env, user, method, parts, url, deps)) ?? notFound();
   } catch (err) {
     if (err instanceof HttpError) return json({ error: err.message }, err.status);
     console.error("admin api", err);
@@ -74,13 +82,19 @@ async function route(
   method: string,
   parts: string[],
   url: URL,
+  deps: SubmitDeps = {},
 ): Promise<Response | null> {
   const [section, a, b, c] = parts;
   const audit = (entry: Omit<Parameters<typeof db.writeAudit>[1], "actor">) =>
     db.writeAudit(env.DB, { actor: user.email, ...entry });
 
   if (section === "me" && !a && method === "GET") {
-    return json({ email: user.email, role: user.role, uploads: hasMedia(env) });
+    return json({
+      email: user.email,
+      role: user.role,
+      uploads: hasMedia(env),
+      submissions: submissionsEnabled(env),
+    });
   }
 
   if (section === "content" && isEntityName(a)) {
@@ -223,6 +237,48 @@ async function route(
       if (!r.ok) return errors(r.status, r.errors);
       await audit({ action: "delete", entity: "admins", entityId: a, fields: [] });
       return json({ deleted: true });
+    }
+    return null;
+  }
+
+  // Public form submissions (editors and admins). No labels in the log: these are alumni.
+  if (section === "submissions") {
+    if (!submissionsEnabled(env)) return null;
+    if (!a)
+      return method === "GET"
+        ? json({ items: await listSubmissions(env.DB, deps.nowMs?.() ?? Date.now()) })
+        : null;
+    if (!ID.test(a)) return null;
+    if (!b && method === "PUT") {
+      const r = await updateSubmission(env.DB, a, await readJson(request, JSON_LIMIT));
+      if (!r.ok) return errors(r.status, r.errors);
+      if (r.changed.length)
+        await audit({ action: "update", entity: "submissions", entityId: a, fields: r.changed });
+      return json({ item: r.item });
+    }
+    if (b === "approve" && method === "POST") {
+      const r = await approveSubmission(
+        env.DB,
+        a,
+        (await readJson(request, 1024)) as { visible?: unknown },
+        user.email,
+      );
+      if (!r.ok) return errors(r.status, r.errors);
+      await audit({ action: "approve", entity: "submissions", entityId: a, fields: [] });
+      await audit({
+        action: "create",
+        entity: "alumni",
+        entityId: r.alumniId,
+        fields: ["consent", ...(r.visible ? ["visible"] : [])],
+      });
+      invalidatePublicCache();
+      return json({ alumniId: r.alumniId });
+    }
+    if (b === "reject" && method === "POST") {
+      const r = await rejectSubmission(env.DB, a, user.email);
+      if (!r.ok) return errors(r.status, r.errors);
+      await audit({ action: "reject", entity: "submissions", entityId: a, fields: [] });
+      return json({ rejected: true });
     }
     return null;
   }

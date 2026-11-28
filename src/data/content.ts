@@ -24,3 +24,12 @@ export const fetchAdminEnabled = createServerFn({ method: "GET" }).handler(async
   const { getEnv, hasDatabase } = await import("@/server/env");
   return { enabled: hasDatabase(getEnv()) };
 });
+
+/** Whether the public alumni form is on, and the public Turnstile site key it needs. */
+export const fetchSubmissionConfig = createServerFn({ method: "GET" }).handler(async () => {
+  const [{ getEnv }, { submissionConfig }] = await Promise.all([
+    import("@/server/env"),
+    import("@/server/submissions"),
+  ]);
+  return submissionConfig(getEnv());
+});

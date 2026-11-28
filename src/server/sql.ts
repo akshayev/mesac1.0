@@ -148,3 +148,23 @@ export const AUDIT_SQL = {
   recent:
     "SELECT id, at, actor_email, action, entity, entity_id, label, changed_fields FROM audit_log WHERE at < ? ORDER BY at DESC, id DESC LIMIT ?",
 };
+
+/** Public alumni submissions (migrations/0002). The strip statement empties every personal field. */
+export const SUBMISSION_SQL = {
+  insert:
+    "INSERT INTO alumni_submissions (id, created_at, status, name, batch, department, current_role, company, location, linkedin, email, phone, help_with, consent_text_version, consent_at, ip_hash) VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  countByIpSince:
+    "SELECT COUNT(*) AS n FROM alumni_submissions WHERE ip_hash = ? AND created_at > ?",
+  countPendingSince:
+    "SELECT COUNT(*) AS n FROM alumni_submissions WHERE status = 'pending' AND created_at > ?",
+  purge:
+    "DELETE FROM alumni_submissions WHERE status = 'rejected' OR (status = 'pending' AND created_at < ?)",
+  listPending:
+    "SELECT id, created_at, name, batch, department, current_role, company, location, photo, linkedin, email, phone, help_with, consent_text_version, consent_at FROM alumni_submissions WHERE status = 'pending' ORDER BY created_at",
+  getPending:
+    "SELECT id, created_at, name, batch, department, current_role, company, location, photo, linkedin, email, phone, help_with, consent_text_version, consent_at FROM alumni_submissions WHERE id = ? AND status = 'pending'",
+  update:
+    "UPDATE alumni_submissions SET name = ?, batch = ?, department = ?, current_role = ?, company = ?, location = ?, photo = ?, linkedin = ?, email = ?, phone = ?, help_with = ? WHERE id = ? AND status = 'pending'",
+  strip:
+    "UPDATE alumni_submissions SET status = ?, name = '', batch = '', department = '', current_role = '', company = '', location = '', photo = '', linkedin = '', email = '', phone = '', help_with = '', ip_hash = NULL, reviewed_by = ?, reviewed_at = ?, alumni_id = ? WHERE id = ? AND status = 'pending'",
+};

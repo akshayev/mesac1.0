@@ -423,7 +423,7 @@ export async function deleteAdmin(
 // Activity log
 // ---------------------------------------------------------------------------------------------------------
 
-export type AuditEntity = EntityName | "settings" | "admins" | "media";
+export type AuditEntity = EntityName | "settings" | "admins" | "media" | "submissions";
 
 /** Entities whose content is public anyway, so a name/title/key is a harmless label. */
 const LABELLED = new Set<AuditEntity>(["team", "achievements", "placements", "settings"]);
