@@ -7,6 +7,7 @@
     "dev": "vite dev --host 0.0.0.0 --port 3000",
     "prebuild": "npm run data:all && npm run seo",
     "build": "vite build",
+    "postbuild": "node scripts/render-wrangler.mjs",
     "build:dev": "vite build --mode development",
     "preview": "npx --yes wrangler@4.166.0 dev --config .output/server/wrangler.json --port 8787",
     "lint": "eslint .",
@@ -17,7 +18,12 @@
     "data:all": "npm run data:archive && npm run data:sheet",
     "check:deploy": "node scripts/check-deploy.mjs",
     "seo": "node scripts/seo.mjs",
-    "photos": "node scripts/compress-photos.mjs"
+    "photos": "node scripts/compress-photos.mjs",
+    "db:migrate:local": "node scripts/local-d1.mjs migrate",
+    "db:seed:local": "node scripts/local-d1.mjs seed",
+    "db:admin:local": "node scripts/local-d1.mjs add-admin",
+    "db:import-sheet": "node scripts/import-sheet-to-d1.mjs",
+    "dev:admin": "node scripts/dev-admin.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",

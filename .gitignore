@@ -11,13 +11,16 @@ node_modules
 dist
 dist-ssr
 .output
+.output-dev
 .vinxi
 .tanstack/**
 .nitro
 *.local
 
-# Wrangler / Cloudflare
+# Wrangler / Cloudflare (local D1/R2 data lives in .wrangler/state)
 .wrangler/
+# SQL generated from Sheet data for the one-time D1 import (contains personal data)
+*.d1-import.sql
 .dev.vars
 
 # Editor directories and files

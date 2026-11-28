@@ -32,6 +32,9 @@ if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
 
 const useFixture = process.argv.includes("--fixture");
 const DEPLOYING = ["1", "true"].includes(String(process.env.DEPLOY ?? "").toLowerCase());
+// Admin dashboard mode: the public pages read the D1 database, not these snapshots, so Sheet problems are
+// reported but never stop the deploy (the Sheet secrets may even be removed).
+const D1_MODE = String(process.env.D1_DATABASE_ID ?? "").trim() !== "";
 const RETRY_BASE_MS = Number(process.env.RETRY_BASE_MS) || 800;
 const ALLOW_SHRINK = ["1", "true"].includes(
   String(process.env.SHEET_ALLOW_SHRINK ?? "").toLowerCase(),
@@ -225,6 +228,12 @@ async function main() {
   console.log(
     `data:sheet: source=${s.source} -> src/data/generated/{${Object.keys(TABS).join(",")}}.json`,
   );
+  if (problems.length && DEPLOYING && D1_MODE) {
+    console.warn(
+      `data:sheet: D1_DATABASE_ID is set (admin dashboard mode), so these do not stop the deploy:\n  - ${problems.join("\n  - ")}`,
+    );
+    return;
+  }
   if (problems.length && DEPLOYING) {
     throw new Error(
       `refusing to continue with DEPLOY set:\n  - ${problems.join("\n  - ")}\nThe previous snapshots were kept.`,

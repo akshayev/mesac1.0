@@ -13,3 +13,5 @@ src/data/subjects.json
 data
 .output
 scripts/fixtures
+.output-dev
+.wrangler

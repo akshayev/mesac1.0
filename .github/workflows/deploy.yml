@@ -6,6 +6,11 @@
 #
 # It refuses to deploy sample data: `check:deploy` fails the run if the Drive or Sheet report still says
 # "source": "fixture", or if SITE_URL is missing. Nothing is committed back to the repository.
+#
+# The admin dashboard (Cloudflare D1 + R2 + Access) is optional. Only when the D1_DATABASE_ID secret is set
+# does the build add the database bindings and this workflow apply the database migrations and add the
+# first admins before deploying. Without it the site runs from the Google Sheet as before.
+# See docs/OWNER-DEPLOYMENT-GUIDE.md.
 # Secret names are listed in HANDOVER.md.
 
 name: Build and deploy
@@ -103,6 +108,11 @@ jobs:
           VITE_REPORT_FORM_URL: ${{ secrets.VITE_REPORT_FORM_URL }}
           VITE_REPORT_FORM_FILE_ENTRY: ${{ secrets.VITE_REPORT_FORM_FILE_ENTRY }}
           SITE_URL: ${{ secrets.SITE_URL }}
+          # Admin dashboard (optional; scripts/render-wrangler.mjs adds the bindings when D1_DATABASE_ID is set)
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          CF_ACCESS_TEAM_DOMAIN: ${{ secrets.CF_ACCESS_TEAM_DOMAIN }}
+          CF_ACCESS_AUD: ${{ secrets.CF_ACCESS_AUD }}
 
       # Keep the reports (what was indexed, which rows/files were skipped) so a failed run can be diagnosed.
       - name: Save data reports
@@ -123,6 +133,36 @@ jobs:
         env:
           DEPLOY: "1"
           SITE_URL: ${{ secrets.SITE_URL }}
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+
+      # The next two steps run only in admin dashboard mode (D1_DATABASE_ID secret set). The value is never
+      # printed; only "enabled=true/false" is recorded.
+      - name: Is the admin database configured?
+        id: d1
+        run: |
+          if [ -n "$D1_DATABASE_ID" ]; then echo "enabled=true" >> "$GITHUB_OUTPUT"; else echo "enabled=false" >> "$GITHUB_OUTPUT"; fi
+        env:
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+
+      # Applies new files from migrations/ (each runs once) before the new code goes live.
+      - name: Apply database migrations
+        if: steps.d1.outputs.enabled == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.166.0"
+          command: d1 migrations apply DB --remote --config .output/server/wrangler.json
+
+      # Adds the emails in ADMIN_BOOTSTRAP_EMAILS as admins, but only while the admin list is empty (so a
+      # removed admin is never re-added). The script validates every email and prints counts only.
+      - name: Add the first admins (only while the admin list is empty)
+        if: steps.d1.outputs.enabled == 'true'
+        run: node scripts/bootstrap-admins.mjs
+        env:
+          ADMIN_BOOTSTRAP_EMAILS: ${{ secrets.ADMIN_BOOTSTRAP_EMAILS }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
