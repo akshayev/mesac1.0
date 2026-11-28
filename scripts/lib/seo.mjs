@@ -69,6 +69,7 @@ export function buildSitemap({ siteUrl, paths, docs = [] }) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
+/** /admin is the private dashboard (also sent with X-Robots-Tag: noindex). */
 export function buildRobots(siteUrl) {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${normalizeSiteUrl(siteUrl)}/sitemap.xml\n`;
+  return `User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ${normalizeSiteUrl(siteUrl)}/sitemap.xml\n`;
 }

@@ -4,5 +4,5 @@
     "/about": "/about-mesac",
     "/team": "/about-mesac/team"
   },
-  "exclude": ["/downloads"]
+  "exclude": ["/downloads", "/admin", "/admin/"]
 }

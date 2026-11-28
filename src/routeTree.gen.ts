@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutMesacRouteImport } from './routes/about-mesac'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as AchievementsRouteImport } from './routes/achievements'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AlumniRouteImport } from './routes/alumni'
 import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -23,6 +24,8 @@ import { Route as PlacementsRouteImport } from './routes/placements'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TeamRouteImport } from './routes/team'
 import { Route as AboutMesacTeamRouteImport } from './routes/about-mesac_.team'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminSectionRouteImport } from './routes/admin.$section'
 import { Route as ArchiveDocumentIdRouteImport } from './routes/archive_.$documentId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -48,6 +51,11 @@ const AcademyRoute = AcademyRouteImport.update({
 const AchievementsRoute = AchievementsRouteImport.update({
   id: '/achievements',
   path: '/achievements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlumniRoute = AlumniRouteImport.update({
@@ -95,6 +103,16 @@ const AboutMesacTeamRoute = AboutMesacTeamRouteImport.update({
   path: '/about-mesac/team',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSectionRoute = AdminSectionRouteImport.update({
+  id: '/$section',
+  path: '/$section',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ArchiveDocumentIdRoute = ArchiveDocumentIdRouteImport.update({
   id: '/archive_/$documentId',
   path: '/archive/$documentId',
@@ -107,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
+  '/admin': typeof AdminRouteWithChildren
   '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
@@ -116,7 +135,9 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
   '/about-mesac/team': typeof AboutMesacTeamRoute
+  '/admin/$section': typeof AdminSectionRoute
   '/archive/$documentId': typeof ArchiveDocumentIdRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,7 +154,9 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
   '/about-mesac/team': typeof AboutMesacTeamRoute
+  '/admin/$section': typeof AdminSectionRoute
   '/archive/$documentId': typeof ArchiveDocumentIdRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,6 +165,7 @@ export interface FileRoutesById {
   '/about-mesac': typeof AboutMesacRoute
   '/academy': typeof AcademyRoute
   '/achievements': typeof AchievementsRoute
+  '/admin': typeof AdminRouteWithChildren
   '/alumni': typeof AlumniRoute
   '/archive': typeof ArchiveRoute
   '/contact': typeof ContactRoute
@@ -151,7 +175,9 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/team': typeof TeamRoute
   '/about-mesac_/team': typeof AboutMesacTeamRoute
+  '/admin/$section': typeof AdminSectionRoute
   '/archive_/$documentId': typeof ArchiveDocumentIdRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +187,7 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
+    | '/admin'
     | '/alumni'
     | '/archive'
     | '/contact'
@@ -170,7 +197,9 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/team'
     | '/about-mesac/team'
+    | '/admin/$section'
     | '/archive/$documentId'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,7 +216,9 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/team'
     | '/about-mesac/team'
+    | '/admin/$section'
     | '/archive/$documentId'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -195,6 +226,7 @@ export interface FileRouteTypes {
     | '/about-mesac'
     | '/academy'
     | '/achievements'
+    | '/admin'
     | '/alumni'
     | '/archive'
     | '/contact'
@@ -204,7 +236,9 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/team'
     | '/about-mesac_/team'
+    | '/admin/$section'
     | '/archive_/$documentId'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -213,6 +247,7 @@ export interface RootRouteChildren {
   AboutMesacRoute: typeof AboutMesacRoute
   AcademyRoute: typeof AcademyRoute
   AchievementsRoute: typeof AchievementsRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AlumniRoute: typeof AlumniRoute
   ArchiveRoute: typeof ArchiveRoute
   ContactRoute: typeof ContactRoute
@@ -260,6 +295,13 @@ declare module '@tanstack/react-router' {
       path: '/achievements'
       fullPath: '/achievements'
       preLoaderRoute: typeof AchievementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alumni': {
@@ -325,6 +367,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutMesacTeamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/$section': {
+      id: '/admin/$section'
+      path: '/$section'
+      fullPath: '/admin/$section'
+      preLoaderRoute: typeof AdminSectionRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/archive_/$documentId': {
       id: '/archive_/$documentId'
       path: '/archive/$documentId'
@@ -335,12 +391,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminSectionRoute: typeof AdminSectionRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminSectionRoute: AdminSectionRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AboutMesacRoute: AboutMesacRoute,
   AcademyRoute: AcademyRoute,
   AchievementsRoute: AchievementsRoute,
+  AdminRoute: AdminRouteWithChildren,
   AlumniRoute: AlumniRoute,
   ArchiveRoute: ArchiveRoute,
   ContactRoute: ContactRoute,
